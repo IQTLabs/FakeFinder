@@ -27,7 +27,7 @@ submit = Ensemble(load_slowfast_path, load_xcp_path, load_slowfast_path2, load_s
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    text = str(request.get_json(force=True)['text'])
+    video_pth = str(request.get_json(force=True)['video_path'])
     result = submit.test_kernel_video(video_pth)
     return jsonify(result)
 
