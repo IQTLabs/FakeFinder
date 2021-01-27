@@ -30,7 +30,7 @@ git submodule init && git submodule update
 
 ### Usage instructions
 
-Place the relevant model weights in the [weights](./weights) directory.  These can be obtained by running [download_weights.sh](./download_weights.sh) script.
+Place the relevant model weights in the [weights](./weights) directory.
 ``` python
 from ensemble import Ensemble
 submit = Ensemble()
