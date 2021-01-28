@@ -1,5 +1,5 @@
 ## Team: WM
-This folder contains the neceseray code to run inference using the DeepFake Detection (DFDC) solution by team Selim Seferebekov.  For more details on the project please visit the GitHub [repository](https://github.com/cuihaoleo/kaggle-dfdc).
+This folder contains the neceseray code to run inference using the DeepFake Detection (DFDC) solution by team WM.  For more details on the project please visit the GitHub [repository](https://github.com/cuihaoleo/kaggle-dfdc).
 
 ### Requirements
  
