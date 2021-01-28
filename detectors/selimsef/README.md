@@ -13,9 +13,28 @@ This folder contains the neceseray code to run inference using the DeepFake Dete
 - Flask==1.1.2
 - Pillow==8.1.0
 
+### Using Docker
+
+To start a container that has all the requirements for using the model first build the image by running the following command in this directory:
+
+```
+docker build -t selimsef_i .
+```
+To use GPUs in the container you will need to install the [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker). To run the container in interactive mode use the following command.
+
+```
+docker run --runtime=nvidia -it selimsef_i
+``` 
+
+To run the models, the pretrained model weights will need to be placed in the containers `workdir/weights` directory.  This can be done by running the [download_weights.sh](./download_weights.sh) before building the image, or inside the container, or by mounting a volume containing the weights to the container at runtime:
+
+```
+docker run --runtime=nvidia -it -v <path to weight directory>:/workdir/weights  selimsef_i
+```    
+
+
 ### Usage instructions
 
-Place the relevant model weights in the [weights](./weights) directory.  These can be obtained by running [download_weights.sh](./download_weights.sh) script.
 ``` python
 from ensemble import Ensemble
 submit = Ensemble()
