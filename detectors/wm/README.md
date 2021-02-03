@@ -20,7 +20,7 @@ git submodule init && git submodule update
 To start a container that has all the requirements for using the model first build the image by running the following command in this directory:
 
 ```
-docker build -t wm_i
+docker build -t wm_i .
 ```
 To use GPUs in the container you will need to install the [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker).  To run the models, a directory with the pretrained model weights  will need to be mounted in the container's `workdir/weights` directory.  
 
