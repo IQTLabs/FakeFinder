@@ -41,7 +41,8 @@ cfg_mnet = {
 class Config:
     def __init__(self):
         self.cuda = True
-        self.face_model_path = './face_detect_ckpt/mobilenet0.25_Final.pth'
+        self.face_pretrained_path = './weights/mobilenetV1X0.25_pretrain.tar'
+        self.face_model_path = './weights/mobilenet0.25_Final.pth'
         self.model_name = 'mobile0.25'
         self.origin_size = False
         self.confidence_threshold = 0.02
@@ -134,7 +135,8 @@ def detect_face(img_list, detect_record):
 
 def init_face_detecor():
     torch.set_grad_enabled(False)
-    pipeline_cfg.net = RetinaFace(cfg=pipeline_cfg.model_cfg, phase='test')
+    pipeline_cfg.net = RetinaFace(
+        cfg=pipeline_cfg.model_cfg, model_path=pipeline_cfg.face_pretrained_path, phase='test')
     pipeline_cfg.net = load_model(
         pipeline_cfg.net, pipeline_cfg.face_model_path, pipeline_cfg.cuda)
     pipeline_cfg.net.eval()
