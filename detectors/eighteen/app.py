@@ -4,8 +4,7 @@ from ensemble import *
 
 app = Flask(__name__)
 
-global_path = '/home/mlomnitz/mlomnitz/FakeFinder/detectors/eighteen'
-chpt_dir = '{}/weights'.format(global_path)
+chpt_dir = './weights'
 load_slowfast_path = '{}/sf_bc_jc_44000.pth.tar'.format(chpt_dir)
 load_slowfast_path2 = '{}/sf_32000.pth.tar'.format(chpt_dir)
 load_slowfast_path3 = '{}/sf_16x8_bc_jc_44000.pth.tar'.format(chpt_dir)
