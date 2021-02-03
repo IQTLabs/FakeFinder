@@ -37,7 +37,7 @@ mkl-service
 nbconvert==5.6.1
 nbformat==5.0.4
 networkx==2.5
-notebook==6.0.3
+notebook==6.1.5
 numpy==1.18.1
 olefile==0.46
 opencv-python==4.2.0.34
