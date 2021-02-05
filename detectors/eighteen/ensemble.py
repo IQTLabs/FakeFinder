@@ -63,7 +63,7 @@ def detect_face(img_list, detect_record):
     im_shape = img_list[0].shape
     detect_key = str(im_shape[0]) + '*' + str(im_shape[1])
     if detect_key not in detect_record:
-        print(detect_key + ' not in dict')
+        # print(detect_key + ' not in dict')
         im_size_min = np.min(im_shape[0:2])
         im_size_max = np.max(im_shape[0:2])
         resize = float(pipeline_cfg.target_size) / float(im_size_min)
@@ -245,8 +245,8 @@ def get_final_score(score_list, weight_list):
         new_score_list), np.array(new_weight_list)
     if len(new_weights) == 0:
         return -1
-    print('new_scores:', new_scores, 'new_weights',
-          new_weights / np.sum(new_weights))
+    # print('new_scores:', new_scores, 'new_weights',
+         # new_weights / np.sum(new_weights))
     final_score = np.sum(new_scores * (new_weights / np.sum(new_weights)))
     return final_score
 
@@ -344,7 +344,7 @@ def predict_batch(img_list, sf_model1, sf_model2, sf_model3, xcp_model, b3_model
         [0.229, 0.224, 0.225], dtype=np.float32)).reshape([1, -1, 1, 1]).cuda()
 
     for aligned_faces in aligned_faceses:
-        print('aligned_faces shape:', aligned_faces.shape)
+        # print('aligned_faces shape:', aligned_faces.shape)
         aligned_faces = np.float32(aligned_faces)
         face_scale, face_num, align_frames = aligned_faces.shape[
             3], aligned_faces.shape[0], aligned_faces.shape[1]
@@ -383,14 +383,14 @@ def predict_batch(img_list, sf_model1, sf_model2, sf_model3, xcp_model, b3_model
 
     score_list = [sf1_score, sf2_score, sf3_score, sf4_score, xcp_score, b3_score, res34_score, b1_score, b1long_score,
                   b1short_score, b0_score]
-    print(score_list)
+    # print(score_list)
     sf_weight_np, img_weight_np = np.array(
         [10, 8, 4, 8]), np.array([10, 6, 4, 10, 8, 8, 7])
     sf_weight_np = sf_weight_np / np.sum(sf_weight_np) * 0.4
     img_weight_np = img_weight_np / np.sum(img_weight_np) * 0.6
     weight_np = np.concatenate((sf_weight_np, img_weight_np))
     weight_list = list(weight_np)
-    print(weight_list)
+    # print(weight_list)
     final_score = get_final_score_policy(
         score_list, weight_list, len(sf_weight_np), 0.4)
     return final_score
@@ -575,15 +575,15 @@ class Ensemble:
 
         score = 0.5
         try:
-            print(video_pth)
+            # print(video_pth)
             if video_pth.split('.')[-1] != 'mp4':
                 return score
             # extract image
-            print(video_pth)
+            # print(video_pth)
             reader = cv2.VideoCapture(video_pth)
             video_cnt = reader.get(cv2.CAP_PROP_FRAME_COUNT)
             interval = max(1, math.ceil(video_cnt / self.frame_nums))
-            print('video_cnt:', video_cnt, 'interval:', interval)
+            # print('video_cnt:', video_cnt, 'interval:', interval)
             count, test_count = 0, 0
             success = True
             img_list = []
@@ -603,7 +603,7 @@ class Ensemble:
         except Exception as e:
             print(e)
             score = -1
-        print('score:', score)
+        # print('score:', score)
         if score < 0 or score > 1:
             score = 0.5
         return score
