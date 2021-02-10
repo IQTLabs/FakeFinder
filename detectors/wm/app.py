@@ -1,17 +1,29 @@
+import pandas as pd
 import pickle
 from flask import Flask, request, jsonify
 from ensemble import Ensemble
 
 app = Flask(__name__)
 
-submit = Ensemble()
+model = Ensemble()
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    video_pth = str(request.get_json(force=True)['video_path'])
-    result = submit.inference(video_pth)
-    return jsonify(result)
+    video_list = str(request.get_json(force=True)['video_list'])
+    predictions = []
+    for video in video_list:
+        score = 0.5
+        try:
+            # BOTO call here
+            # only keep video name when copying it
+            score = model.inference(video.split('/')[-1])
+        except:
+            pass
+        predictions.append({'filename': video, 'prediction': score})
+
+    result = pd.DataFrame(predictions)
+    return result.to_json()
 
 
 if __name__ == '__main__':
