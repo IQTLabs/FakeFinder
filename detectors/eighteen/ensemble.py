@@ -246,7 +246,7 @@ def get_final_score(score_list, weight_list):
     if len(new_weights) == 0:
         return -1
     # print('new_scores:', new_scores, 'new_weights',
-         # new_weights / np.sum(new_weights))
+        # new_weights / np.sum(new_weights))
     final_score = np.sum(new_scores * (new_weights / np.sum(new_weights)))
     return final_score
 
@@ -565,7 +565,7 @@ class Ensemble:
             self.b1short_model_ckpt, self.cuda)
         self.b0_cls_model = init_b0_cls_model(self.b0_model_ckpt, self.cuda)
 
-    def test_kernel_video(self, video_pth):
+    def inference(self, video_pth):
         post_func = nn.Softmax(dim=1)
 #         init_begin = time.time()
 #         self.init_model()

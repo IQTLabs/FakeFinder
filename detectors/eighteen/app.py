@@ -1,3 +1,4 @@
+import pandas as pd
 import pickle
 from flask import Flask, request, jsonify
 from ensemble import *
@@ -18,17 +19,28 @@ load_b1short_path = '{}/b1_rgb_alldata_58000.pth.tar'.format(chpt_dir)
 load_b0_path = '{}/b0_rgb_58000.pth.tar'.format(chpt_dir)
 
 frame_nums = 160
-submit = Ensemble(load_slowfast_path, load_xcp_path, load_slowfast_path2, load_slowfast_path3, load_b3_path,
-                  load_res34_path, load_b1_path,
-                  load_b1long_path, load_b1short_path, load_b0_path, load_slowfast_path4, frame_nums,
-                  cuda=pipeline_cfg.cuda)
+model = Ensemble(load_slowfast_path, load_xcp_path, load_slowfast_path2, load_slowfast_path3, load_b3_path,
+                 load_res34_path, load_b1_path,
+                 load_b1long_path, load_b1short_path, load_b0_path, load_slowfast_path4, frame_nums,
+                 cuda=pipeline_cfg.cuda)
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    video_pth = str(request.get_json(force=True)['video_path'])
-    result = submit.test_kernel_video(video_pth)
-    return jsonify(result)
+    video_list = str(request.get_json(force=True)['video_list'])
+    predictions = []
+    for video in video_list:
+        score = 0.5
+        try:
+            # BOTO call here
+            # only keep video name when copying it
+            score = model.inference(video.split('/')[-1])
+        except:
+            pass
+        predictions.append({'filename': video, 'prediction': score})
+
+    result = pd.DataFrame(predictions)
+    return result.to_json()
 
 
 if __name__ == '__main__':

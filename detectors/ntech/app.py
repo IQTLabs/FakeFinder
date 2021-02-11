@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import numpy as np
 import pickle
 from flask import Flask, request, jsonify
@@ -11,21 +12,32 @@ SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_aa-original-mstd0.5_r
 
 app = Flask(__name__)
 
-submit = Ensemble(os.path.join('./weights/', DETECTOR_WEIGHTS_PATH),
-                  os.path.join(
-                      './weights/', VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH),
-                  os.path.join(
-                      './weights/', FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH),
-                  os.path.join(
-                      './weights/', SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
-                  )
+model = Ensemble(os.path.join('./weights/', DETECTOR_WEIGHTS_PATH),
+                 os.path.join(
+    './weights/', VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH),
+    os.path.join(
+    './weights/', FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH),
+    os.path.join(
+    './weights/', SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
+)
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    video_pth = str(request.get_json(force=True)['video_path'])
-    result = submit.inference(video_pth)
-    return jsonify(result)
+    video_list = str(request.get_json(force=True)['video_list'])
+    predictions = []
+    for video in video_list:
+        score = 0.5
+        try:
+            # BOTO call here
+            # only keep video name when copying it
+            score = model.inference(video.split('/')[-1])
+        except:
+            pass
+        predictions.append({'filename': video, 'prediction': score})
+
+    result = pd.DataFrame(predictions)
+    return result.to_json()
 
 
 if __name__ == '__main__':
