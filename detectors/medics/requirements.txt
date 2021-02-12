@@ -15,3 +15,4 @@ mmdet==2.9.0
 scikit_learn==0.24.1
 pandas==1.0.3
 albumentations==0.5.2
+boto3==1.17.5

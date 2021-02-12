@@ -1,7 +1,9 @@
+import os
 import pandas as pd
 import pickle
 from flask import Flask, request, jsonify
 from ensemble import *
+import boto3
 
 app = Flask(__name__)
 
@@ -23,6 +25,9 @@ model = Ensemble(load_slowfast_path, load_xcp_path, load_slowfast_path2, load_sl
                  load_res34_path, load_b1_path,
                  load_b1long_path, load_b1short_path, load_b0_path, load_slowfast_path4, frame_nums,
                  cuda=pipeline_cfg.cuda)
+BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
+
+s3 = boto3.resource('s3')
 
 
 @app.route('/predict', methods=['POST'])
@@ -32,9 +37,9 @@ def predict():
     for video in video_list:
         score = 0.5
         try:
-            # BOTO call here
-            # only keep video name when copying it
+            s3.Bucket(BUCKET_NAME).download_file(video, video)
             score = model.inference(video.split('/')[-1])
+            os.remove(video)
         except:
             pass
         predictions.append({'filename': video, 'prediction': score})
