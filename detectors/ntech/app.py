@@ -4,6 +4,7 @@ import numpy as np
 import pickle
 from flask import Flask, request, jsonify
 from ensmble import Ensemble
+import boto3
 
 DETECTOR_WEIGHTS_PATH = 'WIDERFace_DSFD_RES152.fp16.pth'
 VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_seq_aa-original-mstd0.5_100k_v4_cad79a/snapshot_100000.fp16.pth'
@@ -20,6 +21,9 @@ model = Ensemble(os.path.join('./weights/', DETECTOR_WEIGHTS_PATH),
     os.path.join(
     './weights/', SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
 )
+BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
+
+s3 = boto3.resource('s3')
 
 
 @app.route('/predict', methods=['POST'])
@@ -29,9 +33,9 @@ def predict():
     for video in video_list:
         score = 0.5
         try:
-            # BOTO call here
-            # only keep video name when copying it
+            s3.Bucket(BUCKET_NAME).download_file(video, video)
             score = model.inference(video.split('/')[-1])
+            os.remove(video)
         except:
             pass
         predictions.append({'filename': video, 'prediction': score})
