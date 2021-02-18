@@ -32,17 +32,18 @@ s3 = boto3.resource('s3')
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    video_list = str(request.get_json(force=True)['video_list'])
+    video_list = request.get_json(force=True)['video_list']
     predictions = []
-    for video in video_list:
+    for filename in video_list:
         score = 0.5
+        video = filename.rsplit('/',1)[-1]
         try:
             s3.Bucket(BUCKET_NAME).download_file(video, video)
-            score = model.inference(video.split('/')[-1])
+            score = model.inference(video)
             os.remove(video)
         except:
             pass
-        predictions.append({'filename': video, 'prediction': score})
+        predictions.append({'filename': video, 'eighteen': score})
 
     result = pd.DataFrame(predictions)
     return result.to_json()
