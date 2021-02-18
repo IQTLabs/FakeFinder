@@ -75,11 +75,17 @@ class FakeFinderPost(Resource):
                        for loc in r['s3Location']:
                            # TODO: If uploadFile is marked true, then upload file to S3
                            print(loc)
-                           response = requests.post(url, json={'video_list': loc}, headers=headers)
+                           response = requests.post(url, json={'video_list': [loc]}, headers=headers)
                     else:
                        # TODO: If uploadFile is marked true, then upload file to S3
                        print(r['s3Location'])
+                       response = requests.post(url, json={'video_list': [r['s3Location']]}, headers=headers)
+                 else:
+                    # TODO: If uploadFile is marked true, then upload file to S3
+                    if type(r['s3Location']) is list:
                        response = requests.post(url, json={'video_list': r['s3Location']}, headers=headers)
+                    else:
+                       response = requests.post(url, json={'video_list': [r['s3Location']]}, headers=headers)
         elif type(api.payload) is dict:
              # request contains a single model
              url = model_url_dict[api.payload['modelName']]
@@ -91,13 +97,19 @@ class FakeFinderPost(Resource):
                    for loc in api.payload['s3Location']:
                        # TODO: If uploadFile is marked true, then upload file to S3
                        print(loc)
-                       response = requests.post(url, json={'video_list': loc}, headers=headers)
+                       response = requests.post(url, json={'video_list': [loc]}, headers=headers)
                 else:
                        # TODO: If uploadFile is marked true, then upload file to S3
                        print(api.payload['s3Location'])
-                       response = requests.post(url, json={'video_list': api.payload['s3Location']}, headers=headers)
+                       response = requests.post(url, json={'video_list': [api.payload['s3Location']]}, headers=headers)
+             else:
+                # TODO: If uploadFile is marked true, then upload file to S3
+                if type(api.payload['s3Location']) is list:
+                   response = requests.post(url, json={'video_list': api.payload['s3Location']}, headers=headers)
+                else:
+                   response = requests.post(url, json={'video_list': [api.payload['s3Location']]}, headers=headers)
         print(response.json())
-        print(response.text)
+        #print(response.text)
         return DAO.create(api.payload), 201
 
 
