@@ -3,4 +3,5 @@ RUN apt-get update && apt-get install -y wget libglib2.0-0 libsm6 libxext6 libxr
 WORKDIR /workdir
 COPY . /workdir
 RUN pip3 install -r requirements.txt
-CMD ["/bin/bash"]
+EXPOSE 5000
+CMD ["python3","app.py"]
