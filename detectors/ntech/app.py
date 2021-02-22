@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import pickle
 from flask import Flask, request, jsonify
-from ensmble import Ensemble
+from ensemble import Ensemble
 import boto3
 
 DETECTOR_WEIGHTS_PATH = 'WIDERFace_DSFD_RES152.fp16.pth'
