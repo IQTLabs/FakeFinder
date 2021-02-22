@@ -16,3 +16,4 @@ scikit_learn==0.24.1
 pandas==1.0.3
 albumentations==0.5.2
 boto3==1.17.5
+Flask==1.1.2
