@@ -596,10 +596,11 @@ class Ensemble:
                     success = reader.grab()
                 count += 1
             reader.release()
-            score = predict_batch(img_list, self.face_cls_model, self.face_cls_model2, self.face_cls_model3,
-                                  self.xcp_cls_model, self.b3_cls_model, self.res34_cls_model, self.b1_cls_model,
-                                  self.b1long_cls_model, self.b1short_cls_model, self.b0_cls_model,
-                                  self.face_cls_model4, post_func, self.detect_record)
+            with torch.no_grad():
+                score = predict_batch(img_list, self.face_cls_model, self.face_cls_model2, self.face_cls_model3,
+                                      self.xcp_cls_model, self.b3_cls_model, self.res34_cls_model, self.b1_cls_model,
+                                      self.b1long_cls_model, self.b1short_cls_model, self.b0_cls_model,
+                                      self.face_cls_model4, post_func, self.detect_record)
         except Exception as e:
             print(e)
             score = -1
