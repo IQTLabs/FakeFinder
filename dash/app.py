@@ -2,6 +2,14 @@ import dash
 import dash_auth
 import dash_bootstrap_components as dbc
 
+import os
+import logging
+from apps.definitions import REPO_DIR
+
+log_file_name = os.path.join(REPO_DIR, 'dash-logger.log')
+logging.basicConfig(filename=log_file_name, level=logging.DEBUG)
+
+
 #from flask import Flask, Response
 #server = Flask(__name__)
 

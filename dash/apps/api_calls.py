@@ -7,8 +7,6 @@ import requests
 import json
 
 
-#logging.basicConfig(filename='dash-logger.log', level=logging.DEBUG)
-
 # Build an inference model request
 def BuildInferenceRequest(filename='', bucket='', model_list=[]):
 
