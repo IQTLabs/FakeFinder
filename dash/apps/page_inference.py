@@ -384,7 +384,7 @@ def update_options_list(n_clicks):
 
 # Video callbacks
 
-@server.route('/data<path:path>')
+@server.route('/data/<path:path>')
 def serve_static(path):
     root_dir = os.getcwd()
     print('Root Dir: ', root_dir)
