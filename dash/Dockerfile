@@ -1,13 +1,13 @@
-FROM python:3.8-slim-buster
+FROM python:3.7
 
-RUN mkdir app
-WORKDIR app
+WORKDIR /app
 
-COPY . ./
-COPY app.prod ./app.py
+#ADD . /app
+ADD requirements.txt /app
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN pip install --trusted-host pypi.python.org gunicorn gevent
 
-RUN pip3 install -r requirements.txt
+EXPOSE 80
 
-EXPOSE 8050
-
-CMD [ "gunicorn", "--workers=3", "--threads=1", "-b 0.0.0.0:8050", "index:server"]
+CMD ["python", "index.py"]
+#CMD ["gunicorn", "-w 4", "-b 0.0.0.0:80", "app:server"]

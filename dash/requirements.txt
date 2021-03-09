@@ -2,6 +2,8 @@ numpy
 matplotlib
 scipy
 pandas
+boto3
+requests
 plotly
 gunicorn
 xlsxwriter
@@ -11,6 +13,7 @@ dash>=1.16.0
 dash_auth
 dash-html-components
 dash-core-components
+dash-uploader
 dash_player
 dash_bootstrap_components
 dash-table

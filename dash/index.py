@@ -8,19 +8,21 @@ import dash_bootstrap_components as dbc
 from app import app
 # import pages for the app
 from apps import home, page_inference
-#, page_table, page_inference
 
 server = app.server
+
+#color_scheme = '#f75040'
+color_scheme = '#130047'
+#color_scheme = '#027bfc'
+#color_scheme = 'light'
 
 # building the upper navigation bar
 dropdown = dbc.Navbar(children=[
                 dbc.NavItem(dbc.NavLink("About FakeFinder", href="{}/home".format(APP_PATH), external_link=True)),
                 dbc.NavItem(dbc.NavLink("|", active=False, disabled=True)),
                 dbc.NavItem(dbc.NavLink("Inference Tool", href="{}/page_inference".format(APP_PATH), external_link=True)),
-                #dbc.NavItem(dbc.NavLink("|", active=False, disabled=True)),
-                #dbc.NavItem(dbc.NavLink("Data Table", href="{}/page_table".format(APP_PATH), external_link=True)),
                ],
-               color="dark",
+               color=color_scheme,
                dark=True,
                className="ml-1",
                style={'font-size':'1.5em'})
@@ -40,18 +42,6 @@ logo_bar = dbc.Container(
                                                  ], href='https://www.iqt.org/labs/'),
                                           width=4
                                          ),
-                                  #dbc.Col(
-                                  #        html.A([
-                                  #        html.Img(src="{}/assets/BNext_Logo.png".format(APP_PATH),
-                                  #                 style={
-                                  #                        'height' : '85px',
-                                  #                        'padding-top' : 25,
-                                  #                        'padding-bottom' : 0,
-                                  #                       }
-                                  #                )
-                                  #               ], href='https://www.bnext.org/'),
-                                  #        width=4
-                                  #       ),
                                  ],
                                  justify="between")
                         ]
@@ -61,6 +51,17 @@ navbar = dbc.Navbar(
 
     dbc.Container(
         [
+            html.A([
+                    html.Img(src="{}/assets/FakeFinder_Logo.png".format(APP_PATH),
+                             style={
+                                    'height' : '100px',
+                                    'padding-top' : 10,
+                                    'padding-bottom' : 10,
+                                    'padding-right' : 40,
+                                    'padding-left' : 0,
+                                   }
+                            )
+                   ], href='https://www.iqt.org/labs/'),
             html.A(
                 # Use row and col to control vertical alignment of logo / brand
                 dbc.Row(
@@ -81,9 +82,20 @@ navbar = dbc.Navbar(
                 id="navbar-collapse2",
                 navbar=True,
             ),
+            html.A([
+                    html.Img(src="{}/assets/iqt-Labs-full-color.jpg".format(APP_PATH),
+                             style={
+                                    'height' : '100px',
+                                    'padding-top' : 10,
+                                    'padding-bottom' : 10,
+                                    'padding-right' : 0,
+                                    'padding-left' : 40,
+                                   }
+                            )
+                   ], href='https://www.iqt.org/labs/'),
         ]
     ),
-    color="dark",
+    color=color_scheme,
     dark=True,
     className="mb-4",
 )
@@ -103,7 +115,7 @@ for i in [2]:
 # embedding the navigation bar
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
-    logo_bar,
+    #logo_bar,
     navbar,
     html.Div(id='page-content')
 ])
@@ -121,4 +133,5 @@ def display_page(pathname):
 
 if __name__ == '__main__':
     #app.run_server(port=PORT, debug=False)
-    app.run_server(host='127.0.0.1', debug=True)
+   # app.run_server(host='127.0.0.1', debug=True)
+    app.run_server(host='0.0.0.0', debug=True)
