@@ -9,11 +9,17 @@ import dash_table
 import dash_uploader as du
 import dash_html_components as html
 import dash_core_components as dcc
+import plotly.graph_objects as go
+import plotly.express as px
 from dash.dependencies import Input, Output, State
 
-import base64
 import os
+import base64
+import numpy as np
 from urllib.parse import quote as urlquote
+
+import boto3
+import flask
 
 from .api_calls import UploadFileToS3, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExistsS3
 from .definitions import REPO_DIR, DATA_DIR, BUCKET_NAME, FF_URL
@@ -109,23 +115,36 @@ layout = html.Div([
         },
         children=[
 
-
-            html.Video(
-                controls = True,
+            dash_player.DashPlayer(
                 id='movie-player',
-                #src = "https://www.youtube.com/watch?v=gPtn6hD7o8g",
-                #src="https://www.w3schools.com/html/mov_bbb.mp4",
-                #src="/static/fake_gaivvgpke.mp4",
-                #src="/home/ubuntu/FakeFinder/dash/data/fake_gaivvgpke.mp4",
-                #src="/app/data/fake_gaivvgpke.mp4",
-                src="https://ff-inbound-videos.s3.amazonaws.com/fake_gaivvgpkem.mp4",
-                autoPlay=False,
-                style={
-                    'width': '80%',
-                    'float': 'left',
-                    'margin': '0% 5% 1% 5%'
-                },
+                #url='http://media.w3.org/2010/05/bunny/movie.mp4',
+                #url="/data/fake_gbvgksqusp.mp4",
+                url="/app/data/fake_gbvgksqusp.mp4",
+                #url='https://ff-inbound-videos.s3.amazonaws.com/fake_gbvgksqusp.mp4',
+                #url='http://ff-inbound-videos.s3-website-us-east-1.amazonaws.com/real_abajdarwnl.mp4',
+                controls=True,
+                playing=False,
+                volume=1,
+                width='85%',
+                height='80%'
             ),
+
+            #html.Video(
+            #    controls = True,
+            #    id='movie-player',
+            #    #src = "https://www.youtube.com/watch?v=gPtn6hD7o8g",
+            #    #src="https://www.w3schools.com/html/mov_bbb.mp4",
+            #    #src="/static/fake_gaivvgpke.mp4",
+            #    #src="/home/ubuntu/FakeFinder/dash/data/fake_gaivvgpke.mp4",
+            #    #src="/app/data/fake_gaivvgpke.mp4",
+            #    src="https://ff-inbound-videos.s3.amazonaws.com/fake_gaivvgpkem.mp4",
+            #    autoPlay=False,
+            #    style={
+            #        'width': '80%',
+            #        'float': 'left',
+            #        'margin': '0% 5% 1% 5%'
+            #    },
+            #),
             
             #html.Div(
             #         className='video-outer-container',
@@ -135,7 +154,6 @@ layout = html.Div([
             #                 id='video-display',
             #                 style={'position': 'absolute', 'width': '100%',
             #                        'height': '100%', 'top': '0', 'left': '0', 'bottom': '0', 'right': '0'},
-            #                 #url=video_fname,
             #                 url='https://www.youtube.com/watch?v=2svOtXaD3gg&t=35s&ab_channel=CtrlShiftFace',
             #                 controls=True,
             #                 playing=False,
@@ -171,8 +189,7 @@ layout = html.Div([
 
     #        dash_player.DashPlayer(
     #            id='video-player',
-    #            url=video_fname,
-    #            #url='https://youtu.be/2svOtXaD3gg',
+    #            url='https://youtu.be/2svOtXaD3gg',
     #            controls=True,
     #            playing=False,
     #            volume=1,
@@ -190,8 +207,7 @@ layout = html.Div([
 
     #        dcc.Input(
     #            id='input-url',
-    #            value=video_fname
-    #            #value='https://youtu.be/2svOtXaD3gg'
+    #            value='https://youtu.be/2svOtXaD3gg'
     #        ),
 
     #        html.Button('Change URL', id='button-update-url'),
@@ -275,6 +291,8 @@ layout = html.Div([
             html.Div(id='inference-results'),
 
             html.Div(id='table-cont'),
+
+            dcc.Graph(id='graph-with-slider'),
 
         ]
     ),
@@ -383,12 +401,27 @@ def update_options_list(n_clicks):
 
 
 # Video callbacks
+# https://gist.github.com/astewart-twist/e835c6289d5017ee06a6
+#@server.route('/static/<path:path>')
+@server.route('/app/data/<path:path>')
+def static_proxy(path):
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(BUCKET_NAME)
+    key = s3.key.Key(bucket)
+    key.key = path
 
-@server.route('/data/<path:path>')
-def serve_static(path):
-    root_dir = os.getcwd()
-    print('Root Dir: ', root_dir)
-    return flask.send_from_directory(os.path.join(root_dir, 'data'), path)
+    try:
+        key.open_read()
+        headers = dict(key.resp.getheaders())
+        return flask.Response(key, headers=headers)
+    except botocore.exceptions.S3ResponseError as e:
+        return flask.Response(e.body, status=e.status, headers=key.resp.getheaders())
+
+#@server.route('/data/<path:path>')
+#def serve_static(path):
+#    root_dir = os.getcwd()
+#    print('Root Dir: ', root_dir)
+#    return flask.send_from_directory(os.path.join(root_dir, 'data'), path)
 
 
 
@@ -399,6 +432,70 @@ def serve_static(path):
 #def update_src(value):
 #    print('Value: ', value)
 #    return value
+
+
+
+# Bar chart of results
+def bar_chart(data):
+    data = {'selimsef' : {'score' : 0.5},
+            'eighteen' : {'score' : 0.9},
+            'wm' : {'score' : 0.2}}
+    x_vals = np.asarray([data[key]['score'] for key in data])
+    y_vals = np.asarray([key for key in data])
+    color_scale = color_continuous_scale=[(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
+    fig = px.bar(x=x_vals, y=y_vals, orientation='h', color=x_vals, color_continuous_scale=color_scale)
+    #fig = px.bar(x=x_vals, y=y_vals, orientation='h', color_continuous_scale='Bluered_r')
+    #fig = go.Figure(go.Bar(
+    #                       x=[0.1, 0.5, 0.9],
+    #                       y=['giraffes', 'orangutans', 'monkeys'],
+    #                       orientation='h', 
+    #                       marker={'color':'rgb(2, 123, 252)'},
+    #                       color_continuous_scale='Bluered_r',
+    #                      )
+    #               )
+
+    fig.add_vline(x=0.5, line_width=2, line_dash="dash", line_color="rgb(247, 80, 64)")
+    fig.update_coloraxes(
+        cmin=0.,
+        cmax=1.,
+    )
+    fig.update_layout(
+        title='Model Scores',
+        xaxis_title='Scores',
+        yaxis_title='',
+        coloraxis_colorbar=dict(
+            title='Score',
+            ticks='outside',
+            tickmode='array',
+            tickvals=[0., 0.25, 0.5, 0.75, 1.],
+            ticktext=['0 - Real', '0.25', '0.5', '.75', '1 - Fake']
+            ),
+        xaxis=dict(
+            showgrid=True,
+            showline=True,
+            showticklabels=True,
+            zeroline=True,
+            domain=[0., 1.]
+        ),
+        yaxis=dict(
+            showgrid=True,
+            showline=True,
+            showticklabels=True,
+            zeroline=True,
+        ),
+        paper_bgcolor='rgb(248, 248, 255)',
+        plot_bgcolor='rgb(248, 248, 255)',
+        margin=dict(l=80, r=80, t=80, b=80),
+        showlegend=False,
+    )
+
+    return fig
+
+# Callback for graph display
+@app.callback(Output('graph-with-slider', 'figure'),
+              [Input('inference-results', 'data')])
+def update_graph(input_data_dict):
+    return bar_chart(data=input_data_dict)
 
 
 
