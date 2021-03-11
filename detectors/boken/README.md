@@ -13,6 +13,8 @@ This folder contains the neceseray code to run inference using the [DeeperForens
 - facenet_pytorch==2.5.1
 - Pillow==8.1.1
 - pretrainedmodels==0.7.4
+- Flask==1.1.2
+- pandas==1.0.3
 
 ### Usage instructions
 
