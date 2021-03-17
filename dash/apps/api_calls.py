@@ -50,6 +50,8 @@ def GetModelList(url='', debug=False):
 # Function to submit a inference request
 def SubmitInferenceRequest(url='', dict_list=[], debug=False):
     if debug:
+        import time
+        time.sleep(2)
         return [{"filename": {"0": "real_abajdarwnl.mp4"}, "wm": {"0": 0.0460696332}}, 
                 {"filename": {"0": "real_abajdarwnl.mp4"}, "selimsef": {"0": 0.0113754272}}, 
                 {"filename": {"0": "real_abajdarwnl.mp4"}, "medics": {"0": 0.0450550006}}, 
@@ -67,9 +69,12 @@ def SubmitInferenceRequest(url='', dict_list=[], debug=False):
 
 
 # Check if file exists in s3 bucket
-def CheckFileExistsS3(file_name='', bucket=[], object_name=None):
-    import time
-    time.sleep(3)
+def CheckFileExistsS3(file_name='', bucket=[], object_name=None, debug=False):
+    if debug:
+        import time
+        time.sleep(3)
+        return True
+
     # If S3 object_name was not specified, use file_name
     if object_name is None:
         object_name = file_name
@@ -86,9 +91,11 @@ def CheckFileExistsS3(file_name='', bucket=[], object_name=None):
     
 
 # Upload file to s3 bucket call
-def UploadFileToS3(file_name='', bucket=[], object_name=None):
-    import time
-    time.sleep(2)
+def UploadFileToS3(file_name='', bucket=[], object_name=None, debug=False):
+    if debug:
+        import time
+        time.sleep(2)
+        return True
 
     # If S3 object_name was not specified, use file_name
     if object_name is None:

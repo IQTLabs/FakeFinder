@@ -35,8 +35,8 @@ from app import app, server
 empty_string = ''
 
 # Debug flag for if no server connectivity
-debug = False
-#debug = True
+#debug = False
+debug = True
 
 
 # Get available model list from API
@@ -75,6 +75,7 @@ def set_results_dict(model_list=[], inference_results=[]):
                                          'label' : 'Fake'}
             else:
                 results_dict[i_model] = {'score' : score,
+                                         #'color' : '#027bfc',
                                          'color' : '#7dc53e',
                                          'label' : 'Real'}
 
@@ -318,12 +319,13 @@ layout = html.Div([
             # Div for s3 call 
             html.Div(id='file-on-s3'),
        
-            html.Hr(),
+            #html.Hr(),
        
             # Loading circle for submission feedback
             dcc.Loading(id='running-inference',
                         color='#027bfc',
-                        type='circle'),
+                        type='circle',
+                        ),
 
             # Div to get results output
             html.Div(id='inference-results'),
@@ -406,6 +408,22 @@ def print_file_and_model_list(model_list=[], filename=''):
     return dcc.Markdown(dedent(message))
 
 
+## Message for upload loading
+#@app.callback(Output('printing-upload-loading', 'children'),
+#              [Input('send-to-aws', 'n_clicks'),
+#               Input('loading-s3upload', 'loading_state'),
+#               Input('running-inference', 'loading_state')])
+#def print_upload_loading(button_clicks, upload_loading_state, inference_loading_state):
+#    message = ''
+#    print('Testing')
+#    print(upload_loading_state, inference_loading_state)
+#    if upload_loading_state:
+#        if upload_loading_state['is_loading']:
+#            message = 'Uploading file'
+#            print(message)
+#    return dcc.Markdown(dedent(message))
+
+
 
 # Print feedback from file upload with loading circle
 @app.callback([Output('loading-s3upload', 'children'),
@@ -419,16 +437,17 @@ def upload_file_to_s3(button_clicks, fname=''):
     # Flag for file on s3 is success (True) or failure (False)
     file_on_s3 = False
 
+    message = ''
     # Check if a file is selected
     if not fname:
-        message = ''#Please select a file for submission.'
         return [dcc.Markdown(dedent(message)), file_on_s3]
 
     # Check if file on AWS
     s3_obj_name = os.path.basename(fname)
     file_on_s3 = CheckFileExistsS3(file_name=fname,
                                    bucket=BUCKET_NAME,
-                                   object_name=s3_obj_name)
+                                   object_name=s3_obj_name,
+                                   debug=debug)
 
     # If not on s3 yet, upload
     if file_on_s3:
@@ -436,14 +455,15 @@ def upload_file_to_s3(button_clicks, fname=''):
     else:
         upload_success = UploadFileToS3(file_name=fname, 
                                         bucket=BUCKET_NAME,
-                                        object_name=s3_obj_name)
+                                        object_name=s3_obj_name,
+                                        debug=debug)
 
         # Return messages based on success
         if upload_success:
             file_on_s3 = True
             message = 'File {} sent to S3 Bucket {}'.format(fname, BUCKET_NAME)
         else:
-            message = 'File transfer unsuccessful. Check error log.'.format(fname, BUCKET_NAME)
+            message = 'File transfer **unsuccessful**. Check error log.'.format(fname, BUCKET_NAME)
 
     return [dcc.Markdown(dedent(message)), file_on_s3]
 
@@ -461,8 +481,6 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
     results = []
 
     if file_on_s3:
-        import time
-        time.sleep(1)
         s3_obj_name = os.path.basename(filename)
 
         # Build request
@@ -474,8 +492,10 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
         results = SubmitInferenceRequest(url=FF_URL,
                                          dict_list=request_list,
                                          debug=debug)
-
-        message = 'Inference submission successful.'
+        if results:
+            message = 'Inference submission **successful**. Returning results.'
+        else:
+            message = 'Inference submission **not successful**. Check error log.'
 
     return [html.Div([dcc.Markdown(message)]), results]
     
@@ -553,7 +573,7 @@ def bar_chart(data={}):
     )
     # Titles, tickvals, etc
     fig.update_layout(
-        title='Fakeness Confidence Scores',
+        title='Confidence Scores',
         xaxis_title='Confidence Score',
         yaxis_title='',
         coloraxis_colorbar=dict(
@@ -577,8 +597,10 @@ def bar_chart(data={}):
             showticklabels=True,
             zeroline=True,
         ),
-        paper_bgcolor='rgb(248, 248, 255)',
-        plot_bgcolor='rgb(248, 248, 255)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        #paper_bgcolor='rgb(248, 248, 255)',
+        #plot_bgcolor='rgb(248, 248, 255)',
         margin=dict(l=80, r=80, t=80, b=80),
         showlegend=False,
     )
