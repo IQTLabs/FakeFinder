@@ -12,7 +12,7 @@ The following section covers these steps in more detail.
 ```
 cd detectors/your_detector
 ```
-2. Implement the new detector in this directory.  Wrap it into an ensemble class using Ensemble.py.  The basic ensemble class includes two methods:
+2. Implement the new detector in this directory.  Wrap it into an ensemble class using [Ensemble.py](https://github.com/IQTLabs/FakeFinder/blob/template/detectors/detector_template/ensemble.py).  The basic ensemble class includes two methods:
     1. The ```__init__``` method should initialize the model and load any necessary weights from the local weights directory.  Ideally this ensemble class should load all necessary weights, but this can occur in step 3 if so desired.
     2. The ```inference``` method will be called to make the predictions.  This method should expect to receive the path to a video, run the forensics pipeline for that algorithm, and return the score.  Currently we assigned the following labels:
         - 1: fake/manipualted 
@@ -23,7 +23,7 @@ cd detectors/your_detector
 pip install pipreqs
 pipreqs . 
 ```
-5. Edit the docker file with any additional steps needed to reproduce your working environment.  The template file we have included will:
+5. Edit the [docker file](https://github.com/IQTLabs/FakeFinder/blob/template/detectors/detector_template/Dockerfile) with any additional steps needed to reproduce your working environment.  The template file we have included will:
     - Create a basic linux + python3 system
     - Install the packages in the requirements file
     - Expose port 5000 for external access to/from the API
@@ -40,7 +40,7 @@ This will change the state of the docker container to provide a shell for experi
 ```
 CMD ["python3","app.py"]
 ```
-6. Push the code to your remote repository for use later.  Make sure that your weights are available on your EFS in the ./<your_detector>/ direcory so that it can be correctly mounted when running the container. 
+6. Push the code to your remote repository for use later.  Make sure that your weights are available on your EFS in the ./<your_detector>/ directory so that it can be correctly mounted when running the container. 
 7. Start up a virtual machine and mount the weights.  These instructions assume you are building the system in AWS using EC2 instances.  Once the machine is up and running make a local directory:
 ```
 mkdir data
