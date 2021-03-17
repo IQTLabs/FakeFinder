@@ -40,7 +40,7 @@ This will change the state of the docker container to provide a shell for experi
 ```
 CMD ["python3","app.py"]
 ```
-6. Push the code to your remote repository for use later.  Make sure that your weights are available on your EFS in the ./<your_detector>/ directory so that it can be correctly mounted when running the container. 
+6. Push the code to your remote repository for use later.  Make sure that your weights are available on your EFS in the ./weights./<your_detector>/ directory so that it can be correctly mounted when running the container. 
 7. Start up a virtual machine and mount the weights.  These instructions assume you are building the system in AWS using EC2 instances.  Once the machine is up and running make a local directory:
 ```
 mkdir data
