@@ -23,10 +23,12 @@ from urllib.parse import quote as urlquote
 import boto3
 import flask
 
-from .api_calls import UploadFileToS3, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExistsS3
-from .definitions import REPO_DIR, DATA_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
 from .text.general_text import markdown_text_disclaimer
-from .dash_style_defs import upload_default_style, data_table_header_style, data_table_style_cell, data_table_style_cell_conditional, data_table_style_data_conditional
+from .dash_style_defs import bar_chart_color_scale, upload_default_style
+from .dash_style_defs import data_table_header_style, data_table_style_cell
+from .dash_style_defs import data_table_style_cell_conditional, data_table_style_data_conditional
+from .definitions import REPO_DIR, DATA_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
+from .api_calls import UploadFileToS3, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExistsS3
 
 from app import app, server
 
@@ -75,7 +77,6 @@ def set_results_dict(model_list=[], inference_results=[]):
                                          'label' : 'Fake'}
             else:
                 results_dict[i_model] = {'score' : score,
-                                         #'color' : '#027bfc',
                                          'color' : '#7dc53e',
                                          'label' : 'Real'}
 
@@ -346,7 +347,6 @@ layout = html.Div([
 
         ]
     ),
-
 ])
 
 
@@ -547,7 +547,8 @@ def bar_chart(data={}):
     y_vals = np.asarray(y_vals)
 
     # Make a gradient colorscale based on score value
-    color_scale = [(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
+    #color_scale = [(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
+    color_scale = bar_chart_color_scale
     #color_scale = [(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
     #color_scale = color_continuous_scale=[(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
     color_midpoint = 0.
