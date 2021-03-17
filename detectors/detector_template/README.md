@@ -73,7 +73,7 @@ Once you have verified that the container has built correctly stop the EC2 insta
 <img src="./imgs/instance_id.png" alt="drawing" width="500"/>
 
 9. Log in to your Elastic Container Registry (ECR).  Tag your the docker image <your_detector_i> and push it to your registry.  This archived image will be used later when running batch inference to make as many copies of each worker as is requested to speed up inference.
-10. To link the new detector to the api add the following line to the dictionary in [FakeFinder/api/models.json](/home/mlomnitz/mlomnitz/FakeFinder/api/models.json):
+10. To link the new detector to the api add the following line to the dictionary in [FakeFinder/api/models.json](https://github.com/IQTLabs/FakeFinder/blob/main/api/models.json):
 ```
 <your_detector>:<instance_id>
 ```
