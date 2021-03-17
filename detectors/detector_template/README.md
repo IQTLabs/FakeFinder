@@ -58,7 +58,7 @@ sudo chmod a-w /etc/fstab
 8.Clone the code to this vm instance using:
 ```
 git clone <FakeFinder>
-cd ./fakefinder/detectors/<your_detector>
+cd ./FakeFinder/detectors/<your_detector>
 ```
 and build the associated docker image using:
 ```
