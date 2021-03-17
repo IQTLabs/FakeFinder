@@ -13,6 +13,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 from dash.dependencies import Input, Output, State
 
+import pandas as pd
+
 import os
 import base64
 import numpy as np
@@ -24,12 +26,22 @@ import flask
 from .api_calls import UploadFileToS3, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExistsS3
 from .definitions import REPO_DIR, DATA_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
 from .text.general_text import markdown_text_disclaimer
+from .dash_style_defs import upload_default_style, data_table_header_style, data_table_style_cell, data_table_style_cell_conditional, data_table_style_data_conditional
 
 from app import app, server
 
 
 # Define empty string as default
 empty_string = ''
+
+# Debug flag for if no server connectivity
+debug = False
+#debug = True
+
+
+# Get available model list from API
+api_model_dict = GetModelList(url=FF_URL, debug=debug)
+avail_model_list = api_model_dict['models']
 
 
 # Server route for local video playing by dash-player
@@ -38,47 +50,67 @@ def serve_static(path):
     return flask.send_from_directory(STATIC_FULLPATH, path)
 
 
-# Generate the table from the pandas dataframe
-def generate_table(model_list=[], inference_results=[], max_rows=10):
+# Generate simple dict of results for other functions
+def set_results_dict(model_list=[], inference_results=[]):
     if not model_list or not inference_results:
-        return html.Table()
-    # Simple header for table display
-    header_text = ['Model', ' ', 'Real? ', ' ', 'Score']
-
+        return {}
+    
     # Build single dict of results
     inference_dict = {}
     for i_result in inference_results:
         inference_dict.update(i_result)
-
+    
     # Look for each model in results
     results_dict = {}
     for i_model in model_list:
         if i_model in inference_dict:
             score = inference_dict[i_model]['0']
-            if score > 0.5:
+            if score == 0.5:
                 results_dict[i_model] = {'score' : score,
-                                         'color' : 'red',
-                                         'label' : 'No'}
+                                         'color' : 'white',
+                                         'label' : 'Undetermined'}
+            elif score > 0.5:
+                results_dict[i_model] = {'score' : score,
+                                         'color' : '#f75040',
+                                         'label' : 'Fake'}
             else:
                 results_dict[i_model] = {'score' : score,
-                                         'color' : 'green',
-                                         'label' : 'Yes'}
+                                         'color' : '#7dc53e',
+                                         'label' : 'Real'}
 
-    # Build HTML table
-    return html.Table(
-                       # Header
-                       [html.Tr([html.Th(col) for col in header_text])] +
+    return results_dict
 
-                       # Body
-                       [html.Tr([
-                           html.Td('{}'.format(i_model.upper())),
-                           html.Td(' '),
-                           html.Td('{}'.format(results_dict[i_model]['label'])),
-                           html.Td(' '),
-                           html.Td('{:.04f}'.format(results_dict[i_model]['score']))],
-                           style={'color': results_dict[i_model]['color']}) for i_model in results_dict],
-                           style={'border':'5px', 'font-size':'1.2rem'}
-                      )
+
+# Generate the table from the pandas dataframe
+def build_df(results_dict={}):
+    # Column header names
+   
+    # Instantiate empty lists for table
+    model_names = avail_model_list
+    model_names_upper = []
+    num_models = len(model_names)
+    model_labels = [[]]*num_models
+    model_scores = [[]]*num_models
+    model_colors = ['white']*num_models
+
+    # If there are results, built list structures
+    for idx, imodel in enumerate(model_names):
+        model_names_upper.append(imodel.upper())
+        if imodel in results_dict:
+            imodel_dict = results_dict[imodel]
+            model_scores[idx] = imodel_dict['score']
+            model_labels[idx] = imodel_dict['label']
+            model_colors[idx] = imodel_dict['color']
+
+    data_dict = {'Available Models' : model_names_upper,
+                 'Real or Fake': model_labels,
+                 'Probability of Being Fake' : model_scores,
+                 'Colors' : model_colors}
+
+    results_df = pd.DataFrame.from_dict(data_dict)
+    return results_df
+
+init_results_df = build_df()
 
 
 # Function to update list of video files in DATA_DIR
@@ -101,35 +133,22 @@ init_url = empty_string if not init_file_list else init_file_list[0]
 
 
 # Configure data uploader
-video_filetypes = ['mp4', 'dat']
+video_filetypes = ['mp4']
 du.configure_upload(app, STATIC_FULLPATH)
 def get_upload_component(id):
-    return du.Upload(
-        id=id,
-        max_file_size=1800,  # 1800 Mb
-        filetypes=video_filetypes,
-        upload_id='',
-        text='Drop or Click Here to Upload New Video',
-        default_style={
-            'minHeight' : '30px',
-            'lineHeight' : '30px',
-            'height': '100%',
-            'width': '90%',
-            'float': 'center',
-            'margin': '0% 0% 0% 0%'
-        },
-    )
-
-
-# Get available model list from API
-api_model_dict = GetModelList(url=FF_URL)
-avail_model_list = api_model_dict['models']
-#avail_model_list = ['selimsef', 'eighteen', 'wm']
+    return du.Upload(id=id,
+                     max_file_size=1800,  # 1800 Mb
+                     filetypes=video_filetypes,
+                     upload_id='',
+                     text='Drop or Click Here to Upload New Video',
+                     default_style=upload_default_style
+                    )
 
 
 # Dash app layout defs
 layout = html.Div([
-    html.Div(id='my-dropdown-parent',
+    # Input section
+    html.Div(id='video-input-parent',
         style={
             'width': '45%',
             'float': 'left',
@@ -139,6 +158,7 @@ layout = html.Div([
 
             dcc.Markdown(dedent('''## **Input Video**''')),
 
+            # Movie player
             dash_player.DashPlayer(
                 id='video-player',
                 url=init_url,
@@ -154,7 +174,7 @@ layout = html.Div([
                 },
             ),
 
-
+            # Combined file dropdown and uploader
             html.Div(
                 style={
                     'float': 'center',
@@ -200,34 +220,25 @@ layout = html.Div([
 
             # Time info of video
             html.Div(
-                id='div-current-time',
-                style={'margin': '10px 0px'}
-            ),
-
-            html.Div(
                 id='div-method-output',
                 style={'margin': '10px 0px'}
             ),
 
-    #        dcc.Input(
-    #            id='input-url',
-    #            value='https://youtu.be/2svOtXaD3gg'
-    #        ),
-
-    #        html.Button('Change URL', id='button-update-url'),
-
-            html.P(dcc.Markdown(dedent("**Volume**:")), style={'margin-top': '10px'}),
+            # Sliders
+            html.P(dcc.Markdown(dedent("**Volume**:")),
+                   style={'margin-top': '10px'}),
             dcc.Slider(
                 id='slider-volume',
                 min=0,
                 max=1,
                 step=0.05,
-                value=None,
+                value=0.5,
                 updatemode='drag',
                 marks={0: '0%', 1: '100%'}
             ),
 
-            html.P(dcc.Markdown(dedent("**Playback Rate**:")), style={'margin-top': '10px'}),
+            html.P(dcc.Markdown(dedent("**Playback Rate**:")),
+                   style={'margin-top': '10px'}),
             dcc.Slider(
                 id='slider-playback-rate',
                 min=0,
@@ -239,7 +250,8 @@ layout = html.Div([
                 value=1
             ),
 
-            html.P(dcc.Markdown(dedent("**Seek To**:")), style={'margin-top': '10px'}),
+            html.P(dcc.Markdown(dedent("**Seek To**:")),
+                   style={'margin-top': '10px'}),
             dcc.Slider(
                 id='slider-seek-to',
                 min=0,
@@ -253,7 +265,7 @@ layout = html.Div([
     ),
     
     # Inference Section
-    html.Div(id='my-inference-section',
+    html.Div(id='inference-parent',
         style={
             'width': '45%',
             'float': 'left',
@@ -262,27 +274,73 @@ layout = html.Div([
         children=[
             dcc.Markdown(dedent('''## **Inference**''')),
 
-            dcc.Markdown(dedent('''#### **Available Models**:''')),
-            dcc.Checklist(
-                id='model-checklist',
-                options=[{'label': val.upper(), 'value': val} for val in avail_model_list],
-                style={"margin-left": "15px"},
-                labelStyle={'display': 'block'},
-                value=[]
+            # Container for data table
+            html.Div(id='table-div',
+                style={
+                    'width': '95%',
+                    'float': 'center',
+                    'margin': '2% 0% 2% 0%'
+                },
+                children=[
+                    # Table of model options & inference results
+                    dash_table.DataTable(
+                        id='data-table',
+                        columns=[{'name' : i, 'id' : i} for i in init_results_df.drop('Colors', axis=1).columns],
+                        data=init_results_df.to_dict('records'),
+                        page_size=10,
+                        selected_rows=[],
+                        row_selectable='multi',
+                        style_as_list_view=True,
+                        style_header=data_table_header_style,
+                        style_cell=data_table_style_cell,
+                        style_cell_conditional=data_table_style_cell_conditional,
+                        style_data_conditional=data_table_style_data_conditional,
+                    ),
+                ]
             ),
 
+            # Define selected models from checklist
+            html.Div(id='model-checklist'),
+
+            # List of selected models for submission
             html.Div(id='printed-model-list'),
-       
+
+            # Button to trigger upload & inference submission
             html.Button(children='Submit', id='send-to-aws'),
 
+            # Loading circle for upload feedback
+            dcc.Loading(id='loading-s3upload',
+                        color='#027bfc',
+                        type='circle'),
+
+            html.Br(),
+           
+            # Div for s3 call 
+            html.Div(id='file-on-s3'),
+       
             html.Hr(),
        
-            html.Div(id='submit-list'),
+            # Loading circle for submission feedback
+            dcc.Loading(id='running-inference',
+                        color='#027bfc',
+                        type='circle'),
+
+            # Div to get results output
             html.Div(id='inference-results'),
 
-            html.Div(id='table-cont'),
+            # Div to prep results dictionary
+            html.Div(id='plottable-data'),
 
-            dcc.Graph(id='graph-with-slider'),
+            # Container for bar graph
+            # Bar chart with plotted results
+            html.Div(id='graph-div',
+                style={
+                    'width': '95%',
+                    'float': 'center',
+                    'margin': '2% 0% 0% 0%'
+                },
+                children=dcc.Graph(id='bar-chart-graph')
+                ),
 
         ]
     ),
@@ -290,76 +348,137 @@ layout = html.Div([
 ])
 
 
+# Get results from output
+@app.callback(Output('plottable-data', 'data'),
+              [Input('send-to-aws', 'n_clicks'),
+               Input('model-checklist', 'value'),
+               Input('inference-results', 'data')])
+def update_data(button_clicks, model_list=[], results=[]):
+    '''Define data dict from returned results'''
+    data = set_results_dict(model_list=model_list,
+                            inference_results=results)
+    return data
+
+
+# Define models with check boxes for inference submission
+@app.callback(Output('model-checklist', 'value'),
+              [Input('data-table', 'data'),
+               Input('data-table', 'selected_rows')])
+def print_row(data_df, selected_rows):
+    '''Grab models selected by checkboxes'''
+    selected_models = [data_df[idx]['Available Models'].lower() for idx in selected_rows]
+    return selected_models
+
+
+# Update data table display based on returned results
+@app.callback(Output('data-table', 'data'),
+              [Input('inference-results', 'data')])
+def display_table_output(results=[]):
+    '''Update table based on inference results'''
+    data = set_results_dict(model_list=avail_model_list,
+                            inference_results=results)
+    table_df = build_df(data).to_dict('records')
+    return table_df
 
 
 # Inference callbacks
 
-# Print selection list
+# Print file and model selection list
 @app.callback(Output('printed-model-list', 'children'),
               [Input('model-checklist', 'value'),
               Input('dropdown-file-names', 'value')])
-def update_model_list(model_list=[], filename=''):
-    fbasename = os.path.basename(filename)
+def print_file_and_model_list(model_list=[], filename=''):
+    '''Print messages based on selected file & models'''
+    # Check if a file is selected
     if not filename:
         message = 'Please select a file from the dropdown.'
     else:
-        message = 'Please select at least one inference model for evaluation of file "{}".'.format(fbasename)
-    if model_list:
-        message = 'Models selected for inference: {}'.format(model_list)
+        fbasename = os.path.basename(filename)
+        message = 'Please select at least one inference model for evaluation of file **{}**.'.format(fbasename)
+        # Check if any models selected
+        if model_list:
+            if len(model_list) == 1:
+                message = 'Model '
+            else:
+                message = 'Models '
+            message += 'selected for running inference on file **{}**: {}'.format(fbasename, model_list)
+    
     return dcc.Markdown(dedent(message))
 
 
-# Make submission to API
-@app.callback([Output('submit-list', 'children'),
-               Output('inference-results', 'data')],
-              [Input('send-to-aws', 'n_clicks'),
-               Input('dropdown-file-names', 'value'),
-               State('model-checklist', 'value')])
-def submit_inference_request(button_clicks, fname='', model_list=[]):
 
-    # Default message and results list
-    message = 'Press the "Submit" button above to run the file through the inference models selected.'
+# Print feedback from file upload with loading circle
+@app.callback([Output('loading-s3upload', 'children'),
+               Output('file-on-s3', 'data')],
+              [Input('send-to-aws', 'n_clicks'),
+               State('dropdown-file-names', 'value')])
+def upload_file_to_s3(button_clicks, fname=''):
+    '''Function to check if file already in s3 bucket, 
+       otherwise upload it'''
+
+    # Flag for file on s3 is success (True) or failure (False)
+    file_on_s3 = False
+
+    # Check if a file is selected
+    if not fname:
+        message = ''#Please select a file for submission.'
+        return [dcc.Markdown(dedent(message)), file_on_s3]
+
+    # Check if file on AWS
+    s3_obj_name = os.path.basename(fname)
+    file_on_s3 = CheckFileExistsS3(file_name=fname,
+                                   bucket=BUCKET_NAME,
+                                   object_name=s3_obj_name)
+
+    # If not on s3 yet, upload
+    if file_on_s3:
+        message = 'File **{}** already uploaded.'.format(s3_obj_name)
+    else:
+        upload_success = UploadFileToS3(file_name=fname, 
+                                        bucket=BUCKET_NAME,
+                                        object_name=s3_obj_name)
+
+        # Return messages based on success
+        if upload_success:
+            file_on_s3 = True
+            message = 'File {} sent to S3 Bucket {}'.format(fname, BUCKET_NAME)
+        else:
+            message = 'File transfer unsuccessful. Check error log.'.format(fname, BUCKET_NAME)
+
+    return [dcc.Markdown(dedent(message)), file_on_s3]
+
+
+# Make inference submission to API
+@app.callback([Output('running-inference', 'children'),
+               Output('inference-results', 'data')],
+              [Input('file-on-s3', 'data'),
+               State('dropdown-file-names', 'value'),
+               State('model-checklist', 'value')])
+def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
+    '''Submit the request to FakeFinder inference API'''
+
+    message = ''
     results = []
 
-    # Ensure file requested
-    if not fname:
-        message = 'Please select a file from the dropdown.'
-    # Check for at least one model for inference
-    elif model_list:
-        s3_obj_name = os.path.basename(fname)
-        if CheckFileExistsS3(file_name=fname,
-                             bucket=BUCKET_NAME,
-                             object_name=s3_obj_name):
-            message = 'File {} already uploaded.'.format(fname)
-        else:
-            message = 'Sending file {} to S3 Bucket {}'.format(fname, BUCKET_NAME)
-            upload_success = UploadFileToS3(file_name=fname, 
-                                            bucket=BUCKET_NAME,
-                                            object_name=s3_obj_name)
-        message += '\n\nMoving to inference.'
+    if file_on_s3:
+        import time
+        time.sleep(1)
+        s3_obj_name = os.path.basename(filename)
 
         # Build request
         request_list = BuildInferenceRequest(filename=s3_obj_name,
                                              bucket=BUCKET_NAME,
                                              model_list=model_list)
+
         # Submit request
         results = SubmitInferenceRequest(url=FF_URL,
-                                         dict_list=request_list)
+                                         dict_list=request_list,
+                                         debug=debug)
+
+        message = 'Inference submission successful.'
 
     return [html.Div([dcc.Markdown(message)]), results]
     
-
-# Display inference results
-@app.callback(
-        dash.dependencies.Output('table-cont', 'children'),
-        [Input('model-checklist', 'value'),
-         Input('inference-results', 'data')]
-    )
-def display_table(model_list=[], results=[]):
-    '''Display table via options to generate it'''
-    return generate_table(model_list=model_list, inference_results=results)
-
-
 
 
 
@@ -372,10 +491,10 @@ def get_a_list(filename):
 
 
 
-@app.callback(
-     Output('dropdown-file-names', 'options'),
-     [Input('my-dropdown-parent', 'n_clicks')])
+@app.callback(Output('dropdown-file-names', 'options'),
+              [Input('video-input-parent', 'n_clicks')])
 def update_options_list(n_clicks):
+    '''Update dropdown file list on click'''
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate
     
@@ -388,45 +507,68 @@ def update_options_list(n_clicks):
 
 
 # Bar chart of results
-def bar_chart(data):
-    ########### Hold in for real data feed
-    #data = {'selimsef' : {'score' : 0.5},
-    #        'eighteen' : {'score' : 0.9},
-    #        'wm' : {'score' : 0.2}}
-    x_vals = np.asarray([data[key]['score'] for key in data])
-    y_vals = np.asarray([key for key in data])
+def bar_chart(data={}):
+    '''Build a bar chart figure with inference results'''
+
+    if not data:
+        data = {'' : {'score' : 0.5}}
+
+    # Rescale score as confidence
+    x_vals = [2. * data[key]['score'] - 1. for key in data]
+    y_vals = [key.upper() for key in data]
+    n_vals = len(x_vals)
+
+    # Include model average
+    if n_vals > 1:
+        x_vals.append(sum(x_vals)/n_vals)
+        y_vals.append('Average')
+
+    x_vals = np.asarray(x_vals)
+    y_vals = np.asarray(y_vals)
 
     # Make a gradient colorscale based on score value
-    color_scale = color_continuous_scale=[(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
+    color_scale = [(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
+    #color_scale = [(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
+    #color_scale = color_continuous_scale=[(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
+    color_midpoint = 0.
+    #color_midpoint = 0.5
+    #color_midpoint = ['rgb(259, 259, 259)']
 
     # Plot the score values for each model
-    fig = px.bar(x=x_vals, y=y_vals, orientation='h', color=x_vals, color_continuous_scale=color_scale)
+    fig = px.bar(x=x_vals, y=y_vals, orientation='h', color=x_vals, 
+                 color_continuous_scale=color_scale, 
+                 color_continuous_midpoint=color_midpoint)
 
     # Vertical line delineating fake/real boundary
-    fig.add_vline(x=0.5, line_width=2, line_dash="dash", line_color="rgb(247, 80, 64)"
-    )
+    fig.add_vline(x=0.0, line_width=2, 
+                  line_dash="dash", line_color="rgb(247, 80, 64)")
+    #fig.add_annotation(x=1, y=0,
+    #                   text="Text annotation with arrow",
+    #                   showarrow=True,
+    #                   arrowhead=1)
     # Set limits on colorbar
     fig.update_coloraxes(
-        cmin=0.,
+        cmin=-1.,
         cmax=1.,
     )
     # Titles, tickvals, etc
     fig.update_layout(
-        title='Model Scores',
-        xaxis_title='Scores',
+        title='Fakeness Confidence Scores',
+        xaxis_title='Confidence Score',
         yaxis_title='',
         coloraxis_colorbar=dict(
-            title='Score',
+            title='Confidence',
             ticks='outside',
             tickmode='array',
-            tickvals=[0., 0.25, 0.5, 0.75, 1.],
-            ticktext=['0 - Real', '0.25', '0.5', '.75', '1 - Fake']
+            tickvals=[-1., -0.5, 0.0, 0.5, 1.],
+            ticktext=['-1 - Real', '-0.5', '0 - Unsure', '0.5', '1 - Fake']
             ),
         xaxis=dict(
             showgrid=True,
             showline=True,
             showticklabels=True,
             zeroline=True,
+            range=[-1.,1.],
             domain=[0., 1.]
         ),
         yaxis=dict(
@@ -443,18 +585,24 @@ def bar_chart(data):
 
     return fig
 
+
 # Callback for graph display
-@app.callback(Output('graph-with-slider', 'figure'),
-              [Input('inference-results', 'data')])
-def update_graph(input_data_dict):
-    return bar_chart(data=input_data_dict)
+@app.callback(Output('bar-chart-graph', 'figure'),
+              [Input('send-to-aws', 'n_clicks'),
+               Input('plottable-data', 'data')])
+def update_graph(button_clicks, data={}):
+
+    #changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    #if 'btn-nclicks-1' in changed_id:
+    #    data = {} 
+
+    return bar_chart(data=data)
 
 
 
 
 
 # Videoplayer callbacks
-
 # Video selection from dropdown callback
 @app.callback(Output('video-player', 'url'),
               [Input('dropdown-file-names', 'value')])
@@ -462,30 +610,6 @@ def update_src(value):
     if not value:
         value = init_url
     return value
-
-
-@app.callback(Output('video-player', 'playing'),
-              [Input('radio-bool-props', 'value')])
-def update_prop_playing(value):
-    return 'playing' in value
-
-
-@app.callback(Output('video-player', 'loop'),
-              [Input('radio-bool-props', 'value')])
-def update_prop_loop(value):
-    return 'loop' in value
-
-
-@app.callback(Output('video-player', 'controls'),
-              [Input('radio-bool-props', 'value')])
-def update_prop_controls(value):
-    return 'controls' in value
-
-
-@app.callback(Output('video-player', 'muted'),
-              [Input('radio-bool-props', 'value')])
-def update_prop_muted(value):
-    return 'muted' in value
 
 
 @app.callback(Output('video-player', 'volume'),
@@ -500,31 +624,22 @@ def update_playbackRate(value):
     return value
 
 
-#@app.callback(Output('video-player', 'url'),
-#              [Input('button-update-url', 'n_clicks')],
-#              [State('input-url', 'value')])
-#def update_url(n_clicks, value):
-#    return value
-
-
-# Instance Methods
-@app.callback(Output('div-current-time', 'children'),
-              [Input('video-player', 'currentTime')])
-def update_time(currentTime):
+@app.callback(Output('div-method-output', 'children'),
+              [Input('video-player', 'currentTime'),
+               Input('video-player', 'secondsLoaded')],
+              [State('video-player', 'duration')])
+def update_methods(currentTime, secondsLoaded, duration):
     if currentTime is None:
         currentTime = 0.0
-    return dcc.Markdown(dedent('**Current Time**: {:.02f} s'.format(currentTime)))
-
-
-@app.callback(Output('div-method-output', 'children'),
-              [Input('video-player', 'secondsLoaded')],
-              [State('video-player', 'duration')])
-def update_methods(secondsLoaded, duration):
     if secondsLoaded is None:
         secondsLoaded = 0.0
     if duration is None:
         duration = 0.0
-    return dcc.Markdown(dedent('**Second Loaded**: {:.02f} s, **Duration**: {:.03f} s'.format(secondsLoaded, duration)))
+
+    message = '**Current Time**: {:.02f} s'.format(currentTime)
+    message += ', **Seconds Loaded**: {:.02f} s'.format(secondsLoaded)
+    message += ', **Duration**: {:.02f} s'.format(duration)
+    return dcc.Markdown(dedent(message))
 
 
 @app.callback(Output('video-player', 'intervalCurrentTime'),
