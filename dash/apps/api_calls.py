@@ -32,14 +32,31 @@ def BuildInferenceRequest(filename='', bucket='', model_list=[]):
 
 
 # Function to grab model list from FF API
-def GetModelList(url=''):
+def GetModelList(url='', debug=False):
+    # For test purposes
+    if debug:
+        return {'models': ['selimsef', 
+                           'eighteen', 
+                           'medics',
+                           'boken',
+                           'wm']}
+
+    # Make request to get model names
     model_list_request = requests.get(url)
     model_list = model_list_request.json()
     return model_list
 
 
 # Function to submit a inference request
-def SubmitInferenceRequest(url='', dict_list=[]):
+def SubmitInferenceRequest(url='', dict_list=[], debug=False):
+    if debug:
+        return [{"filename": {"0": "real_abajdarwnl.mp4"}, "wm": {"0": 0.0460696332}}, 
+                {"filename": {"0": "real_abajdarwnl.mp4"}, "selimsef": {"0": 0.0113754272}}, 
+                {"filename": {"0": "real_abajdarwnl.mp4"}, "medics": {"0": 0.0450550006}}, 
+                {"filename": {"0": "real_abajdarwnl.mp4"}, "boken": {"0": 0.9460702622}}]
+                #{"filename": {"0": "real_abajdarwnl.mp4"}, "boken": {"0": 0.0460702622}}]
+
+    # Make inference request to API
     inference_request = requests.post(url=url, json=dict_list)
     inference_results_str = inference_request.json()
     inference_results = json.loads(inference_results_str)
@@ -51,6 +68,8 @@ def SubmitInferenceRequest(url='', dict_list=[]):
 
 # Check if file exists in s3 bucket
 def CheckFileExistsS3(file_name='', bucket=[], object_name=None):
+    import time
+    time.sleep(3)
     # If S3 object_name was not specified, use file_name
     if object_name is None:
         object_name = file_name
@@ -68,6 +87,8 @@ def CheckFileExistsS3(file_name='', bucket=[], object_name=None):
 
 # Upload file to s3 bucket call
 def UploadFileToS3(file_name='', bucket=[], object_name=None):
+    import time
+    time.sleep(2)
 
     # If S3 object_name was not specified, use file_name
     if object_name is None:
