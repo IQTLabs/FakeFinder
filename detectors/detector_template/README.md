@@ -8,7 +8,7 @@ This directory includes teh basic components used to incorporate a new detector 
 The following section covers these steps in more detail.
 ### Adding a new detector
 
-1. Create a new detector folder by copying detector/detector_template to detectors/<your_detector>. you will be working inside this directory:
+1. Create a new detector folder by copying [FakeFinder/detector/detector_template](https://github.com/IQTLabs/FakeFinder/tree/template/detectors/detector_template) to detectors/<your_detector>. you will be working inside this directory:
 ```
 cd detectors/your_detector
 ```
