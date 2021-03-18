@@ -1,32 +1,23 @@
-from textwrap import dedent
 
-from pathlib import Path
 import os
-import requests
 import dash
 import dash_player
 import dash_table
 import dash_uploader as du
 import dash_html_components as html
 import dash_core_components as dcc
-import plotly.graph_objects as go
-import plotly.express as px
 from dash.dependencies import Input, Output, State
-
-import pandas as pd
-
-import os
-import base64
-import numpy as np
-from urllib.parse import quote as urlquote
 
 import boto3
 import flask
+from textwrap import dedent
 
 from .text.general_text import markdown_text_disclaimer
-from .dash_style_defs import bar_chart_color_scale, upload_default_style
+from .dash_style_defs import upload_default_style
+from .dash_style_defs import data_table_style_cell_conditional
+from .dash_style_defs import data_table_style_data_conditional
 from .dash_style_defs import data_table_header_style, data_table_style_cell
-from .dash_style_defs import data_table_style_cell_conditional, data_table_style_data_conditional
+from .utils import build_df, set_results_dict, update_data_folder_tree, bar_chart
 from .definitions import REPO_DIR, DATA_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
 from .api_calls import UploadFileToS3, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExistsS3
 
@@ -52,78 +43,9 @@ def serve_static(path):
     return flask.send_from_directory(STATIC_FULLPATH, path)
 
 
-# Generate simple dict of results for other functions
-def set_results_dict(model_list=[], inference_results=[]):
-    if not model_list or not inference_results:
-        return {}
-    
-    # Build single dict of results
-    inference_dict = {}
-    for i_result in inference_results:
-        inference_dict.update(i_result)
-    
-    # Look for each model in results
-    results_dict = {}
-    for i_model in model_list:
-        if i_model in inference_dict:
-            score = inference_dict[i_model]['0']
-            if score == 0.5:
-                results_dict[i_model] = {'score' : score,
-                                         'color' : 'white',
-                                         'label' : 'Undetermined'}
-            elif score > 0.5:
-                results_dict[i_model] = {'score' : score,
-                                         'color' : '#f75040',
-                                         'label' : 'Fake'}
-            else:
-                results_dict[i_model] = {'score' : score,
-                                         'color' : '#7dc53e',
-                                         'label' : 'Real'}
-
-    return results_dict
-
-
-# Generate the table from the pandas dataframe
-def build_df(results_dict={}):
-    # Column header names
-   
-    # Instantiate empty lists for table
-    model_names = avail_model_list
-    model_names_upper = []
-    num_models = len(model_names)
-    model_labels = [[]]*num_models
-    model_scores = [[]]*num_models
-    model_colors = ['white']*num_models
-
-    # If there are results, built list structures
-    for idx, imodel in enumerate(model_names):
-        model_names_upper.append(imodel.upper())
-        if imodel in results_dict:
-            imodel_dict = results_dict[imodel]
-            model_scores[idx] = imodel_dict['score']
-            model_labels[idx] = imodel_dict['label']
-            model_colors[idx] = imodel_dict['color']
-
-    data_dict = {'Available Models' : model_names_upper,
-                 'Real or Fake': model_labels,
-                 'Probability of Being Fake' : model_scores,
-                 'Colors' : model_colors}
-
-    results_df = pd.DataFrame.from_dict(data_dict)
-    return results_df
-
-init_results_df = build_df()
-
-
-# Function to update list of video files in DATA_DIR
-def update_data_folder_tree(extension='.mp4'):
-    dirPath = Path(STATIC_FULLPATH)
-    listOfFileNames = [ os.path.join (root, name) \
-                        for root, dirs, files in os.walk(dirPath) \
-                        for name in sorted(files) \
-                        if name.endswith (extension) \
-                      ]
-    return listOfFileNames
+# Setup initial results dataframe 
+init_results_df = build_df(model_list=avail_model_list,
+                           results_dict={})
 
 
 # Setup initial dropdown & video options
@@ -409,7 +331,8 @@ def display_table_output(results=[]):
     '''Update table based on inference results'''
     data = set_results_dict(model_list=avail_model_list,
                             inference_results=results)
-    table_df = build_df(data).to_dict('records')
+    table_df = build_df(model_list=avail_model_list, 
+                        results_dict=data).to_dict('records')
     return table_df
 
 
@@ -511,90 +434,14 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
     return [html.Div([dcc.Markdown(message)]), results]
     
 
-# Bar chart of results
-def bar_chart(data={}):
-    '''Build a bar chart figure with inference results'''
-
-    if not data:
-        data = {'' : {'score' : 0.5}}
-
-    # Rescale score as confidence
-    x_vals = [2. * data[key]['score'] - 1. for key in data]
-    y_vals = [key.upper() for key in data]
-    n_vals = len(x_vals)
-
-    # Include model average
-    if n_vals > 1:
-        x_vals.append(sum(x_vals)/n_vals)
-        y_vals.append('Average')
-
-    x_vals = np.asarray(x_vals)
-    y_vals = np.asarray(y_vals)
-
-    # Plot the score values for each model
-    fig = px.bar(x=x_vals, y=y_vals, orientation='h', color=x_vals, 
-                 color_continuous_scale=bar_chart_color_scale, 
-                 color_continuous_midpoint=0.)
-
-    # Vertical line delineating fake/real boundary
-    fig.add_vline(x=0.0, line_width=1, 
-                  line_dash="dash", line_color="black")
-    
-    # Set limits on colorbar
-    fig.update_coloraxes(
-        cmin=-1.,
-        cmax=1.,
-    )
-    # Titles, tickvals, etc
-    fig.update_layout(
-        title='<b>Confidence Scores</b>',
-        xaxis_title='<b>Confidence Score</b>',
-        yaxis_title='',
-        coloraxis_colorbar=dict(
-            title='<b>Confidence</b>',
-            ticks='outside',
-            tickmode='array',
-            tickvals=[-1., -0.5, 0.0, 0.5, 1.],
-            ticktext=['-1 - Real', '-0.5', '0 - Uncertain', '0.5', '1 - Fake']
-            ),
-        xaxis=dict(
-            showgrid=True,
-            showline=True,
-            showticklabels=True,
-            zeroline=True,
-            range=[-1.,1.],
-            domain=[0., 1.],
-            tickvals=[-1., -0.5, 0.0, 0.5, 1.],
-            ticktext=['-1<br><b>Real</b></br>', '-0.5', 
-                      '0<br><b>Uncertain</b></br>', 
-                      '0.5', '1<br><b>Fake</b></br>'],
-            tickfont=dict(size=14)
-        ),
-        yaxis=dict(
-            showgrid=True,
-            showline=True,
-            showticklabels=True,
-            zeroline=True,
-        ),
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=80, r=80, t=80, b=80),
-        showlegend=False,
-    )
-
-    return fig
-
-
 # Callback for graph display
 @app.callback(Output('bar-chart-graph', 'figure'),
               [Input('send-to-aws', 'n_clicks'),
                Input('plottable-data', 'data')])
 def update_graph(button_clicks, data={}):
-
     #changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     #if 'btn-nclicks-1' in changed_id:
     #    data = {} 
-
     return bar_chart(data=data)
 
 
