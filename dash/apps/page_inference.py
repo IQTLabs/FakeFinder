@@ -546,27 +546,15 @@ def bar_chart(data={}):
     x_vals = np.asarray(x_vals)
     y_vals = np.asarray(y_vals)
 
-    # Make a gradient colorscale based on score value
-    #color_scale = [(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
-    color_scale = bar_chart_color_scale
-    #color_scale = [(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
-    #color_scale = color_continuous_scale=[(0., 'rgb(2, 123, 252)'), (1., 'rgb(247, 80, 64)')]
-    color_midpoint = 0.
-    #color_midpoint = 0.5
-    #color_midpoint = ['rgb(259, 259, 259)']
-
     # Plot the score values for each model
     fig = px.bar(x=x_vals, y=y_vals, orientation='h', color=x_vals, 
-                 color_continuous_scale=color_scale, 
-                 color_continuous_midpoint=color_midpoint)
+                 color_continuous_scale=bar_chart_color_scale, 
+                 color_continuous_midpoint=0.)
 
     # Vertical line delineating fake/real boundary
-    fig.add_vline(x=0.0, line_width=2, 
-                  line_dash="dash", line_color="rgb(247, 80, 64)")
-    #fig.add_annotation(x=1, y=0,
-    #                   text="Text annotation with arrow",
-    #                   showarrow=True,
-    #                   arrowhead=1)
+    fig.add_vline(x=0.0, line_width=1, 
+                  line_dash="dash", line_color="black")
+    
     # Set limits on colorbar
     fig.update_coloraxes(
         cmin=-1.,
@@ -574,15 +562,15 @@ def bar_chart(data={}):
     )
     # Titles, tickvals, etc
     fig.update_layout(
-        title='Confidence Scores',
-        xaxis_title='Confidence Score',
+        title='<b>Confidence Scores</b>',
+        xaxis_title='<b>Confidence Score</b>',
         yaxis_title='',
         coloraxis_colorbar=dict(
-            title='Confidence',
+            title='<b>Confidence</b>',
             ticks='outside',
             tickmode='array',
             tickvals=[-1., -0.5, 0.0, 0.5, 1.],
-            ticktext=['-1 - Real', '-0.5', '0 - Unsure', '0.5', '1 - Fake']
+            ticktext=['-1 - Real', '-0.5', '0 - Uncertain', '0.5', '1 - Fake']
             ),
         xaxis=dict(
             showgrid=True,
@@ -590,7 +578,12 @@ def bar_chart(data={}):
             showticklabels=True,
             zeroline=True,
             range=[-1.,1.],
-            domain=[0., 1.]
+            domain=[0., 1.],
+            tickvals=[-1., -0.5, 0.0, 0.5, 1.],
+            ticktext=['-1<br><b>Real</b></br>', '-0.5', 
+                      '0<br><b>Uncertain</b></br>', 
+                      '0.5', '1<br><b>Fake</b></br>'],
+            tickfont=dict(size=14)
         ),
         yaxis=dict(
             showgrid=True,
@@ -600,8 +593,6 @@ def bar_chart(data={}):
         ),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        #paper_bgcolor='rgb(248, 248, 255)',
-        #plot_bgcolor='rgb(248, 248, 255)',
         margin=dict(l=80, r=80, t=80, b=80),
         showlegend=False,
     )
