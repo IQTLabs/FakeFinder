@@ -109,7 +109,8 @@ layout = html.Div([
                     html.Div(
                         [
                             dcc.Dropdown(id='dropdown-file-names',
-                                     value='',
+                                     value=init_url,
+                                     #value='',
                                      options=init_dropdown_options,
                                      multi=False,
                                      placeholder='Select file...'),
@@ -230,7 +231,7 @@ layout = html.Div([
             html.Div(id='printed-model-list'),
 
             # Button to trigger upload & inference submission
-            html.Button(children='Submit', id='send-to-aws'),
+            html.Button(children='Submit', id='send-to-aws', n_clicks=0),
 
             # Loading circle for upload feedback
             dcc.Loading(id='loading-s3upload',
@@ -326,9 +327,16 @@ def print_row(data_df, selected_rows):
 
 # Update data table display based on returned results
 @app.callback(Output('data-table', 'data'),
-              [Input('inference-results', 'data')])
-def display_table_output(results=[]):
+              [Input('send-to-aws', 'n_clicks'),
+               Input('inference-results', 'data')])
+def display_table_output(button_clicks, results=[]):
     '''Update table based on inference results'''
+
+    # Check if button pressed, clear table results
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    if 'send-to-aws' in changed_id:
+        results = []
+
     data = set_results_dict(model_list=avail_model_list,
                             inference_results=results)
     table_df = build_df(model_list=avail_model_list, 
@@ -372,8 +380,15 @@ def upload_file_to_s3(button_clicks, fname=''):
     file_on_s3 = False
 
     message = ''
+
+    # Check if button pressed
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    if not 'send-to-aws' in changed_id:
+        return [dcc.Markdown(dedent(message)), file_on_s3]
+
     # Check if a file is selected
     if not fname:
+        message = 'Please select a file from the dropdown menu.'
         return [dcc.Markdown(dedent(message)), file_on_s3]
 
     # Check if file on AWS
@@ -439,9 +454,11 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
               [Input('send-to-aws', 'n_clicks'),
                Input('plottable-data', 'data')])
 def update_graph(button_clicks, data={}):
-    #changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    #if 'btn-nclicks-1' in changed_id:
-    #    data = {} 
+    # Check if button pressed
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    if 'send-to-aws' in changed_id:
+        data = {} 
+
     return bar_chart(data=data)
 
 
