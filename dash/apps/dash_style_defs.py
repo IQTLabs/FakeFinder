@@ -51,31 +51,30 @@ data_table_style_cell = {
 data_table_style_cell_conditional = [
     {
         'if': {'column_id': 'Available Models'},
-        'textAlign': 'left',
+               'textAlign': 'left',
     }
 ]
 
 data_table_style_data_conditional = [
     {
-        'if': {
-            'filter_query': '{Colors} = #f75040'
-        },
-        'color': '#f75040',
-        'backgroundColor': 'white'
+        "if": {"state": "selected"},
+               "backgroundColor": "inherit !important",
+               "border": "inherit !important",
     },
     {
-        'if': {
-            'filter_query': '{Colors} = #7dc53e'
-        },
-        'color': '#027bfc',
-        'backgroundColor': 'white'
+        'if': {'filter_query': '{Colors} = #f75040'},
+               'color': '#f75040',
+               'backgroundColor': 'white'
     },
     {
-        'if': {
-            'filter_query': '{Colors} = white'
-        },
-        'backgroundColor': 'white',
-        'color': 'black'
+        'if': {'filter_query': '{Colors} = #7dc53e'},
+               'color': '#027bfc',
+               'backgroundColor': 'white'
+    },
+    {
+        'if': {'filter_query': '{Colors} = white'},
+               'backgroundColor': 'white',
+               'color': 'black'
     },
 ]
 
