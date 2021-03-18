@@ -43,8 +43,8 @@ layout = html.Div(children=[
                color='primary',
                className='three columns',
               ),
-              id='results-link',
-              href="{}/page_results".format(APP_PATH),
+              id='inference-link',
+              href="{}/page_inference".format(APP_PATH),
               target="_self"
         ),
 
@@ -65,8 +65,8 @@ layout = html.Div(children=[
                color='primary',
                className='three columns',
               ),
-              id='results-link',
-              href="{}/page_results".format(APP_PATH),
+              id='inference-link',
+              href="{}/page_inference".format(APP_PATH),
               target="_self"
         ),
 
