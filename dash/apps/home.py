@@ -79,7 +79,7 @@ layout = html.Div(children=[
                                             html.A([
                                             html.Img(src="{}/assets/github_logo.png".format(APP_PATH),
                                                      style={
-                                                            'height' : '5vw',
+                                                            'height' : '7vw',
                                                             'min-height' : '1vw',
                                                             'padding-top' : 10,
                                                             'padding-bottom' : 10,
