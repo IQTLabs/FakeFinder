@@ -37,8 +37,8 @@ from app import app, server
 empty_string = ''
 
 # Debug flag for if no server connectivity
-#debug = False
-debug = True
+debug = False
+#debug = True
 
 
 # Get available model list from API
@@ -350,6 +350,36 @@ layout = html.Div([
 ])
 
 
+
+# Input Section callbacks
+
+# Upload function callback
+@du.callback(
+    output=Output('callback-output', 'children'),
+    id='dash-uploader',
+)
+def get_a_list(filename):
+    filenames = update_data_folder_tree()
+
+
+# Dropdown video options
+@app.callback(Output('dropdown-file-names', 'options'),
+              [Input('video-input-parent', 'n_clicks')])
+def update_options_list(n_clicks):
+    '''Update dropdown file list on click'''
+    if n_clicks is None:
+        raise dash.exceptions.PreventUpdate
+    
+    filenames = update_data_folder_tree()
+    options = [
+               {'label' : os.path.basename(i), 'value': i} for i in filenames
+              ]
+    return options
+    
+
+
+# Inference Section callbacks
+
 # Get results from output
 @app.callback(Output('plottable-data', 'data'),
               [Input('send-to-aws', 'n_clicks'),
@@ -383,8 +413,6 @@ def display_table_output(results=[]):
     return table_df
 
 
-# Inference callbacks
-
 # Print file and model selection list
 @app.callback(Output('printed-model-list', 'children'),
               [Input('model-checklist', 'value'),
@@ -406,23 +434,6 @@ def print_file_and_model_list(model_list=[], filename=''):
             message += 'selected for running inference on file **{}**: {}'.format(fbasename, model_list)
     
     return dcc.Markdown(dedent(message))
-
-
-## Message for upload loading
-#@app.callback(Output('printing-upload-loading', 'children'),
-#              [Input('send-to-aws', 'n_clicks'),
-#               Input('loading-s3upload', 'loading_state'),
-#               Input('running-inference', 'loading_state')])
-#def print_upload_loading(button_clicks, upload_loading_state, inference_loading_state):
-#    message = ''
-#    print('Testing')
-#    print(upload_loading_state, inference_loading_state)
-#    if upload_loading_state:
-#        if upload_loading_state['is_loading']:
-#            message = 'Uploading file'
-#            print(message)
-#    return dcc.Markdown(dedent(message))
-
 
 
 # Print feedback from file upload with loading circle
@@ -499,32 +510,6 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
 
     return [html.Div([dcc.Markdown(message)]), results]
     
-
-
-
-@du.callback(
-    output=Output('callback-output', 'children'),
-    id='dash-uploader',
-)
-def get_a_list(filename):
-    filenames = update_data_folder_tree()
-
-
-
-@app.callback(Output('dropdown-file-names', 'options'),
-              [Input('video-input-parent', 'n_clicks')])
-def update_options_list(n_clicks):
-    '''Update dropdown file list on click'''
-    if n_clicks is None:
-        raise dash.exceptions.PreventUpdate
-    
-    filenames = update_data_folder_tree()
-    options = [
-               {'label' : os.path.basename(i), 'value': i} for i in filenames
-              ]
-    return options
-    
-
 
 # Bar chart of results
 def bar_chart(data={}):
@@ -614,9 +599,8 @@ def update_graph(button_clicks, data={}):
 
 
 
+# Videoplayer specific callbacks
 
-
-# Videoplayer callbacks
 # Video selection from dropdown callback
 @app.callback(Output('video-player', 'url'),
               [Input('dropdown-file-names', 'value')])
@@ -678,6 +662,7 @@ def update_intervalDuration(value):
               [Input('slider-seek-to', 'value')])
 def set_seekTo(value):
     return value
+
 
 
 # Include open source css file
