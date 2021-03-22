@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import pickle
+import flask
 from flask import Flask, request, jsonify
 from ensemble import Ensemble
 import boto3
@@ -12,6 +13,10 @@ BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
 
 s3 = boto3.resource('s3')
 
+@app.route('/healthcheck')
+def starting_url():
+    status_code = flask.Response(status=201)
+    return status_code
 
 @app.route('/predict', methods=['POST'])
 def predict():
