@@ -4,7 +4,7 @@ The FakeFinder project builds upon the work done at IQT Labs in competing in the
 ## Table of contents
 1. [Overview](#overview)
 2. [Available Detectors](#detectors)
-3. [Isage Instruction](#usage)
+3. [Usage Instruction](#usage)
 
 ## Overview <a name="overview"></a>
 
@@ -18,7 +18,7 @@ This is the default behavior when calling the system through the API and is inte
 
 ## Available Detectors <a name="detectors"></a>
 
-Although designed for extensability, the current toolkit includes implementations for six detectors open sourced from the [DeepFake Detection CHallenge](https://www.kaggle.com/c/deepfake-detection-challenge)(DFDC) and the [DeeperForensics Challenge 2020](https://competitions.codalab.org/competitions/25228)(DFC).  
+Although designed for extensability, the current toolkit includes implementations for six detectors open sourced from the [DeepFake Detection Challenge](https://www.kaggle.com/c/deepfake-detection-challenge)(DFDC) and the [DeeperForensics Challenge 2020](https://competitions.codalab.org/competitions/25228)(DFC).  
   The detectors included are:
   
 | Name      | Input type | Challenge |
