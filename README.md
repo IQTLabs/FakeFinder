@@ -8,7 +8,7 @@ The FakeFinder project builds upon the work done at IQT Labs in competing in the
 
 ## Overview <a name="overview"></a>
 
-We have included [instructions] to reproduce the system as we have built it, using the [AWS] ecosystem (EC2, S3 and ECR).  The current tool accomodates two possible workflows:
+We have included [instructions] to reproduce the system as we have built it, using the [AWS] ecosystem (EC2, S3, EFS and ECR).  The current tool accomodates two possible workflows:
 ### Small jobs: response time
 The default behavior when using the Dash-App.  This work flow prioritizes availability by using **warm** (existing BUT stopped EC2 instances) or **hot** (existing AND running EC2 instances) virtual machines to run the inference on videos to be queried. 
 <img src="./images/small_jobs.png" alt="drawing" width="750"/>
