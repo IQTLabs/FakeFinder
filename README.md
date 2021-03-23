@@ -15,7 +15,7 @@
 
 ### Model Weights
 
-Model weights are available in an s3 bucket named `ffweights` located in `us-east-1`.  To obtain the weights locally, install the [aws cli](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) and run the following command:
+Model weights are available in an S3 bucket named `ffweights` located in `us-east-1`.  To obtain the weights locally, install the [aws cli](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) and run the following command:
 
 ```
 aws s3 sync <path_to_weight_directory> s3://ffweights
@@ -35,3 +35,8 @@ where `DETECTOR_NAME` is the name of the detector (listed above).  By default, c
 docker run --runtime=nvidia -v <path_to_weight_directory>/weights/${DETECTOR_NAME}/:/workdir/weights  -d -p 5000:5000 ${DETECTOR_NAME}
 ```
 ### Configuring AWS EC2 instances and S3 Buckets
+
+Currently, FakeFinder uses S3
+
+### Using the API Server
+#TODO:  Fill in with instructions from Mona.
