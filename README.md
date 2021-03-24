@@ -1,5 +1,5 @@
 # FakeFinder: Sifting out deepfakes in the wild
-The FakeFinder project builds upon the work done at IQT Labs in competing in the Facebook Deepfake Detection Challenge (DFDC).  FakeFinder builds a modular, scalable and extensible framework for evaluating various deepfake detection models. The toolkit provides a web application as well as API access for integration into existing media forensic workflow and applications. To illustrate the functionality in FakeFinder we have included implementations of six existing, open source Deepfake detectors as well as a [template] exemplifying how new algorithms can be easily added to the system.  
+The FakeFinder project builds upon the work done at IQT Labs in competing in the Facebook Deepfake Detection Challenge (DFDC).  FakeFinder builds a modular, scalable and extensible framework for evaluating various deepfake detection models. The toolkit provides a web application as well as API access for integration into existing media forensic workflow and applications. To illustrate the functionality in FakeFinder we have included implementations of six existing, open source Deepfake detectors as well as a [template](./detectors/detector_template/) exemplifying how new algorithms can be easily added to the system.  
 
 <img src="./images/Fake_video_inference.gif" width="600" />
 
@@ -11,7 +11,7 @@ The FakeFinder project builds upon the work done at IQT Labs in competing in the
 
 ## Overview <a name="overview"></a>
 
-We have included [instructions](#building) to reproduce the system as we have built it, using the [AWS] ecosystem (EC2, S3, EFS and ECR).  The current tool accomodates two possible workflows:
+We have included [instructions](#building) to reproduce the system as we have built it, using the [AWS](https://aws.amazon.com/) ecosystem (EC2, S3, EFS and ECR).  The current tool accomodates two possible workflows:
 ### Small jobs: response time
 The default behavior when using the Dash-App.  This work flow prioritizes availability by using **warm** (existing BUT stopped EC2 instances) or **hot** (existing AND running EC2 instances) virtual machines to run the inference on videos to be queried. 
 <img src="./images/small_jobs.png" alt="drawing" width="750"/>
