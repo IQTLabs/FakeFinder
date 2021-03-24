@@ -1,6 +1,8 @@
 # FakeFinder: Sifting out deepfakes in the wild
 The FakeFinder project builds upon the work done at IQT Labs in competing in the Facebook Deepfake Detection Challenge (DFDC).  FakeFinder builds a modular, scalable and extensible framework for evaluating various deepfake detection models. The toolkit provides a web application as well as API access for integration into existing media forensic workflow and applications. To illustrate the functionality in FakeFinder we have included implementations of six existing, open source Deepfake detectors as well as a [template] exemplifying how new algorithms can be easily added to the system.  
 
+<img src="./images/Fake_video_inference.gif" width="600" />
+
 ## Table of contents
 1. [Overview](#overview)
 2. [Available Detectors](#detectors)
