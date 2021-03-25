@@ -7,6 +7,12 @@ from flask import Flask, request, jsonify
 from ensemble import Ensemble
 import boto3
 
+
+
+BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
+
+s3 = boto3.resource('s3')
+
 DETECTOR_WEIGHTS_PATH = 'WIDERFace_DSFD_RES152.fp16.pth'
 VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_seq_aa-original-mstd0.5_100k_v4_cad79a/snapshot_100000.fp16.pth'
 FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_aa-original-mstd0.5_large_crop_100k_v4_cad79a/snapshot_100000.fp16.pth'
@@ -22,9 +28,7 @@ model = Ensemble(os.path.join('./weights/', DETECTOR_WEIGHTS_PATH),
     os.path.join(
     './weights/', SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
 )
-BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
 
-s3 = boto3.resource('s3')
 
 @app.route('/healthcheck')
 def starting_url():

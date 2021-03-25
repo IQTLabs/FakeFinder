@@ -8,6 +8,11 @@ import boto3
 
 app = Flask(__name__)
 
+
+BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
+
+s3 = boto3.resource('s3')
+
 chpt_dir = './weights'
 load_slowfast_path = '{}/sf_bc_jc_44000.pth.tar'.format(chpt_dir)
 load_slowfast_path2 = '{}/sf_32000.pth.tar'.format(chpt_dir)
@@ -26,9 +31,6 @@ model = Ensemble(load_slowfast_path, load_xcp_path, load_slowfast_path2, load_sl
                  load_res34_path, load_b1_path,
                  load_b1long_path, load_b1short_path, load_b0_path, load_slowfast_path4, frame_nums,
                  cuda=pipeline_cfg.cuda)
-BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
-
-s3 = boto3.resource('s3')
 
 @app.route('/healthcheck')
 def starting_url():
