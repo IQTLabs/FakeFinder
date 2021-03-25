@@ -77,7 +77,7 @@ This repo contains Dockerfiles for the Dash App, API server, and each of the imp
 
 To build images for each of the detectors do the following steps for each detector:
 
-1.  Switch to the directory for the given detector 
+Switch to the directory for the given detector 
 ```
 cd <path_to_repository>/FakeFinder/detectors/{$DETECTOR_NAME}
 ```
