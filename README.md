@@ -55,7 +55,7 @@ We built FakeFinder using several components of the AWS ecosystem:
 3.  [Simple Storage Service](https://aws.amazon.com/s3/) (S3) for storing videos uploaded using the API server or Dash app and accessed by the inference instances.
 4.  [Elastic Container Registry](https://aws.amazon.com/ecr/) for storing container images for each detector that can so they can be easily deployed to new instances when the tool is operating in the scalable mode.
 
-We also made use of Docker for building and running containers, and Flask for the API server and serving models for inference.  Here we provide instructions on reproducing the FakeFinder architecture on AWS. Also, AWS command line interface will be used in multiple steps, so it must be installed first (instructions [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)).
+We also made use of Docker for building and running containers, and Flask for the API server and serving models for inference.  Here we provide instructions on reproducing the FakeFinder architecture on AWS. Also, AWS command line interface will be used in multiple steps, so it must be installed first (instructions [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)).  All of the following steps should be done in the same AWS account.
 
 ### Setting up the S3 Bucket
 
@@ -79,7 +79,7 @@ To build images for each of the detectors do the following steps for each detect
 
 Switch to the directory for the given detector 
 ```
-cd <path_to_repository>/FakeFinder/detectors/{$DETECTOR_NAME}
+cd <path_to_repository>/FakeFinder/detectors/${DETECTOR_NAME}
 ```
 where `DETECTOR_NAME` is the name of the detector (listed above).  Inside `app.py` in that directory, the variable `BUCKET_NAME` is defined (usually on line 12).  Replace the default value with the name of the S3 bucket you created and save the changes.
 
@@ -90,12 +90,12 @@ docker build -t ${DETECTOR_IMAGE_NAME} .
 Where `DETECTOR_IMAGE_NAME` is a descriptive name for the image (usually just the same as `DETECTOR_NAME`).  Next, tag the image you just built so it can be pushed to the repository:
 
 ```
-docker tag ${DETECTOR_IMAGE_NAME}:latest ${ECR_URI}:${DETECTOR_IMAGE_NAME}$
+docker tag ${DETECTOR_IMAGE_NAME}:latest ${ECR_URI}:${DETECTOR_IMAGE_NAME}
 ```
 And then push the image to your ECR repository:
 
 ```
-docker push ${ECR_URI}:${DETECTOR_IMAGE_NAME}$
+docker push ${ECR_URI}:${DETECTOR_IMAGE_NAME}
 ```
 #TODO mona:  Fill in where users update the new image names (models.json?) and ECR URI.
 
@@ -106,9 +106,49 @@ docker run --runtime=nvidia -v <path_to_weight_directory>/weights/${DETECTOR_NAM
 ```
 ### Configuring AWS EC2 instances and IAM roles
 
-We use `g4dn.xlarge` instances running the Deep Learning AMI (Ubuntu 18.04) Version 41.0 for inference.
+Once you have setup your S3 Bucket, EFS directory, and built and pushed all the model images to your ECR you can configure EC2 instances for FakeFinder's warm/hot operating mode.  Instructions for reproducing the cold mode can be found in the `/api` directory.  We use `g4dn.xlarge` instances running the Deep Learning AMI (Ubuntu 18.04) Version 41.0 for inference.
 
-#TODO Mona:  Instructions for starting the API server
+* Instances will need to be assigned an IAM role with AmazonEC2ContainerRegistryReadOnly and AmazonS3ReadOnlyAccess
+* Instances will need to be assigned a security group with the following inbound and outbound rules.
+  1.  Inbound SSH access on port 22
+  2.  Inbound TCP access on port 5000
+  3.  Allow all outbound traffic on all ports.
+
+You will need to initialize an EC2 instance and execute the following steps once for each detector.
+
+1.  Create a directory and mount your EFS drive with the weights into it.
+```
+mkdir /data
+
+sudo mount -t nfs4 -o nfsvers=4.1, rsize=1048576, wsize=1048576, hard, timeo=600, retrans=2, noresvport ${EFS_IP}:/ /data
+```
+
+2.  Add the EFS drive to `/etc/fstab` to make it persist over reboots
+
+```
+sudo chmod a+w /etc/fstab
+
+echo "${EFS_IP}:/ /data  nfs     nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport     0       0" >> /etc/fstab
+
+sudo chmod a-w /etc/fstab
+```
+3.  Pull the image from your ECR
+```
+docker pull ${ECR_URI}:${DETECTOR_IMAGE_NAME}
+```
+4.  Run the container with the `--restart unless-stopped` option so that the container automatically starts when the instance does.
+
+```
+docker run --runtime=nvidia --restart unless-stopped -v /data/weights/${DETECTOR_NAME}/:/workdir/weights  -d -p 5000:5000 ${DETECTOR_IMAGE_NAME}
+```
+
+5.  Stop the instance, but _not_ the container
+```
+sudo shutdown -h
+```
+6.  Take note of the instance ID and replace the value in `FakeFinder/api/models.json` with the key corresponding to the detector.
+
+#TODO Mona:  Instructions for starting the API server, what IAM roles for the API server should look like, and changes to api.py for people reproducing the tool.  Put that in the api directory readme
 
 #TODO Zig:  Instructions for starting the Dash app
 
