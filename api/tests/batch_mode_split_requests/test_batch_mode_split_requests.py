@@ -14,8 +14,6 @@ def test_batch_mode_ntech():
                "modelName": "ntech",
                "splitRequests": True,
                "numSplitRequests": 2,
-               "uploadFile": False,
-               "uploadFilePath": "string"
               }
     
     # convert dict to json string by json.dumps() for body data. 
@@ -40,8 +38,6 @@ def test_batch_mode_selimsef():
                "modelName": "selimsef",
                "splitRequests": True,
                "numSplitRequests": 2,
-               "uploadFile": False,
-               "uploadFilePath": "string"
               }
 
     # convert dict to json string by json.dumps() for body data. 
@@ -66,8 +62,6 @@ def test_batch_mode_medics():
                "modelName": "medics",
                "splitRequests": True,
                "numSplitRequests": 2,
-               "uploadFile": False,
-               "uploadFilePath": "string"
               }
 
     # convert dict to json string by json.dumps() for body data. 
@@ -92,8 +86,6 @@ def test_batch_mode_wm():
                "modelName": "wm",
                "splitRequests": True,
                "numSplitRequests": 2,
-               "uploadFile": False,
-               "uploadFilePath": "string"
               }
 
     # convert dict to json string by json.dumps() for body data. 
@@ -118,8 +110,6 @@ def test_batch_mode_eighteen():
                "modelName": "eighteen",
                "splitRequests": True,
                "numSplitRequests": 2,
-               "uploadFile": False,
-               "uploadFilePath": "string"
               }
 
     # convert dict to json string by json.dumps() for body data. 

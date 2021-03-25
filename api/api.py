@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, make_response
 from flask_restx import Api, Resource, fields, reqparse
 from werkzeug.datastructures import FileStorage
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import boto3
 from botocore.exceptions import ClientError
@@ -35,8 +36,9 @@ api = Api(app, version='1.0', title='FakeFinder API',
     description='FakeFinder API',
 )
 
-upload_parser = reqparse.RequestParser()
+upload_parser = api.parser()
 upload_parser.add_argument('file', location='files', type=FileStorage, required=True)
+upload_parser.add_argument('bucket', required=True)
 
 
 ns = api.namespace('fakefinder', description='FakeFinder operations')
@@ -52,9 +54,7 @@ ffmodel = api.model('FakeFinder', {
     's3Location': fields.String(required=True, description='Image/Video S3 location. If uploading the file ththe value should be bucket name.'),
     'modelName': fields.String(required=True, description='Name of the model to run inference against'),
     'splitRequests': fields.Boolean(required=False, default=False, description='Split the request containing a list of videos to multiple requests containing single video.'),
-    'numSplitRequests': fields.Integer(required=False, default=1, description='Number of splits of the list containing videos.'),
-    'uploadFile': fields.Boolean(required=False, default=False, description='Upload the file to S3 bucket if needed.'),
-    'uploadFilePath': fields.String(required=False, description='Path to upload a file or directory.')
+    'numSplitRequests': fields.Integer(required=False, default=1, description='Number of splits of the list containing videos.')
 })
 
 
@@ -154,10 +154,6 @@ def StopAWSWarmInstance():
         response = client.stop_instances(InstanceIds=[instance_id,],)
         print(response)
 
-    #instance = ec2.Instance(instance_id)
-    #print("Wait till instance stops running")
-    #instance.wait_until_stopped()
-
 def UploadFileToS3(file_name, file_content, bucket):
     s3_client = boto3.client('s3')
     file_path = os.path.join("./test_upload", file_name) # path where file can be saved
@@ -169,47 +165,12 @@ def UploadFileToS3(file_name, file_content, bucket):
     except ClientError as e:
             logging.error(e)
     
-'''
-def UploadFileToS3(file_name, file_content, bucket, object_name=None):
-    s3_client = boto3.client('s3')
 
-    if os.path.isfile(file_name):
-       # If S3 object_name was not specified, use file_name
-       if object_name is None:
-          object_name = file_name
-       # Upload the file
-       try:
-            s3_client.upload_file(file_name, bucket, object_name, Callback=ProgressPercentage(file_name))
-            return "s3://"+ bucket + "/" + file_name
-       except ClientError as e:
-            logging.error(e)
-            return False
-    else:
-        file_list = []
-        for files in os.walk(file_name):
-            for filename in files:
-                # If S3 object_name was not specified, use file_name
-                if object_name is None:
-                   object_name = filename
-
-                # Upload the file
-                try:
-                     s3_client.upload_file(filename, bucket, object_name, Callback=ProgressPercentage(filename))
-                     file_list.append("s3://"+ bucket + "/" + filename)
-                except ClientError as e:
-                     logging.error(e)
-                     return False
-        print(file_list)
-        return file_list
-    
-
-'''
-
-# warm aws instances to support ui
+# warm aws instances to support ui/batch mode
 with open("models.json") as jsonfile:
      warm_instance_ids = json.load(jsonfile)
 
-# cold aws instances to support ui
+# cold aws instances to support batch mode
 with open("images.json") as jsonfile:
      cold_instance_ids = json.load(jsonfile)
 
@@ -228,27 +189,24 @@ class FakeFinderPost(Resource):
         '''Create a new task'''
         # request payload can be a list or a dictionary
         print(type(api.payload))
+        agg_response = []
         if type(api.payload) is list:
              # loop through the list for each of the selected models
              for r in api.payload:
-                 if r['uploadFile'] is True:
-                    file_name = r['uploadFilePath']
-                    file_content = api.files
-                    UploadFileToS3(file_name, file_content, r['s3Location'])
-                 if r['batchMode'] is True:
-                      print("Bring up the cold ec2 instances")
+                 #if r['batchMode'] is True:
+                      #print("Bring up the cold ec2 instances")
                       # Bring up the cold ec2 instances
-                      url = StartAWSColdInstance(r['modelName'])
+                      #url = StartAWSColdInstance(r['modelName'])
+                 #else:
+                 if r['alwaysOn'] is False:
+                    url = StartAWSWarmInstance(r['modelName'])
                  else:
-                      if r['alwaysOn'] is False:
-                         url = StartAWSWarmInstance(r['modelName'])
-                      else:
-                         url = GetUrlFromAWSInstance(r['modelName'])
+                    url = GetUrlFromAWSInstance(r['modelName'])
 
                  print(url)
                  headers = {'Content-type': 'application/json; charset=UTF-8'}
                  # if split requests is true then send one file per request.
-                 if r['splitRequests'] is True:
+                 if r['splitRequests'] is True and r['batchMode'] is False:
                     splits = r['numSplitRequests']
                     if type(r['s3Location']) is not list:
                        # convert dict to list
@@ -258,13 +216,16 @@ class FakeFinderPost(Resource):
                        final = np.array_split(r['s3Location'], splits)
                     print(final)
                     for i, loc in enumerate(final, start=1):
-                        if i > 1:
+                        #if i > 1:
                            # Spawn a new instance for each request split
-                           url = StartAWSColdInstance(r['modelName'])
-                        print(loc)
+                           #url = StartAWSColdInstance(r['modelName'])
+                        #print(loc)
 
                         response = requests.post(url, json={'video_list': loc.tolist()}, headers=headers)
                         agg_response.append(response.json())                 
+                 elif r['splitRequests'] is True and r['batchMode'] is True:
+                    # Spawn cold ec2 instance concurrently and send requests.
+                    print("threading code")  
                  else:
                     if type(r['s3Location']) is list:
                         response = requests.post(url, json={'video_list': r['s3Location']}, headers=headers)
@@ -273,23 +234,23 @@ class FakeFinderPost(Resource):
                  agg_response.append(response.json())
         elif type(api.payload) is dict:
                  # request contains a single model
-                 if api.payload['uploadFile'] is True:
-                    file_name = api.payload['uploadFilePath']
-                    api.payload['s3Location'] = UploadFileToS3(file_name, api.payload['s3Location'])
-                 if api.payload['batchMode'] is True:
-                      print("Bring up the cold ec2 instances")
+                 #if api.payload['batchMode'] is True:
+                      #print("Bring up the cold ec2 instances")
                       # Bring up the cold ec2 instances
-                      url = StartAWSColdInstance(api.payload['modelName'])
-                 else:
-                      if api.payload['alwaysOn'] is False:
-                         url = StartAWSWarmInstance(api.payload['modelName'])
-                      else:
-                         url = GetUrlFromAWSInstance(api.payload['modelName'])
+                      #url = StartAWSColdInstance(api.payload['modelName'])
+                 #else:
+                 if api.payload['alwaysOn'] is False and api.payload['batchMode'] is False:
+                    print("Bringing up warm static instances")
+                    url = StartAWSWarmInstance(api.payload['modelName'])
+                 elif api.payload['alwaysOn'] is True and api.payload['batchMode'] is False:
+                    print("Using alwaysOn static instances")
+                    url = GetUrlFromAWSInstance(api.payload['modelName'])
                  
-                 print(url)
+                 #print(url)
                  headers = {'Content-type': 'application/json; charset=UTF-8'}
                  # if split requests is true then send one file per request.
-                 if api.payload['splitRequests'] is True:
+                 if api.payload['splitRequests'] is True and api.payload['batchMode'] is False:
+                    print("Split requests for warm/always on instances")
                     splits = api.payload['numSplitRequests']
                     if type(api.payload['s3Location']) is not list:
                        # convert dict to list
@@ -299,38 +260,65 @@ class FakeFinderPost(Resource):
                        final = np.array_split(api.payload['s3Location'], splits)
                     print(final)
                     for i, loc in enumerate(final, start=1):
-                        if i > 1:
+                        #if i > 1:
                            # Spawn a new instance for each request split
-                           url = StartAWSColdInstance(api.payload['modelName'])
+                           #url = StartAWSColdInstance(api.payload['modelName'])
                         print(loc)
                         response = requests.post(url, json={'video_list': loc.tolist()}, headers=headers)
                         agg_response.append(response.json()) 
+                 elif api.payload['splitRequests'] is True and api.payload['batchMode'] is True:
+                    print("Split requests for batch mode concurrent processing")
+                    # Spawn cold ec2 instance concurrently and send requests.
+                    threads= []
+                    splits = api.payload['numSplitRequests']
+                    if type(api.payload['s3Location']) is not list:
+                       # convert dict to list
+                       s3Location_list = list(api.payload['s3Location'].items())
+                       final = np.array_split(s3Location_list, splits)
+                    else:
+                       final = np.array_split(api.payload['s3Location'], splits)
+                    print(final)
+                    with ThreadPoolExecutor(max_workers=20) as executor:
+                         for i in range(splits):
+                             threads.append(executor.submit(StartAWSColdInstance, api.payload['modelName']))
+                         for i, task in enumerate(as_completed(threads)):
+                             print("Task " + str(i))
+                             print(task.result())
+                             response = requests.post(task.result(), json={'video_list': final[i].tolist()}, headers=headers)
+                             agg_response.append(response.json())
+                              
                  else:
                     if type(api.payload['s3Location']) is list:
                         response = requests.post(url, json={'video_list': api.payload['s3Location']}, headers=headers)
                     else:
                         response = requests.post(url, json={'video_list': [api.payload['s3Location']]}, headers=headers)
 
-                 agg_response.append(response.json())
+                    agg_response.append(response.json())
         print(json.dumps(agg_response))
         return make_response(jsonify(json.dumps(agg_response)), 200)
       finally:
-        print("In finally")
+        print("Terminate/Stop Instances")
         time.sleep(10)
         StopAWSWarmInstance()
         WarmInstanceIds.clear()
         TerminateAWSColdInstance()
         ColdInstanceIds.clear()
 
-@api.route('/upload/')
+@api.route('/uploadS3/')
 @api.expect(upload_parser)
-class Upload(Resource):
+class UploadS3(Resource):
     def post(self):
         args = upload_parser.parse_args()
+        print(args)
+        bucket = args['bucket']
         uploaded_file = args['file']  # This is FileStorage instance
-        print(uploaded_file)
-        #url = UploadFileToS3(uploaded_file, api.payload['s3Location']) do_something_with_file(uploaded_file)
-        return {'url': url}, 201
+        uploaded_file.save("./tmp/" + uploaded_file.filename)
+        try:
+            s3_client.upload_file("./tmp/" + uploaded_file.filename, bucket,  uploaded_file.filename, Callback=ProgressPercentage("./tmp/" + uploaded_file.filename))
+            return "s3://"+ bucket + "/" + uploaded_file.filename, 201
+        except ClientError as e:
+            logging.error(e)
+            return 400
 
 if __name__ == '__main__':
     app.run(threaded=True, debug=True, host='0.0.0.0')
