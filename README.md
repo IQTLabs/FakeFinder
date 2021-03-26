@@ -164,7 +164,18 @@ sudo shutdown -h
 ```
 6.  Take note of the instance ID and replace the value in `FF_PATH/api/models.json` with the key corresponding to the detector.
 
-#TODO Mona:  Instructions for starting the API server, what IAM roles for the API server should look like, and changes to api.py for people reproducing the tool.  Put that in the api directory readme
+### Starting API server
+The API server is in docker container. It can be built and started with the following commands. 
+
+```
+sudo docker build -t fakefinder-api .
+```
+
+```
+sudo docker run --rm -it --name fakefinder-api -p 5000:5000 fakefinder-api
+```
+
+
 
 
 ### Setting up the Dash App
