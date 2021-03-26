@@ -57,11 +57,20 @@ We built FakeFinder using several components of the AWS ecosystem:
 3.  [Simple Storage Service](https://aws.amazon.com/s3/) (S3) for storing videos uploaded using the API server or Dash app and accessed by the inference instances.
 4.  [Elastic Container Registry](https://aws.amazon.com/ecr/) for storing container images for each detector that can so they can be easily deployed to new instances when the tool is operating in the scalable mode.
 
-We also made use of Docker for building and running containers, and Flask for the API server and serving models for inference.  Here we provide instructions on reproducing the FakeFinder architecture on AWS. Also, AWS command line interface will be used in multiple steps, so it must be installed first (instructions [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)).  All of the following steps should be done in the same AWS account.
+We also made use of Docker for building and running containers, and Flask for the API server and serving models for inference.  Here we provide instructions on reproducing the FakeFinder architecture on AWS.  There are a few prerequisites:
+
+1. All of the following steps that involve AWS resources should be done from the same AWS account to ensure all EC2 instances can access the S3 bucket, ECR, and EFS drive.  Specifically we recommend doing all command line work in the first three steps from a `p2.xlarge` EC2 instance running the Deep Learning AMI (Ubuntu 18.04) created under this account. 
+2.  AWS command line interface will be used in multiple steps, so it must be installed first (instructions [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)).
+3.  Some of the detectors use submodules so use the following command to clone the FakeFinder repo.  We recommend using ssh for cloning.
+```
+git clone --recurse-submodules -j8 git@github.com:IQTLabs/FakeFinder.git
+```
+4.  Henceforth, let `FF_PATH` equal the absolute path to the root of the FakeFinder repo.
+
 
 ### Setting up the S3 Bucket
 
-You will need to create an S3 bucket that will store videos that are uploaded by the Dash app or API server, and store the bucket name as `S3_bucket_name`.
+You will need to create an S3 bucket that will store videos that are uploaded by the Dash app or API server, and store the bucket name as `S3_BUCKET_NAME`.
 
 ### Model Weights and EFS directory
 
@@ -70,20 +79,25 @@ Model weights are available in an S3 bucket named `ffweights` located in `us-eas
 ```
 aws s3 sync <path_to_weight_directory> s3://ffweights
 ```
-This will create a top level directory called `weights`, with sub-directories for each detector.  This can either be done on every EC2 instance that will be hosting a detector container, or the weights can be downloaded into an EFS directory that is mounted on each EC2 instance.  See [here](https://docs.aws.amazon.com/efs/latest/ug/wt1-getting-started.html) for instructions on creating a file system on Amazon EFS.  You will have to mount the file system at least once to download the weights onto it, and take note of the file system's IP address.
+This will create a top level directory called `weights`, with sub-directories for each detector.  This can either be done on every EC2 instance that will be hosting a detector container, or the weights can be downloaded into an EFS directory that is mounted on each EC2 instance.  See [here](https://docs.aws.amazon.com/efs/latest/ug/wt1-getting-started.html) for instructions on creating a file system on Amazon EFS.  Store the file system's IP as `EFS_IP`.  Run the following commands from the home directory of an EC2 to mount the EFS directory, and download the weights to it.
 
+```
+mkdir /data
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${EFS_IP}:/ /data
+aws s3 sync /data s3://ffweights
+```
 
 ### Docker Images and Elastic Container Registry
 
-This repo contains Dockerfiles for the Dash App, API server, and each of the implemented detectors.  You will need to clone this repository, build images for each detector, and push them to an AWS ECR as part of reproducing FakeFinder.  Follow the instructions [here](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-console.html) to create an image repository on AWS ECR, and take note of your repository's URI.  You will also need to login and authenticate your docker client before pushing images.
+This repo contains Dockerfiles for the Dash App, API server, and each of the implemented detectors.  You will need to clone this repository, build images for each detector, and push them to an AWS ECR as part of reproducing FakeFinder.  Follow the instructions [here](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-console.html) to create an image repository on AWS ECR, and take note of your repository's URI (store as `ECR_URI`).  You will also need to login and authenticate your docker client before pushing images.
 
 To build images for each of the detectors do the following steps for each detector:
 
 Switch to the directory for the given detector 
 ```
-cd <path_to_repository>/FakeFinder/detectors/${DETECTOR_NAME}
+cd ${FF_PATH}/detectors/${DETECTOR_NAME}
 ```
-where `DETECTOR_NAME` is the name of the detector (listed above).  Inside `app.py` in that directory, the variable `BUCKET_NAME` is defined (usually on line 12).  Replace the default value with the name of the S3 bucket you created and save the changes.
+where `DETECTOR_NAME` is the name of the detector (listed above).  Inside `app.py` in that directory, the variable `BUCKET_NAME` is defined (usually on line 12).  Replace the default value with the name of the S3 bucket you created (stored in `S3_BUCKET_NAME`) and save the changes.
 
 Next, run the following command
 ```
@@ -101,7 +115,7 @@ docker push ${ECR_URI}:${DETECTOR_IMAGE_NAME}
 ```
 #TODO mona:  Fill in where users update the new image names (models.json?) and ECR URI.
 
-You can also test these images locally.  To use GPUs in these containers you will need to install the [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker), and utilize the NVIDA runtime when running the container.  By default, containers run from these images start a Flask app that serves the detector for inference, but you can overwrite this with the `--entrypoint` flag.  The following command will run a container for the specified detector and launch a bash shell within it.
+You can also test these images locally.  To use GPUs in these containers you will need to install the [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker), and utilize the NVIDIA runtime when running the container.  By default, containers run from these images start a Flask app that serves the detector for inference, but you can overwrite this with the `--entrypoint` flag.  The following command will run a container for the specified detector and launch a bash shell within it.
 
 ```
 docker run --runtime=nvidia -v <path_to_weight_directory>/weights/${DETECTOR_NAME}/:/workdir/weights --entrypoint=/bin/bash -it -p 5000:5000 ${DETECTOR_IMAGE_NAME}
@@ -116,7 +130,7 @@ Once you have setup your S3 Bucket, EFS directory, and built and pushed all the 
   2.  Inbound TCP access on port 5000
   3.  Allow all outbound traffic on all ports.
 
-You will need to initialize an EC2 instance and execute the following steps once for each detector.
+For each detector you will need to launch an EC2 instance with the aforementioned configuration, ssh into it, and execute the following steps.
 
 1.  Create a directory and mount your EFS drive with the weights into it.
 ```
@@ -148,7 +162,7 @@ docker run --runtime=nvidia --restart unless-stopped -v /data/weights/${DETECTOR
 ```
 sudo shutdown -h
 ```
-6.  Take note of the instance ID and replace the value in `FakeFinder/api/models.json` with the key corresponding to the detector.
+6.  Take note of the instance ID and replace the value in `FF_PATH/api/models.json` with the key corresponding to the detector.
 
 #TODO Mona:  Instructions for starting the API server, what IAM roles for the API server should look like, and changes to api.py for people reproducing the tool.  Put that in the api directory readme
 
