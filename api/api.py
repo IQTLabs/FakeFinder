@@ -193,17 +193,13 @@ class FakeFinderPost(Resource):
         if type(api.payload) is list:
              # loop through the list for each of the selected models
              for r in api.payload:
-                 #if r['batchMode'] is True:
-                      #print("Bring up the cold ec2 instances")
-                      # Bring up the cold ec2 instances
-                      #url = StartAWSColdInstance(r['modelName'])
-                 #else:
-                 if r['alwaysOn'] is False:
+                 if r['alwaysOn'] is False and r['batchMode'] is False:
+                    print("Bringing up warm static instances")
                     url = StartAWSWarmInstance(r['modelName'])
-                 else:
+                 elif r['alwaysOn'] is True and r['batchMode'] is False:
+                    print("Using alwaysOn static instances")
                     url = GetUrlFromAWSInstance(r['modelName'])
 
-                 print(url)
                  headers = {'Content-type': 'application/json; charset=UTF-8'}
                  # if split requests is true then send one file per request.
                  if r['splitRequests'] is True and r['batchMode'] is False:
@@ -216,29 +212,38 @@ class FakeFinderPost(Resource):
                        final = np.array_split(r['s3Location'], splits)
                     print(final)
                     for i, loc in enumerate(final, start=1):
-                        #if i > 1:
-                           # Spawn a new instance for each request split
-                           #url = StartAWSColdInstance(r['modelName'])
-                        #print(loc)
-
+                        print(loc)
                         response = requests.post(url, json={'video_list': loc.tolist()}, headers=headers)
                         agg_response.append(response.json())                 
                  elif r['splitRequests'] is True and r['batchMode'] is True:
+                    print("Split requests for batch mode concurrent processing")
                     # Spawn cold ec2 instance concurrently and send requests.
-                    print("threading code")  
+                    threads= []
+                    splits = r['numSplitRequests']
+                    if type(r['s3Location']) is not list:
+                       # convert dict to list
+                       s3Location_list = list(r['s3Location'].items())
+                       final = np.array_split(s3Location_list, splits)
+                    else:
+                       final = np.array_split(r['s3Location'], splits)
+                    print(final)
+                    with ThreadPoolExecutor(max_workers=20) as executor:
+                         for i in range(splits):
+                             threads.append(executor.submit(StartAWSColdInstance, r['modelName']))
+                         for i, task in enumerate(as_completed(threads)):
+                             print("Task " + str(i))
+                             print(task.result())
+                             response = requests.post(task.result(), json={'video_list': final[i].tolist()}, headers=headers)
+                             #yield response.json()
+                             agg_response.append(response.json())  
                  else:
                     if type(r['s3Location']) is list:
                         response = requests.post(url, json={'video_list': r['s3Location']}, headers=headers)
                     else:
                         response = requests.post(url, json={'video_list': [r['s3Location']]}, headers=headers)
-                 agg_response.append(response.json())
+                    agg_response.append(response.json())
         elif type(api.payload) is dict:
                  # request contains a single model
-                 #if api.payload['batchMode'] is True:
-                      #print("Bring up the cold ec2 instances")
-                      # Bring up the cold ec2 instances
-                      #url = StartAWSColdInstance(api.payload['modelName'])
-                 #else:
                  if api.payload['alwaysOn'] is False and api.payload['batchMode'] is False:
                     print("Bringing up warm static instances")
                     url = StartAWSWarmInstance(api.payload['modelName'])
@@ -246,7 +251,6 @@ class FakeFinderPost(Resource):
                     print("Using alwaysOn static instances")
                     url = GetUrlFromAWSInstance(api.payload['modelName'])
                  
-                 #print(url)
                  headers = {'Content-type': 'application/json; charset=UTF-8'}
                  # if split requests is true then send one file per request.
                  if api.payload['splitRequests'] is True and api.payload['batchMode'] is False:
@@ -260,9 +264,6 @@ class FakeFinderPost(Resource):
                        final = np.array_split(api.payload['s3Location'], splits)
                     print(final)
                     for i, loc in enumerate(final, start=1):
-                        #if i > 1:
-                           # Spawn a new instance for each request split
-                           #url = StartAWSColdInstance(api.payload['modelName'])
                         print(loc)
                         response = requests.post(url, json={'video_list': loc.tolist()}, headers=headers)
                         agg_response.append(response.json()) 
@@ -285,6 +286,7 @@ class FakeFinderPost(Resource):
                              print("Task " + str(i))
                              print(task.result())
                              response = requests.post(task.result(), json={'video_list': final[i].tolist()}, headers=headers)
+                             #yield response.json()
                              agg_response.append(response.json())
                               
                  else:
@@ -292,6 +294,7 @@ class FakeFinderPost(Resource):
                         response = requests.post(url, json={'video_list': api.payload['s3Location']}, headers=headers)
                     else:
                         response = requests.post(url, json={'video_list': [api.payload['s3Location']]}, headers=headers)
+                    
 
                     agg_response.append(response.json())
         print(json.dumps(agg_response))
