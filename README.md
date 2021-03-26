@@ -164,8 +164,14 @@ sudo shutdown -h
 ```
 6.  Take note of the instance ID and replace the value in `FF_PATH/api/models.json` with the key corresponding to the detector.
 
+### Setting the API server
+
+The EC2 instance used for setting up the API server should be configured using the same IAM roles and security groups as described above. These security groups and IAM roles should allow passwordless access to S3 and other EC2 instances in the tenant where the server is hosted.
+
+It can be run on a Red Hat Enterprise Linux platform. An Inbound rule for port 80 should be added to the server to enable access to the Swagger endpoint.
+
 ### Starting API server
-The API server is in docker container. It can be built and started with the following commands. 
+The API server is in docker container. It can be built and started on port 5000 with the following commands. 
 
 ```
 sudo docker build -t fakefinder-api .
@@ -175,7 +181,16 @@ sudo docker build -t fakefinder-api .
 sudo docker run --rm -it --name fakefinder-api -p 5000:5000 fakefinder-api
 ```
 
+Once it is up and running, the Swagger endpoint can be accessed at - 
 
+```
+http://<ip address>:5000/
+```
+
+The following endpoints are available - 
+1. To run inference, send a Post request to - ``` http://<ip address>:5000/fakefinder ```
+2. To get a list of available models, send a Get request to - ``` http://<ip address>:5000/fakefinder ```
+3. To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
 
 
 ### Setting up the Dash App
