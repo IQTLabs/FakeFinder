@@ -150,7 +150,47 @@ sudo shutdown -h
 
 #TODO Mona:  Instructions for starting the API server, what IAM roles for the API server should look like, and changes to api.py for people reproducing the tool.  Put that in the api directory readme
 
-#TODO Zig:  Instructions for starting the Dash app
+
+### Setting up the Dash App
+
+In order to start the dash web application, you'll need to setup another AWS EC2 instance.
+We suggest using a `t2.small` instance running Ubuntu 18.04.
+
+* The Instance will need to be assigned an ApiNode IAM role with AmazonEC2FullAccess and AmazonS3FullAccess
+* The instance will need to be assigned a security group with the following inbound and outbound rules.
+  1.  Inbound SSH access on port 22
+  2.  Inbound HTTP access on port 80
+  3.  Inbound Custom TCP access on port 8050
+
+Once launched, take note of the IP address and ssh into the machine.
+Checkout the git repository, move into the `dash` directory. and build the docker container:
+```
+git clone https://github.com/IQTLabs/FakeFinder.git
+cd FakeFinder/dash
+```
+
+You'll need to change the `BUCKET_NAME` and `FF_URL` variables in the `apps/definitions.py` file
+to point to your bucket and API url, respectively.
+
+After doing so, the dash app server can be built by the following commands:
+```
+chmod +x build_docker.sh
+./build_docker.sh
+```
+This may take a few minutes to prep all the necessary requirements.
+The build and launch will be complete when you see the following terminal output:
+```
+Successfully tagged dash:beta
+Dash is running on http://0.0.0.0:8050/
+
+ * Serving Flask app "app" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+```
+
+You should then be able to point a browser to the dash app's IP address and access the web application.
 
 
 ## Usage Instructions <a name="usage"></a>
