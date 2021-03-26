@@ -1,7 +1,9 @@
 # FakeFinder: Sifting out deepfakes in the wild
 The FakeFinder project builds upon the work done at IQT Labs in competing in the Facebook Deepfake Detection Challenge (DFDC).  FakeFinder builds a modular, scalable and extensible framework for evaluating various deepfake detection models. The toolkit provides a web application as well as API access for integration into existing media forensic workflow and applications. To illustrate the functionality in FakeFinder we have included implementations of six existing, open source Deepfake detectors as well as a [template](./detectors/detector_template/) exemplifying how new algorithms can be easily added to the system.  
 
+<a name='inferencevideo'>
 <img src="./images/Fake_video_inference.gif" width="600" />
+</a>
 
 ## Table of contents
 1. [Overview](#overview)
@@ -190,14 +192,24 @@ Dash is running on http://0.0.0.0:8050/
  * Debug mode: on
 ```
 
-You should then be able to point a browser to the dash app's IP address and access the web application.
+You should then be able to point a browser to the dash app's IP address to access the web application.
 
 
 ## Usage Instructions <a name="usage"></a>
 
-### Using the Dash app
+### Using the Dash App
+The above [example](#inferencevideo) demonstrates using the Inference Tool section of the web app.
+Users can upload a video by clicking on the *Upload* box of the *Input Video* section.
+The dropdown menu autopopulates upon upload completion, and users can play the video via a series of controls.
+There is the ability to change the volume, playback speed and current location within the video file.
 
-#TODO zig
+In the *Inference* section of the page, users may select from the deep learning models available through the API.
+After checking the boxes of requested models, the *Submit* button will call the API to run inference for each model.
+The results are returned in the table, which includes an assignment of Real or Fake based on the model probability output,
+as well as graphically, found below the table.
+The bar braph presents the confidence of the video being real or fake for each model and for submissions with more than one model,
+an average confidence score is also presented.
+
 
 ### Using the API layer
 
