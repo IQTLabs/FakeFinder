@@ -83,7 +83,7 @@ navbar = dbc.Navbar(
                 navbar=True,
             ),
             html.A([
-                    html.Img(src="{}/assets/iqt-Labs-full-color.jpg".format(APP_PATH),
+                    html.Img(src="{}/assets/iqt-labs-white-color.png".format(APP_PATH),
                              style={
                                     'height' : '100px',
                                     'padding-top' : 10,

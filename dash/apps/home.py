@@ -43,8 +43,8 @@ layout = html.Div(children=[
                color='primary',
                className='three columns',
               ),
-              id='results-link',
-              href="{}/page_results".format(APP_PATH),
+              id='inference-link',
+              href="{}/page_inference".format(APP_PATH),
               target="_self"
         ),
 
@@ -65,8 +65,8 @@ layout = html.Div(children=[
                color='primary',
                className='three columns',
               ),
-              id='results-link',
-              href="{}/page_results".format(APP_PATH),
+              id='inference-link',
+              href="{}/page_inference".format(APP_PATH),
               target="_self"
         ),
 
@@ -77,7 +77,7 @@ layout = html.Div(children=[
                  dbc.Col(dbc.Card(children=[html.H3(children='Access data & code used to build this dashboard',
                                                     className="text-center"),
                                             html.A([
-                                            html.Img(src="{}/assets/GitLab_Logo.png".format(APP_PATH),
+                                            html.Img(src="{}/assets/github_logo.png".format(APP_PATH),
                                                      style={
                                                             'height' : '7vw',
                                                             'min-height' : '1vw',
@@ -85,23 +85,8 @@ layout = html.Div(children=[
                                                             'padding-bottom' : 10,
                                                            }
                                                     )
-                                                   ], className='text-center', href='https://gitlab.iqt.org/zhampelarias/covid-dash-app'),
+                                                   ], className='text-center', href='https://github.com/IQTLabs/FakeFinder'),
                                            ], body=True, color="dark", outline=True), width=2, lg=4, className="mb-4"),
-
-                 #dbc.Col(dbc.Card(children=[html.H3(children='Explore other work from B.Next',
-                 #                                   className="text-center"),
-                 #                           html.A([
-                 #                           html.Img(src="{}/assets/BNext_Logo.png".format(APP_PATH),
-                 #                                    style={
-                 #                                           'height' : '7vw',
-                 #                                           'min-height' : '1vw',
-                 #                                           'padding-top' : 10,
-                 #                                           'padding-bottom' : 10,
-                 #                                           'className': 'text-center'
-                 #                                          }
-                 #                                   )
-                 #                                  ], className='text-center', href='https://www.bnext.org/'),
-                 #                          ], body=True, color="dark", outline=True), width=2, lg=4, className="mb-4"),
 
                  dbc.Col(dbc.Card(children=[html.H3(children='Explore other research areas of IQT Labs',
                                                     className="text-center"),
@@ -117,7 +102,6 @@ layout = html.Div(children=[
                                                    ], className='text-center', href='https://www.iqt.org/labs/'),
                                            ], body=True, color="dark", outline=True), width=2, lg=4, className="mb-4")
                 ], justify='around', className="mb-5"),
-                #], justify='around', align='stretch', className="mb-5"),
         
         html.Hr(),
         
@@ -126,9 +110,9 @@ layout = html.Div(children=[
 
         html.Hr(),
 
-        html.A("Special thanks to ..."),
+        #html.A("Special thanks to ..."),
         
-        html.Hr(),
+        #html.Hr(),
 
     ])
 
