@@ -187,12 +187,16 @@ Once it is up and running, the Swagger endpoint can be accessed at -
 http://<ip address>:5000/
 ```
 
-```diff
+
 The following endpoints are available - 
-- 1. POST INFERENCE - To run inference, send a Post request to - ``` http://<ip address>:5000/fakefinder ```
-+ 2. GET MODELS - To get a list of available models, send a Get request to - ``` http://<ip address>:5000/fakefinder ```
-! 3. POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
-```
+
+![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) POST INFERENCE - To run inference, send a Post request to - ``` http://<ip address>:5000/fakefinder ```
+
+![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) GET MODELS - To get a list of available models, send a Get request to - ``` http://<ip address>:5000/fakefinder ```
+
+![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
+
+
 
 
 ### Setting up the Dash App
