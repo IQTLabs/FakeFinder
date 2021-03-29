@@ -187,10 +187,12 @@ Once it is up and running, the Swagger endpoint can be accessed at -
 http://<ip address>:5000/
 ```
 
+```diff
 The following endpoints are available - 
-1. To run inference, send a Post request to - ``` http://<ip address>:5000/fakefinder ```
-2. To get a list of available models, send a Get request to - ``` http://<ip address>:5000/fakefinder ```
-3. To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
+- 1. POST INFERENCE - To run inference, send a Post request to - ``` http://<ip address>:5000/fakefinder ```
++ 2. GET MODELS - To get a list of available models, send a Get request to - ``` http://<ip address>:5000/fakefinder ```
+! 3. POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
+```
 
 
 ### Setting up the Dash App
@@ -253,8 +255,13 @@ an average confidence score is also presented.
 
 ### Using the API layer
 
-The API supports 2 modes - UI and Batch. 
+The API supports 2 modes - UI and Batch.  The GPU-powered AWS EC2 instances can be expensive to run indefinitely. On the other hand, bringing up an GPU EC2 instance from an image in an on-demand scenario takes some time.  In view of these considerations, the API provides two modes that support either using AlwaysON or Warm (Stopped) instances, and Cold start(newly created from image) instances.  The first of these is the UI mode and provides significantly better response time than second one which is the batch mode.
+
+The following endpoints are supported in the API - 
+1. 
 
 #### UI Mode
+
+The UI mode refers to a scenario where 
 
 #### Batch Mode
