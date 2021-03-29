@@ -294,11 +294,11 @@ Number of splits of the list containing videos.
 
 #### UI Mode
 
-In this mode "batchMode" is set to False.  There is an option of running inference against running or stopped instances by toggling the "AlwaysOn" attribute. If this attribute is set to "True" the API expects running ec2 instances to which inference request can be sent. If this is set to False, the API will start the inference server corresponding to the "modelName" attribute first before running the inference. The later scenario will have a longer response time compared to the first one. A request containing long list of files can also be split into multiple requests. #TODO
+In this mode "batchMode" is set to False.  There is an option of running inference against running or stopped instances by toggling the "AlwaysOn" attribute. If this attribute is set to "True" the API expects running ec2 instances to which inference request can be sent. If this is set to False, the API will start the inference server corresponding to the "modelName" attribute first before running the inference. The later scenario will have a longer response time compared to the first one. A request containing long list of files can also be split into multiple requests, however, the reponse will always be an aggregate of all the requests. 
 
 #### Batch Mode
 
-In this mode "AlwaysOn" is set to False. API always creates an EC2 instance from the image stored in the container registery. The image is selected based on the "modelName" parameter. There is an option to split a request containing large number of files to different ec2 instances. If split request is selected, the API divides the list of files, spawns ec2 instances based on "numSplitRequests" and sends different requests to each of the instances. This provides the scaling needed for large scale inferencing scenarios. 
+In this mode "AlwaysOn" is set to False. API always creates an EC2 instance from the image stored in the container registery. The image is selected based on the "modelName" parameter. There is an option to split a request containing large number of files to different ec2 instances. If split request is selected, the API divides the list of files, spawns ec2 instances based on "numSplitRequests" and sends different requests to each of the instances. This provides the scaling needed for large scale inferencing scenarios. The reponse will always be an aggregate of all the requests. 
 
 ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) GET MODELS - To get a list of available models, send a Get request to - ``` http://<ip address>:5000/fakefinder ```
 
