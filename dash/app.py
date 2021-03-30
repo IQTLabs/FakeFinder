@@ -24,6 +24,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 app.config.suppress_callback_exceptions = True
+app.scripts.config.serve_locally = True
 
 #VALID_USERNAME_PASSWORD_PAIRS = {'dash_demo': 'dash@demo'}
 #
