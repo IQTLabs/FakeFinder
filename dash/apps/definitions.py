@@ -17,8 +17,8 @@ if not os.path.exists(STATIC_FULLPATH):
     os.makedirs(STATIC_FULLPATH)
 
 # S3 Bucket Name
-BUCKET_NAME = 'ff-inbound-videos'
+BUCKET_NAME = os.getenv('S3_BUCKETNAME')
 
 # FakeFinder API URL
-FF_URL = 'http://192.168.105.56:5000/fakefinder/'
+FF_URL = os.getenv('FF_API_URL')
 
