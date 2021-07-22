@@ -74,11 +74,13 @@ You will need to create an S3 bucket that will store videos that are uploaded by
 
 ### Model Weights and EFS directory
 
-Model weights are available in an S3 bucket named `ffweights` located in `us-east-1`.  To obtain the weights, run the following command in the location where you want them downloaded.
-
+To access the weights for each model, email jberkowitz@iqt.org and we will send you a presigned link that expires after seven days.  With this link, run the following commands:
+  
 ```
-aws s3 sync <path_to_weight_directory> s3://ffweights
+wget -O ffweights.tar.gz ${PRESIGNED_LINK}
+tar -xvzf ffweights.tar.gz 
 ```
+  
 This will create a top level directory called `weights`, with sub-directories for each detector.  This can either be done on every EC2 instance that will be hosting a detector container, or the weights can be downloaded into an EFS directory that is mounted on each EC2 instance.  See [here](https://docs.aws.amazon.com/efs/latest/ug/wt1-getting-started.html) for instructions on creating a file system on Amazon EFS.  Store the file system's IP as `EFS_IP`.  Run the following commands from the home directory of an EC2 to mount the EFS directory, and download the weights to it.
 
 ```
