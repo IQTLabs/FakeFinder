@@ -1,5 +1,5 @@
-## Team: TheMedics
-This folder contains the neceseray code to run inference using the DeepFake Detection (DFDC) solution by team TheMedics.  For more details on the project please visit the GitHub [repository](https://github.com/jphdotam/DFDC).
+## Team: Eighteen
+This folder contains the neceseray code to run inference using the DeepFake Detection (DFDC) solution by team "eighteen".  For more details on the project please visit the GitHub [repository](https://github.com/jphdotam/DFDC).
 
 ### Requirements
  
@@ -19,7 +19,7 @@ This folder contains the neceseray code to run inference using the DeepFake Dete
 To run the models, the pretrained model weights will need to be placed in the containers `workdir/weights` directory.  This can be done by running the [download_weights.sh](./download_weights.sh) before building the image, or inside the container, or by mounting a volume containing the weights to the container at runtime:
 
 ```
-docker run --runtime=nvidia -it -v <path to weight directory>:/workdir/weights  selimsef_i
+docker run --runtime=nvidia -it -v <path to weight directory>:/workdir/weights  medics_i
 ```    
 
 
