@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify, make_response
 from flask_restx import Api, Resource, fields, reqparse
+from pathvalidate import ValidationError, validate_filename
 from werkzeug.datastructures import FileStorage
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
@@ -315,6 +316,10 @@ class UploadS3(Resource):
         print(args)
         bucket = args['bucket']
         uploaded_file = args['file']  # This is FileStorage instance
+        try:
+            validate_filename(uploaded_file.filename, platform="auto")
+        except ValidationError as e:
+            return make_response(f"{e}", 400)
         uploaded_file.save("./tmp/" + uploaded_file.filename)
         try:
             s3_client.upload_file("./tmp/" + uploaded_file.filename, bucket,  uploaded_file.filename, Callback=ProgressPercentage("./tmp/" + uploaded_file.filename))
