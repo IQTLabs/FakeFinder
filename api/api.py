@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, make_response
 from flask_restx import Api, Resource, fields, reqparse
-from pathvalidate import ValidationError, validate_filename
+from pathvalidate import ValidationError, validate_filename, sanitize_filename
 from werkzeug.datastructures import FileStorage
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
@@ -316,17 +316,21 @@ class UploadS3(Resource):
         print(args)
         bucket = args['bucket']
         uploaded_file = args['file']  # This is FileStorage instance
+        sanitized_filename = None
         try:
             validate_filename(uploaded_file.filename, platform="auto")
+            sanitized_filename = sanitize_filename(uploaded_file.filename, platform="auto")
         except ValidationError as e:
             return make_response(f"{e}", 400)
-        uploaded_file.save("./tmp/" + uploaded_file.filename)
+        chunks = uploaded_file.read()
         try:
-            s3_client.upload_file("./tmp/" + uploaded_file.filename, bucket,  uploaded_file.filename, Callback=ProgressPercentage("./tmp/" + uploaded_file.filename))
-            return "s3://"+ bucket + "/" + uploaded_file.filename, 201
-        except ClientError as e:
-            logging.error(e)
-            return 400
+            s3_client.put_object(Body=chunks, Bucket=bucket, Key=sanitized_filename)
+            return "s3://"+ bucket + "/" + sanitized_filename, 201
+        except ClientError as cerr:
+            return {
+                'statusCode': 500,
+                'body': json.dumps(cerr)
+            }
 
 if __name__ == '__main__':
     app.run(threaded=True, debug=True, host='0.0.0.0')
