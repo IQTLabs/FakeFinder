@@ -74,7 +74,7 @@ You will need to create an S3 bucket that will store videos that are uploaded by
 
 ### Model Weights and EFS directory
 
-To access the weights for each model, email jberkowitz@iqt.org and we will send you a presigned link that expires after seven days.  With this link, run the following commands:
+To access the weights for each model, email clewis@iqt.org and we will send you a presigned link that expires after seven days.  With this link, run the following commands:
   
 ```
 wget -O ffweights.tar.gz ${PRESIGNED_LINK}
