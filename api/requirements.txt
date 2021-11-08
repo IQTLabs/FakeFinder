@@ -3,3 +3,4 @@ flask_restx
 requests
 boto3
 numpy
+pathvalidate==2.5.0
