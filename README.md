@@ -74,13 +74,25 @@ You will need to create an S3 bucket that will store videos that are uploaded by
 
 ### Model Weights and EFS directory
 
-To access the weights for each model, email jberkowitz@iqt.org and we will send you a presigned link that expires after seven days.  With this link, run the following commands:
-  
+To access the weights for each model run the following commands:
+
 ```
-wget -O ffweights.tar.gz ${PRESIGNED_LINK}
-tar -xvzf ffweights.tar.gz 
+mkdir weights
+cd weights
+wget -O boken.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/boken.tar.gz
+tar -xvzf boken.tar.gz
+wget -O eighteen.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/eighteen.tar.gz
+tar -xvzf eighteen.tar.gz
+wget -O medics.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/medics.tar.gz
+tar -xvzf medics.tar.gz
+wget -O ntech.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/ntech.tar.gz
+tar -xvzf ntech.tar.gz
+wget -O selimsef.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/selimsef.tar.gz
+tar -xvzf selimsef.tar.gz
+wget -O wm.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/wm.tar.gz
+tar -xvzf wm.tar.gz
 ```
-  
+
 This will create a top level directory called `weights`, with sub-directories for each detector.  This can either be done on every EC2 instance that will be hosting a detector container, or the weights can be downloaded into an EFS directory that is mounted on each EC2 instance.  See [here](https://docs.aws.amazon.com/efs/latest/ug/wt1-getting-started.html) for instructions on creating a file system on Amazon EFS.  Store the file system's IP as `EFS_IP`.  Run the following commands from the home directory of an EC2 to mount the EFS directory, and download the weights to it.
 
 ```
