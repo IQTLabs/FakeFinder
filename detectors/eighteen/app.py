@@ -13,7 +13,7 @@ BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
 
 s3 = boto3.resource('s3')
 
-chpt_dir = './weights'
+chpt_dir = './weights/eighteen'
 load_slowfast_path = '{}/sf_bc_jc_44000.pth.tar'.format(chpt_dir)
 load_slowfast_path2 = '{}/sf_32000.pth.tar'.format(chpt_dir)
 load_slowfast_path3 = '{}/sf_16x8_bc_jc_44000.pth.tar'.format(chpt_dir)

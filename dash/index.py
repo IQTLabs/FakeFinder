@@ -69,7 +69,6 @@ navbar = dbc.Navbar(
                         dbc.Col(dbc.NavbarBrand("FakeFinder DeepFake Inference Tool", className="ml-1")),
                     ],
                     align="center",
-                    no_gutters=True,
                 ),
                 href="{}/home".format(APP_PATH),
             ),

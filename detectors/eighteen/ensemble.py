@@ -41,8 +41,8 @@ cfg_mnet = {
 class Config:
     def __init__(self):
         self.cuda = True
-        self.face_pretrained_path = './weights/mobilenetV1X0.25_pretrain.tar'
-        self.face_model_path = './weights/mobilenet0.25_Final.pth'
+        self.face_pretrained_path = './weights/eighteen/mobilenetV1X0.25_pretrain.tar'
+        self.face_model_path = './weights/eighteen/mobilenet0.25_Final.pth'
         self.model_name = 'mobile0.25'
         self.origin_size = False
         self.confidence_threshold = 0.02

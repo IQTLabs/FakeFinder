@@ -15,7 +15,7 @@ model_chpt = ['final_111_DeepFakeClassifier_tf_efficientnet_b7_ns_0_36',
 
 class Ensemble:
     def __init__(self, frames_per_video=32, input_size=380, strategy=confident_strategy):
-        model_paths = ['./weights/{}'.format(x) for x in model_chpt]
+        model_paths = ['./weights/selimsef/{}'.format(x) for x in model_chpt]
         self.models = []
         for path in model_paths:
             model = DeepFakeClassifier(
