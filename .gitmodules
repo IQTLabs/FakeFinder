@@ -1,6 +1,6 @@
 [submodule "detectors/wm/external/Pytorch_Retinaface"]
 	path = detectors/wm/external/Pytorch_Retinaface
-	url = git@github.com:biubug6/Pytorch_Retinaface.git
+	url = git@github.com:IQTLabs/Pytorch_Retinaface.git
 [submodule "detectors/wm/external/EfficientNet-PyTorch"]
 	path = detectors/wm/external/EfficientNet-PyTorch
 	url = git@github.com:lukemelas/EfficientNet-PyTorch.git
