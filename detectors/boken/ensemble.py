@@ -16,16 +16,16 @@ class Ensemble(DeeperForensicsDetector):
             # model, _, *_ = model_selection('se_resnext101_32x4d', num_out_classes=2, dropout=0.5)
             model = get_efficientnet(
                 model_name='efficientnet-b0', num_classes=2, pretrained=False)
-            model_path = './weights/efn-b0_LS_27_loss_0.2205.pth'
+            model_path = './weights/boken/efn-b0_LS_27_loss_0.2205.pth'
             model.load_state_dict(torch.load(
                 model_path, map_location=self.device))
             print('Load model in:', model_path)
             self.model = model.to(self.device)
         else:
             self.models = self.load_models(model_names=['efficientnet-b0', 'efficientnet-b1', 'efficientnet-b2'],
-                                           model_paths=['./weights/efn-b0_LS_27_loss_0.2205.pth',
-                                                        './weights/efn-b1_LS_6_loss_0.1756.pth',
-                                                        './weights/efn-b2_LS_12_loss_0.1728.pth'])
+                                           model_paths=['./weights/boken/efn-b0_LS_27_loss_0.2205.pth',
+                                                        './weights/boken/efn-b1_LS_6_loss_0.1756.pth',
+                                                        './weights/boken/efn-b2_LS_12_loss_0.1728.pth'])
         self.mtcnn = MTCNN(margin=14, keep_all=True,
                            factor=0.6, device=self.device).eval()
 

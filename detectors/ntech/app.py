@@ -20,13 +20,13 @@ SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_aa-original-mstd0.5_r
 
 app = Flask(__name__)
 
-model = Ensemble(os.path.join('./weights/', DETECTOR_WEIGHTS_PATH),
+model = Ensemble(os.path.join('./weights/ntech/', DETECTOR_WEIGHTS_PATH),
                  os.path.join(
-    './weights/', VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH),
+    './weights/ntech/', VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH),
     os.path.join(
-    './weights/', FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH),
+    './weights/ntech/', FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH),
     os.path.join(
-    './weights/', SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
+    './weights/ntech/', SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
 )
 
 

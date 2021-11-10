@@ -119,7 +119,7 @@ class Ensemble():
             CFG['model']['params']['pretrained'] = None
             model2d = build_model(CFG['model']['name'], CFG['model']['params'])
             model2d.load_state_dict(torch.load(
-                './weights/SRXT50_094_VM-0.2504.PTH'))
+                './weights/medics/SRXT50_094_VM-0.2504.PTH'))
             model2d = model2d.eval().cuda()
             self.model_2d = model2d
             self.loader = build_dataloader(

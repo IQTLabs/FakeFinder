@@ -80,26 +80,26 @@ class Ensemble:
     def __init__(self):
         face_detector = FaceDetector()
         face_detector.load_checkpoint(
-            "./weights/RetinaFace-Resnet50-fixed.pth")
+            "./weights/wm/RetinaFace-Resnet50-fixed.pth")
         face_detector = face_detector
         self.reader = video_reader(face_detector, T.ToTensor())
 
         model1 = xception(num_classes=2, pretrained=False)
-        ckpt = torch.load("./weights/xception-hg-2.pth")
+        ckpt = torch.load("./weights/wm/xception-hg-2.pth")
         model1.load_state_dict(ckpt["state_dict"])
         self.model1 = model1.cuda()
         self.model1.eval()
 
         model2 = WSDAN(num_classes=2, M=8, net="xception",
                        pretrained=False).cuda()
-        ckpt = torch.load("./weights/ckpt_x.pth")
+        ckpt = torch.load("./weights/wm/ckpt_x.pth")
         model2.load_state_dict(ckpt["state_dict"])
         self.model2 = model2
         self.model2.eval()
 
         model3 = WSDAN(num_classes=2, M=8, net="efficientnet",
                        pretrained=False).cuda()
-        ckpt = torch.load("./weights/ckpt_e.pth")
+        ckpt = torch.load("./weights/wm/ckpt_e.pth")
         model3.load_state_dict(ckpt["state_dict"])
         self.model3 = model3
         self.model3.eval()

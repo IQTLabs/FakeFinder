@@ -1,0 +1,82 @@
+version: '3.7'
+services:
+  dash:
+    restart: always
+    build:
+      context: dash
+    image: iqtlabs/fakefinder-dash
+    ports:
+      - 80:8050
+    networks:
+      - frontend
+  api:
+    restart: always
+    build:
+      context: api
+    image: iqtlabs/fakefinder-api
+    ports:
+      - 5000:5000
+    networks:
+      - frontend
+      - api
+  boken:
+    restart: always
+    build:
+      context: detectors/boken
+    image: iqtlabs/fakefinder-boken
+    networks:
+      - detectors
+    volumes:
+      - ./weights:/weights
+  eighteen:
+    restart: always
+    build:
+      context: detectors/eighteen
+    image: iqtlabs/fakefinder-eighteen
+    networks:
+      - detectors
+    volumes:
+      - ./weights:/weights
+  medics:
+    restart: always
+    build:
+      context: detectors/medics
+    image: iqtlabs/fakefinder-medics
+    networks:
+      - detectors
+    volumes:
+      - ./weights:/weights
+  ntech:
+    restart: always
+    build:
+      context: detectors/ntech
+    image: iqtlabs/fakefinder-ntech
+    networks:
+      - detectors
+    volumes:
+      - ./weights:/weights
+  selimsef:
+    restart: always
+    build:
+      context: detectors/selimsef
+    image: iqtlabs/fakefinder-selimsef
+    networks:
+      - detectors
+    volumes:
+      - ./weights:/weights
+  wm:
+    restart: always
+    build:
+      context: detectors/wm
+    image: iqtlabs/fakefinder-wm
+    networks:
+      - detectors
+    volumes:
+      - ./weights:/weights
+networks:
+  api:
+    name: api
+  detectors:
+    name: detectors
+  frontend:
+    name: frontend

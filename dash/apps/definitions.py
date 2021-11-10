@@ -20,5 +20,5 @@ if not os.path.exists(STATIC_FULLPATH):
 BUCKET_NAME = 'ff-inbound-videos'
 
 # FakeFinder API URL
-FF_URL = 'http://192.168.105.56:5000/fakefinder/'
+FF_URL = 'http://api:5000/fakefinder/'
 
