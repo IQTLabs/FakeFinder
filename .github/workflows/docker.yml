@@ -45,27 +45,27 @@ jobs:
         docker buildx build \
           --platform linux/amd64 \
           --push \
-          -t iqtlabs/fakefinder-boken:${{ steps.change_version.outputs.VERSION }} boken && \
+          -t iqtlabs/fakefinder-boken:${{ steps.change_version.outputs.VERSION }} detectors/boken && \
         docker buildx build \
           --platform linux/amd64 \
           --push \
-          -t iqtlabs/fakefinder-eighteen:${{ steps.change_version.outputs.VERSION }} eighteen && \
+          -t iqtlabs/fakefinder-eighteen:${{ steps.change_version.outputs.VERSION }} detectors/eighteen && \
         docker buildx build \
           --platform linux/amd64 \
           --push \
-          -t iqtlabs/fakefinder-medics:${{ steps.change_version.outputs.VERSION }} medics && \
+          -t iqtlabs/fakefinder-medics:${{ steps.change_version.outputs.VERSION }} detectors/medics && \
         docker buildx build \
           --platform linux/amd64 \
           --push \
-          -t iqtlabs/fakefinder-ntech:${{ steps.change_version.outputs.VERSION }} ntech && \
+          -t iqtlabs/fakefinder-ntech:${{ steps.change_version.outputs.VERSION }} detectors/ntech && \
         docker buildx build \
           --platform linux/amd64 \
           --push \
-          -t iqtlabs/fakefinder-selimsef:${{ steps.change_version.outputs.VERSION }} selimsef && \
+          -t iqtlabs/fakefinder-selimsef:${{ steps.change_version.outputs.VERSION }} detectors/selimsef && \
         docker buildx build \
           --platform linux/amd64 \
           --push \
-          -t iqtlabs/fakefinder-wm:${{ steps.change_version.outputs.VERSION }} wm && \
+          -t iqtlabs/fakefinder-wm:${{ steps.change_version.outputs.VERSION }} detectors/wm && \
         docker buildx build \
           --platform linux/amd64 \
           --push \
