@@ -3,7 +3,7 @@
 .DS_Store
 .env
 .venv
-apps
+uploads
 venv/*
 data/*
 *.swp

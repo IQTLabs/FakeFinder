@@ -19,6 +19,8 @@ services:
     networks:
       - frontend
       - api
+    volumes:
+      - ./uploads:/uploads
   boken:
     restart: always
     build:

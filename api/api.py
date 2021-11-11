@@ -39,7 +39,6 @@ api = Api(app, version='1.0', title='FakeFinder API',
 
 upload_parser = api.parser()
 upload_parser.add_argument('file', location='files', type=FileStorage, required=True)
-upload_parser.add_argument('bucket', required=True)
 
 
 ns = api.namespace('fakefinder', description='FakeFinder operations')
@@ -155,17 +154,23 @@ def StopAWSWarmInstance():
         response = client.stop_instances(InstanceIds=[instance_id,],)
         print(response)
 
-def UploadFileToS3(file_name, file_content, bucket):
-    s3_client = boto3.client('s3')
-    file_path = os.path.join("./test_upload", file_name) # path where file can be saved
-    file_content.save(file_path)
-    # Upload the file
+def UploadFile(file_name, file_content):
+    sanitized_filename = None
     try:
-            s3_client.upload_file(file_name, bucket, Callback=ProgressPercentage(file_name))
-            return "s3://"+ bucket + "/" + file_name
-    except ClientError as e:
-            logging.error(e)
-    
+        validate_filename(file_name, platform="auto")
+        sanitized_filename = sanitize_filename(file_name, platform="auto")
+        if not os.path.exists('./uploads'):
+            os.makedirs('./uploads')
+        file_path = os.path.join("./uploads", sanitized_filename) # path where file can be saved
+        print(f'{file_path}')
+        file_content.save(file_path)
+    except ValidationError as e:
+        return make_response(f"{e}", 400)
+    except Exception as err:
+        return {
+            'statusCode': 500,
+            'body': json.dumps(err)
+        }
 
 # warm aws instances to support ui/batch mode
 with open("models.json") as jsonfile:
@@ -308,29 +313,16 @@ class FakeFinderPost(Resource):
         TerminateAWSColdInstance()
         ColdInstanceIds.clear()
 
-@api.route('/uploadS3/')
+@api.route('/upload/')
 @api.expect(upload_parser)
-class UploadS3(Resource):
+class Upload(Resource):
     def post(self):
         args = upload_parser.parse_args()
         print(args)
-        bucket = args['bucket']
         uploaded_file = args['file']  # This is FileStorage instance
-        sanitized_filename = None
-        try:
-            validate_filename(uploaded_file.filename, platform="auto")
-            sanitized_filename = sanitize_filename(uploaded_file.filename, platform="auto")
-        except ValidationError as e:
-            return make_response(f"{e}", 400)
-        chunks = uploaded_file.read()
-        try:
-            s3_client.put_object(Body=chunks, Bucket=bucket, Key=sanitized_filename)
-            return "s3://"+ bucket + "/" + sanitized_filename, 201
-        except ClientError as cerr:
-            return {
-                'statusCode': 500,
-                'body': json.dumps(cerr)
-            }
+        print(f'{uploaded_file.filename}')
+        return UploadFile(uploaded_file.filename, uploaded_file)
+        
 
 if __name__ == '__main__':
     app.run(threaded=True, debug=True, host='0.0.0.0')

@@ -1,4 +1,3 @@
-
 import botocore
 from botocore.exceptions import ClientError
 import boto3
@@ -6,6 +5,9 @@ import logging
 import requests
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import urljoin
+
+from .definitions import FF_URL
 
 
 # Build an inference model request
@@ -79,7 +81,7 @@ def SubmitInferenceRequest(url='', dict_list=[], debug=False):
 
 
 # Check if file exists in s3 bucket
-def CheckFileExistsS3(file_name='', bucket=[], object_name=None, debug=False):
+def CheckFileExists(file_name='', bucket=[], object_name=None, debug=False):
     if debug:
         import time
         time.sleep(3)
@@ -100,23 +102,20 @@ def CheckFileExistsS3(file_name='', bucket=[], object_name=None, debug=False):
     return True
     
 
-# Upload file to s3 bucket call
-def UploadFileToS3(file_name='', bucket=[], object_name=None, debug=False):
-    if debug:
-        import time
-        time.sleep(2)
-        return True
+def UploadFile(file_name=''):
+    http_proxy  = "http://127.0.0.1:8080"
 
-    # If S3 object_name was not specified, use file_name
-    if object_name is None:
-        object_name = file_name
-
-    # Upload the file
-    s3_client = boto3.client('s3', region_name='us-east-1')
-
+    proxyDict = { 
+                  "http"  : http_proxy
+                }
+    print(f'uploaading {file_name}')
+    url = urljoin(FF_URL, '/upload/')
     try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
-    except ClientError as e:
+        with open(file_name, 'rb') as f:
+            files = {'file': f}
+            r = requests.post(url, files=files, proxies=proxyDict)
+    except Exception as e:
+        print(f'{e}')
         logging.error(e)
         return False
 
