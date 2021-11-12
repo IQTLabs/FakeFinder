@@ -16,3 +16,4 @@ boto3==1.17.5
 Flask==1.1.2
 mmcv==1.2.6
 terminaltables==3.1.0
+mmaction==0.5.0
