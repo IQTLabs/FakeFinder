@@ -18,8 +18,8 @@ from .dash_style_defs import data_table_style_cell_conditional
 from .dash_style_defs import data_table_style_data_conditional
 from .dash_style_defs import data_table_header_style, data_table_style_cell
 from .utils import build_df, set_results_dict, update_data_folder_tree, bar_chart
-from .definitions import REPO_DIR, DATA_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
-from .api_calls import UploadFileToS3, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExistsS3
+from .definitions import REPO_DIR, UPLOAD_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
+from .api_calls import UploadFile, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExists
 
 from app import app, server
 
@@ -58,7 +58,7 @@ init_url = empty_string if not init_file_list else init_file_list[0]
 
 # Configure data uploader
 video_filetypes = ['mp4']
-du.configure_upload(app, STATIC_FULLPATH)
+du.configure_upload(app, UPLOAD_DIR)
 def get_upload_component(id):
     return du.Upload(id=id,
                      max_file_size=1800,  # 1800 Mb
@@ -282,6 +282,7 @@ layout = html.Div([
     id='dash-uploader',
 )
 def get_a_list(filename):
+    print("get_a_list called")
     filenames = update_data_folder_tree()
 
 
@@ -372,7 +373,7 @@ def print_file_and_model_list(model_list=[], filename=''):
                Output('file-on-s3', 'data')],
               [Input('send-to-aws', 'n_clicks'),
                State('dropdown-file-names', 'value')])
-def upload_file_to_s3(button_clicks, fname=''):
+def upload_file(button_clicks, fname=''):
     '''Function to check if file already in s3 bucket, 
        otherwise upload it'''
 
@@ -392,20 +393,17 @@ def upload_file_to_s3(button_clicks, fname=''):
         return [dcc.Markdown(dedent(message)), file_on_s3]
 
     # Check if file on AWS
-    s3_obj_name = os.path.basename(fname)
-    file_on_s3 = CheckFileExistsS3(file_name=fname,
-                                   bucket=BUCKET_NAME,
-                                   object_name=s3_obj_name,
-                                   debug=debug)
+    # s3_obj_name = os.path.basename(fname)
+    # file_on_s3 = CheckFileExistsS3(file_name=fname,
+    #                                bucket=BUCKET_NAME,
+    #                                object_name=s3_obj_name,
+    #                                debug=debug)
 
     # If not on s3 yet, upload
     if file_on_s3:
         message = 'File **{}** already uploaded.'.format(s3_obj_name)
     else:
-        upload_success = UploadFileToS3(file_name=fname, 
-                                        bucket=BUCKET_NAME,
-                                        object_name=s3_obj_name,
-                                        debug=debug)
+        upload_success = UploadFile(file_name=fname)
 
         # Return messages based on success
         if upload_success:
