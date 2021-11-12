@@ -28,7 +28,7 @@ jobs:
         sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 3 && \
         pip3 install -U codecov docker-compose pytest pytest-cov && \
         find . -name requirements.txt -type f -exec pip3 install -r {} \; && \
-        PATH=/home/runner/.local/bin:$PATH py.test -v -vv --cov-report term-missing --cov=. -c .coveragerc && \
+        PATH=/home/runner/.local/bin:$PATH py.test --ignore=detectors/medics/cnn2d/models/mmaction/tools/test_detector.py --ignore=detectors/medics/cnn2d/models/mmaction/tools/test_localizer.py --ignore=detectors/medics/cnn2d/models/mmaction/tools/test_recognizer.py --ignore=detectors/medics/cnn2d/models/mmaction/tools/test_recognizer_heavy.py --ignore=detectors/wm/external/Pytorch_Retinaface/test_fddb.py --ignore=detectors/wm/external/Pytorch_Retinaface/test_widerface.py -v -vv --cov-report term-missing --cov=. -c .coveragerc && \
         PATH=/home/runner/.local/bin:$PATH coverage report && \
         PATH=/home/runner/.local/bin:$PATH coverage xml
 
