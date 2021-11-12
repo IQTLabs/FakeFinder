@@ -199,12 +199,7 @@ class FakeFinderPost(Resource):
         if type(api.payload) is list:
              # loop through the list for each of the selected models
              for r in api.payload:
-                 if r['alwaysOn'] is False and r['batchMode'] is False:
-                    print("Bringing up warm static instances")
-                    url = StartAWSWarmInstance(r['modelName'])
-                 elif r['alwaysOn'] is True and r['batchMode'] is False:
-                    print("Using alwaysOn static instances")
-                    url = GetUrlFromAWSInstance(r['modelName'])
+                 url = 'http://' + r['modelName'] + ':5000/predict'
 
                  headers = {'Content-type': 'application/json; charset=UTF-8'}
                  # if split requests is true then send one file per request.

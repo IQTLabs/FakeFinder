@@ -19,6 +19,7 @@ services:
     networks:
       - frontend
       - api
+      - detectors
     volumes:
       - ./uploads:/uploads
   boken:
@@ -35,6 +36,7 @@ services:
     build:
       context: detectors/eighteen
     image: iqtlabs/fakefinder-eighteen
+    runtime: nvidia
     networks:
       - detectors
     volumes:
@@ -44,6 +46,7 @@ services:
     build:
       context: detectors/medics
     image: iqtlabs/fakefinder-medics
+    runtime: nvidia
     networks:
       - detectors
     volumes:
@@ -53,6 +56,7 @@ services:
     build:
       context: detectors/ntech
     image: iqtlabs/fakefinder-ntech
+    runtime: nvidia
     networks:
       - detectors
     volumes:
@@ -62,6 +66,7 @@ services:
     build:
       context: detectors/selimsef
     image: iqtlabs/fakefinder-selimsef
+    runtime: nvidia
     networks:
       - detectors
     volumes:
@@ -71,6 +76,7 @@ services:
     build:
       context: detectors/wm
     image: iqtlabs/fakefinder-wm
+    runtime: nvidia
     networks:
       - detectors
     volumes:
