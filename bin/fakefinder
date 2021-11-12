@@ -1,0 +1,78 @@
+#!/bin/bash
+
+function show_help()
+{
+    echo "FakeFinder
+
+Usage: fakefinder [option]
+Options:
+    -b,  build         build images
+    -d,  daemon        run the containers in the background
+    -h,  help          print this help
+    -w,  weights       download the weights"
+}
+
+function die()
+{
+    printf '%s\n' "$1" >&2
+    exit 1
+}
+
+function check_args()
+{
+    for req_cmd in docker docker-compose nvidia-smi tar wget ; do
+            $req_cmd --help > /dev/null || die "$req_cmd must be installed"
+    done
+
+    while :; do
+        case $1 in
+            -b|build)
+                echo "--build"
+                ;;
+            -d|daemon)
+                echo "-d"
+                ;;
+            -h|\?|help)
+                show_help
+                exit
+                ;;
+            -w|weights)
+                mkdir -p weights
+                cd weights
+                wget -O boken.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/boken.tar.gz
+                tar -xvzf boken.tar.gz
+                rm boken.tar.gz
+                wget -O eighteen.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/eighteen.tar.gz
+                tar -xvzf eighteen.tar.gz
+                rm eighteen.tar.gz
+                wget -O medics.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/medics.tar.gz
+                tar -xvzf medics.tar.gz
+                rm medics.tar.gz
+                wget -O ntech.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/ntech.tar.gz
+                tar -xvzf ntech.tar.gz
+                rm ntech.tar.gz
+                wget -O selimsef.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/selimsef.tar.gz
+                tar -xvzf selimsef.tar.gz
+                rm selimsef.tar.gz
+                wget -O wm.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/wm.tar.gz
+                tar -xvzf wm.tar.gz
+                rm wm.tar.gz
+                cd ..
+                ;;
+            ?*)
+                printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+                ;;
+            *)
+                break
+        esac
+        shift
+    done
+}
+
+args="$(check_args "$@")"
+args=(${args//$'\n'/ })
+if [[ -z "${args// }" ]]; then
+    docker-compose up
+else
+    docker-compose up "${args[@]}"
+fi
