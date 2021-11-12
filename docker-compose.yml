@@ -31,6 +31,7 @@ services:
       - detectors
     volumes:
       - ./weights:/weights
+      - ./uploads:/uploads
   eighteen:
     restart: always
     build:
