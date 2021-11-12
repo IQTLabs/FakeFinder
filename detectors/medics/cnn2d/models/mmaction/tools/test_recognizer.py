@@ -11,7 +11,7 @@ from mmcv.runner import get_dist_info
 from mmcv.parallel import MMDistributedDataParallel
 
 from mmaction import datasets
-from mmaction.apis import init_dist
+from mmcv.runner import init_dist
 from mmaction.datasets import build_dataloader
 from mmaction.models import build_recognizer
 from mmaction.core.evaluation.accuracy import (softmax, top_k_accuracy,
