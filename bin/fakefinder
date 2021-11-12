@@ -38,7 +38,7 @@ function check_args()
                 ;;
             -w|weights)
                 mkdir -p weights
-                cd weights
+                cd weights || exit
                 wget -O boken.tar.gz https://github.com/IQTLabs/FakeFinder/releases/download/weights/boken.tar.gz
                 tar -xvzf boken.tar.gz
                 rm boken.tar.gz
