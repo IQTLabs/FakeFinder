@@ -1,5 +1,7 @@
 import requests
 import json
+import pytest
+
 
 def test_batch_mode_boken():
     url = 'http://localhost:5000/fakefinder/'
