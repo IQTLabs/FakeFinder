@@ -111,7 +111,6 @@ class FakeFinderPost(Resource):
     @ns.doc('create_fakefinder_inference_task')
     @ns.expect(ffmodel)
     def post(self):
-      try:
         '''Create a new task'''
         # request payload can be a list or a dictionary
         print(type(api.payload))
