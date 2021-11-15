@@ -25,7 +25,7 @@ def test_batch_mode_ntech():
     print(resp.json())
 
 @pytest.mark.parametrize('num_splits', [2, 4, 6, 10])
-def test_batch_mode_selimsef():
+def test_batch_mode_selimsef(num_splits):
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
@@ -35,7 +35,7 @@ def test_batch_mode_selimsef():
                "numSplitRequests": num_splits,
               }
 
-    # convert dict to json string by json.dumps() for body data. 
+    # convert dict to json string by json.dumps() for body data.
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
     # Validate response headers and body contents, e.g. status code.
@@ -54,7 +54,7 @@ def test_batch_mode_medics():
                "numSplitRequests": 2,
               }
 
-    # convert dict to json string by json.dumps() for body data. 
+    # convert dict to json string by json.dumps() for body data.
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
     # Validate response headers and body contents, e.g. status code.
@@ -73,7 +73,7 @@ def test_batch_mode_wm():
                "numSplitRequests": 2,
               }
 
-    # convert dict to json string by json.dumps() for body data. 
+    # convert dict to json string by json.dumps() for body data.
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
     # Validate response headers and body contents, e.g. status code.
@@ -92,7 +92,7 @@ def test_batch_mode_eighteen():
                "numSplitRequests": 2,
               }
 
-    # convert dict to json string by json.dumps() for body data. 
+    # convert dict to json string by json.dumps() for body data.
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
     # Validate response headers and body contents, e.g. status code.
