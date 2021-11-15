@@ -4,8 +4,6 @@ from pathvalidate import ValidationError, validate_filename, sanitize_filename
 from werkzeug.datastructures import FileStorage
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
-import boto3
-from botocore.exceptions import ClientError
 import numpy as np
 import json
 import time
@@ -42,11 +40,6 @@ upload_parser.add_argument('file', location='files', type=FileStorage, required=
 
 
 ns = api.namespace('fakefinder', description='FakeFinder operations')
-
-client = boto3.client('ec2', region_name='us-east-1')
-ec2 = boto3.resource('ec2', region_name='us-east-1')
-s3_client = boto3.client('s3', region_name='us-east-1')
-ecr = boto3.client('ecr', region_name='us-east-1')
 
 ffmodel = api.model('FakeFinder', {
     'batchMode': fields.Boolean(required=True, default=False, description='Set this field to true if processing video/image files in batch mode. If requests are coming from a UI this should be set to false.'),
