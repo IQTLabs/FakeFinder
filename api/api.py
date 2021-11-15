@@ -85,74 +85,8 @@ class FakeFinderDAO(object):
 
 DAO = FakeFinderDAO()
 
-ColdInstanceIds = []
-WarmInstanceIds = []
-
 def StartAWSColdInstance(model_name):
-    instance_tag = cold_instance_ids[model_name]
-    print(instance_tag)
-    with open('userdata.txt', 'r') as file:
-         data = file.read().format(detector = instance_tag, detector_weights = model_name)
-    print(data)
-    response = client.run_instances(ImageId='ami-072519eedc1730252', UserData=str(data), MaxCount=1,MinCount=1, SubnetId='subnet-0c2eace77b3b213bb', SecurityGroupIds=['sg-002b99dc572b09491'], InstanceType='g4dn.xlarge', IamInstanceProfile={'Arn': 'arn:aws:iam::352435047368:instance-profile/WorkerNode' }, InstanceInitiatedShutdownBehavior='terminate', BlockDeviceMappings=[{'DeviceName': '/dev/xvda', 'Ebs':{'VolumeSize': 200, 'DeleteOnTermination': True}}], KeyName='fakefinder-apiserver')
-    instance_id = response['Instances'][0]['InstanceId']
-    print(instance_id)
-    ColdInstanceIds.append(instance_id)
-    instance = ec2.Instance(instance_id) 
-    instance.wait_until_running()
-    print("Wait till instance status is ok")
-    waiter = client.get_waiter('instance_status_ok')
-    waiter.wait(InstanceIds=[instance_id,],)
-    print("Instance private ip address")
-    print(instance.private_ip_address)
-    url = 'http://'+ instance.private_ip_address + ':5000/predict'
-    #print("Sleeping for 20 seconds for stabilization")
-    #time.sleep(20)
-    print("Verifying that model service is ready")
-    while True:
-          try:
-              time.sleep(20)
-              healthcheck_response = requests.get('http://'+ instance.private_ip_address + ':5000/healthcheck') 
-              print(healthcheck_response.status_code)
-              if healthcheck_response.status_code == 201:
-                 print("Inference service is ready")
-                 break
-          except:
-              print("Inference service is not ready")
-    return url
-
-def TerminateAWSColdInstance():
-    for instance_id in ColdInstanceIds:
-        response = client.terminate_instances(InstanceIds=[instance_id,],)
-        print(response)
-
-def GetUrlFromAWSInstance(model_name):
-    instance_id = warm_instance_ids[model_name]
-    instance = ec2.Instance(instance_id)
-    url = 'http://'+ instance.private_ip_address + ':5000/predict'
-    return url 
-
-def StartAWSWarmInstance(model_name):
-    instance_id = warm_instance_ids[model_name]
-    response = client.start_instances(InstanceIds=[instance_id,],)
-    print(response)
-
-    instance = ec2.Instance(instance_id)
-    WarmInstanceIds.append(instance_id)
-    print("Wait till instance starts running")
-    instance.wait_until_running()
-    print("Wait till instance status is ok")
-    waiter = client.get_waiter('instance_status_ok')
-    waiter.wait(InstanceIds=[instance_id,],)
-    print("Instance private ip address")
-    print(instance.private_ip_address)
-    url = 'http://'+ instance.private_ip_address + ':5000/predict'
-    return url
-
-def StopAWSWarmInstance():
-    for instance_id in WarmInstanceIds:
-        response = client.stop_instances(InstanceIds=[instance_id,],)
-        print(response)
+    url = 'http://'+ model_name + ':5000/predict'
 
 def UploadFile(file_name, file_content):
     sanitized_filename = None
@@ -172,20 +106,13 @@ def UploadFile(file_name, file_content):
             'body': json.dumps(err)
         }
 
-# warm aws instances to support ui/batch mode
-with open("models.json") as jsonfile:
-     warm_instance_ids = json.load(jsonfile)
-
-# cold aws instances to support batch mode
-with open("images.json") as jsonfile:
-     cold_instance_ids = json.load(jsonfile)
-
 @ns.route('/')
 class FakeFinderPost(Resource):
     @ns.doc('get_fakefinder_models')
     def get(self):
-        print(list(warm_instance_ids.keys()))
-        return jsonify( { 'models': list(warm_instance_ids.keys()) } )
+        models = ["selimsef", "eighteen", "medics", "ntech", "wm", "boken"]
+        print(models)
+        return jsonify( { 'models': models } )
 
 
     @ns.doc('create_fakefinder_inference_task')
@@ -215,7 +142,7 @@ class FakeFinderPost(Resource):
                     for i, loc in enumerate(final, start=1):
                         print(loc)
                         response = requests.post(url, json={'video_list': loc.tolist()}, headers=headers)
-                        agg_response.append(response.json())                 
+                        agg_response.append(response.json())
                  elif r['splitRequests'] is True and r['batchMode'] is True:
                     print("Split requests for batch mode concurrent processing")
                     # Spawn cold ec2 instance concurrently and send requests.
@@ -245,17 +172,11 @@ class FakeFinderPost(Resource):
                     agg_response.append(response.json())
         elif type(api.payload) is dict:
                  # request contains a single model
-                 if api.payload['alwaysOn'] is False and api.payload['batchMode'] is False:
-                    print("Bringing up warm static instances")
-                    url = StartAWSWarmInstance(api.payload['modelName'])
-                 elif api.payload['alwaysOn'] is True and api.payload['batchMode'] is False:
-                    print("Using alwaysOn static instances")
-                    url = GetUrlFromAWSInstance(api.payload['modelName'])
-                 
+                 url = 'http://' + api.payload['modelName'] + ':5000/predict'
                  headers = {'Content-type': 'application/json; charset=UTF-8'}
                  # if split requests is true then send one file per request.
                  if api.payload['splitRequests'] is True and api.payload['batchMode'] is False:
-                    print("Split requests for warm/always on instances")
+                    print("Split requests")
                     splits = api.payload['numSplitRequests']
                     if type(api.payload['s3Location']) is not list:
                        # convert dict to list
@@ -267,10 +188,9 @@ class FakeFinderPost(Resource):
                     for i, loc in enumerate(final, start=1):
                         print(loc)
                         response = requests.post(url, json={'video_list': loc.tolist()}, headers=headers)
-                        agg_response.append(response.json()) 
+                        agg_response.append(response.json())
                  elif api.payload['splitRequests'] is True and api.payload['batchMode'] is True:
                     print("Split requests for batch mode concurrent processing")
-                    # Spawn cold ec2 instance concurrently and send requests.
                     threads= []
                     splits = api.payload['numSplitRequests']
                     if type(api.payload['s3Location']) is not list:
@@ -289,24 +209,14 @@ class FakeFinderPost(Resource):
                              response = requests.post(task.result(), json={'video_list': final[i].tolist()}, headers=headers)
                              #yield response.json()
                              agg_response.append(response.json())
-                              
                  else:
                     if type(api.payload['s3Location']) is list:
                         response = requests.post(url, json={'video_list': api.payload['s3Location']}, headers=headers)
                     else:
                         response = requests.post(url, json={'video_list': [api.payload['s3Location']]}, headers=headers)
-                    
-
                     agg_response.append(response.json())
         print(json.dumps(agg_response))
         return make_response(jsonify(json.dumps(agg_response)), 200)
-      finally:
-        print("Terminate/Stop Instances")
-        time.sleep(10)
-        StopAWSWarmInstance()
-        WarmInstanceIds.clear()
-        TerminateAWSColdInstance()
-        ColdInstanceIds.clear()
 
 @api.route('/upload/')
 @api.expect(upload_parser)
@@ -317,7 +227,7 @@ class Upload(Resource):
         uploaded_file = args['file']  # This is FileStorage instance
         print(f'{uploaded_file.filename}')
         return UploadFile(uploaded_file.filename, uploaded_file)
-        
+
 
 if __name__ == '__main__':
     app.run(threaded=True, debug=True, host='0.0.0.0')
