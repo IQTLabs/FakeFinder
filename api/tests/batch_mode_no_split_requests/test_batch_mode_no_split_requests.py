@@ -2,7 +2,7 @@ import requests
 import json
 
 def test_batch_mode_ntech():
-    url = 'http://127.0.0.1:5000/fakefinder/'
+    url = 'http://0.0.0.0:5000/fakefinder/'
     
     # Additional headers.
     headers = {'Content-Type': 'application/json' } 
