@@ -23,7 +23,7 @@ def predict():
         score = 0.5
         try:
             validate_filename(filename)
-            video = sanitize_filename(file_name, platform="auto")
+            video = sanitize_filename(filename, platform="auto")
             video_path = os.path.join('/uploads/', video)
             if os.path.exists(video_path):
                 score = model.inference(video_path)
