@@ -111,7 +111,6 @@ class FakeFinderPost(Resource):
     @ns.doc('create_fakefinder_inference_task')
     @ns.expect(ffmodel)
     def post(self):
-      try:
         '''Create a new task'''
         # request payload can be a list or a dictionary
         print(type(api.payload))
@@ -156,7 +155,7 @@ class FakeFinderPost(Resource):
                              print(task.result())
                              response = requests.post(task.result(), json={'video_list': final[i].tolist()}, headers=headers)
                              #yield response.json()
-                             agg_response.append(response.json())  
+                             agg_response.append(response.json())
                  else:
                     if type(r['s3Location']) is list:
                         response = requests.post(url, json={'video_list': r['s3Location']}, headers=headers)
