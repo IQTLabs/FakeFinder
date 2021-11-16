@@ -78,22 +78,15 @@ def SubmitInferenceRequest(url='', dict_list=[], debug=False):
 
 
 def UploadFile(file_name=''):
-    http_proxy  = "http://127.0.0.1:8080"
-
-    proxyDict = { 
-                  "http"  : http_proxy
-                }
-    print(f'uploaading {file_name}')
+    print(f'uploading {file_name}')
     url = urljoin(FF_URL, '/upload/')
     try:
         with open(file_name, 'rb') as f:
             files = {'file': f}
-            r = requests.post(url, files=files, proxies=proxyDict)
+            r = requests.post(url, files=files)
     except Exception as e:
         print(f'{e}')
         logging.error(e)
         return False
 
     return True
-
-
