@@ -27,5 +27,5 @@ if not os.path.exists(UPLOAD_DIR):
 BUCKET_NAME = 'ff-inbound-videos'
 
 # FakeFinder API URL
-FF_URL = 'http://127.0.0.1:5000/fakefinder/'
+FF_URL = 'http://api:5000/fakefinder/'
 
