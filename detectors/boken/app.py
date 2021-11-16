@@ -27,13 +27,13 @@ def predict():
             video_path = os.path.join('/uploads/', video)
             if os.path.exists(video_path):
                 score = model.inference(video_path)
+                predictions.append({'filename': video, 'boken': score})
             else:
                 return make_response(f"File {video} not found.", 400)
         except ValidationError as e:
             return make_response(f"{e}", 400)
-        except:
-            pass
-        predictions.append({'filename': video, 'boken': score})
+        except Exception as err:
+            return make_response(f"{err}", 500)
 
     result = pd.DataFrame(predictions)
     return result.to_json()
