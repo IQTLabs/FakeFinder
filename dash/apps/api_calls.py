@@ -10,14 +10,13 @@ from .definitions import FF_URL
 # Build an inference model request
 def BuildInferenceRequest(filename='', bucket='', model_list=[]):
 
-    s3_file_loc = 's3://{}/{}'.format(bucket, filename)
     request_list = []
     for model_name in model_list:
         # Each model request takes dict form
         model_request_dict = {
                               "batchMode": False,
                               "alwaysOn": True,
-                              "s3Location": [s3_file_loc],
+                              "location": [filename],
                               "modelName": model_name,
                               "splitRequests": False,
                               "numSplitRequests": 0,

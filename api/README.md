@@ -20,8 +20,8 @@ alwaysOn	boolean
 default: true
 Set this field to true if starting/stopping ec2 instances
 
-s3Location*	string
-Image/Video S3 location. If uploading the file ththe value should be bucket name.
+location*	string
+Image/Video location.
 
 modelName*	string
 Name of the model to run inference against

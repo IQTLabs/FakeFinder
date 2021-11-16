@@ -100,13 +100,13 @@ class FakeFinderPost(Resource):
 
                     headers = {'Content-type': 'application/json; charset=UTF-8'}
                     video_list = list()
-                    if type(r['s3Location']) is not list:
-                        video_list.append(r['s3Location'])
+                    if type(r['location']) is not list:
+                        video_list.append(r['location'])
                     else:
-                        video_list = r['s3Location']
+                        video_list = r['location']
 
                     response = requests.post(url, json={'video_list': video_list}, headers=headers)
-                    agg_response.append(response.json())   
+                    agg_response.append(response.json())
 
             print(json.dumps(agg_response))
         except Exception as e:
