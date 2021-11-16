@@ -9,9 +9,7 @@ import boto3
 app = Flask(__name__)
 
 model = Ensemble()
-BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
-
-s3 = boto3.resource('s3')
+MODEL_NAME='template'
 
 @app.route('/healthcheck')
 def starting_url():
@@ -24,17 +22,25 @@ def predict():
     predictions = []
     for filename in video_list:
         score = 0.5
-        video = filename.rsplit('/',1)[-1]
         try:
-            s3.Bucket(BUCKET_NAME).download_file(video, video)
-            score = model.inference(video)
-            os.remove(video)
+            validate_filename(filename)
+            video = sanitize_filename(file_name, platform="auto")
+            video_path = os.path.join('/uploads/', video)
+            if os.path.exists(video_path):
+                score = model.inference(video_path)
+            else:
+                return make_response(f"File {video} not found.", 400)
+        except ValidationError as e:
+            return make_response(f"{e}", 400)
         except:
             pass
-        predictions.append({'filename': video, 'selimsef': score})
+        pred={'filename': video}
+        pred[MODEL_NAME]=score
+        predictions.append(pred)
 
     result = pd.DataFrame(predictions)
     return result.to_json()
+
 
 
 if __name__ == '__main__':

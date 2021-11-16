@@ -34,7 +34,7 @@ Although designed for extensability, the current toolkit includes implementation
 | [ntech](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/ntech)   | video (mp4)        |  DFDC<sup>1  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/NtechCard.pdf) |
 | [eighteen](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/eighteen)   | video (mp4)        |  DFDC<sup>1  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/EighteenCard.pdf) |
 | [medics](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/medics)   | video (mp4)        |  DFDC<sup>1  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/MedicsCard.pdf) |
-| [boken](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/boken)   | video (mp4)        |  DFC<sup>2  | Model Card |
+| [boken](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/boken)   | video (mp4)        |  DFC<sup>2  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/BokenCard.pdf) |
 
 Additionally, we have included template code and instructions for adding a new detector to the system in the [detector template folder](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/detector_template).
 
@@ -127,8 +127,6 @@ And then push the image to your ECR repository:
 ```
 docker push ${ECR_URI}:${DETECTOR_IMAGE_NAME}
 ```
-FakeFinder API has two configuration files to support the cold and warm AWS EC2 instance creation. These instances support batch and UI mode. We define cold EC2 instances as the process where an EC2 instance is launched and readied for running inference on demand from the user. In contrast, the warm instance refers to a pre-built instance that exists in a stopped state. Warm instances are created from the same image as the one that is used for launching cold instances. The file images.json in the api top level directory contains the tags of the ECR images used to create cold AWS instances. The file models.json at the same level contains the instance ids of the warm (stopped) EC2 instances. When adding a new model to the FakeFinder for inferencing, the image tag and static instance id should be added to these config files.
-
 You can also test these images locally.  To use GPUs in these containers you will need to install the [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker), and utilize the NVIDIA runtime when running the container.  By default, containers run from these images start a Flask app that serves the detector for inference, but you can overwrite this with the `--entrypoint` flag.  The following command will run a container for the specified detector and launch a bash shell within it.
 
 ```
@@ -208,7 +206,7 @@ The following endpoints are available -
 
 ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) GET MODELS - To get a list of available models, send a Get request to - ``` http://<ip address>:5000/fakefinder ```
 
-![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
+![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/upload ```
 
 
 
@@ -318,7 +316,7 @@ In this mode "AlwaysOn" is set to False. API always creates an EC2 instance from
 
 The API is fully configurable and can support any number of inferencing models. A new model can be added, swapped or deleted as described in earlier sections. At any given time, a list of supported models can be obtained by sending a Get request.
 
-![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
+![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/upload ```
 
 The API also supports uploading a file to S3 bucket before making an inferencing request. 
 

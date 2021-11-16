@@ -1,6 +1,3 @@
-import botocore
-from botocore.exceptions import ClientError
-import boto3
 import logging
 import requests
 import json
@@ -79,28 +76,6 @@ def SubmitInferenceRequest(url='', dict_list=[], debug=False):
     logging.info(inference_results)
     return inference_results
 
-
-# Check if file exists in s3 bucket
-def CheckFileExists(file_name='', bucket=[], object_name=None, debug=False):
-    if debug:
-        import time
-        time.sleep(3)
-        return True
-
-    # If S3 object_name was not specified, use file_name
-    if object_name is None:
-        object_name = file_name
-
-    # Upload the file
-    s3_client = boto3.client('s3', region_name='us-east-1')
-    try:
-        response = s3_client.head_object(Bucket=bucket, Key=object_name)
-    except ClientError as e:
-        # Not found
-        logging.error(e)
-        return False
-    return True
-    
 
 def UploadFile(file_name=''):
     http_proxy  = "http://127.0.0.1:8080"

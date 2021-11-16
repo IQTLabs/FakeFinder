@@ -10,8 +10,7 @@ import boto3
 
 
 BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
-
-s3 = boto3.resource('s3')
+MODEL_NAME='ntech'
 
 DETECTOR_WEIGHTS_PATH = 'WIDERFace_DSFD_RES152.fp16.pth'
 VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_seq_aa-original-mstd0.5_100k_v4_cad79a/snapshot_100000.fp16.pth'
@@ -20,13 +19,13 @@ SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_aa-original-mstd0.5_r
 
 app = Flask(__name__)
 
-model = Ensemble(os.path.join('./weights/ntech/', DETECTOR_WEIGHTS_PATH),
+model = Ensemble(os.path.join('/weights/ntech/', DETECTOR_WEIGHTS_PATH),
                  os.path.join(
-    './weights/ntech/', VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH),
+    '/weights/ntech/', VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH),
     os.path.join(
-    './weights/ntech/', FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH),
+    '/weights/ntech/', FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH),
     os.path.join(
-    './weights/ntech/', SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
+    '/weights/ntech/', SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
 )
 
 
@@ -41,14 +40,21 @@ def predict():
     predictions = []
     for filename in video_list:
         score = 0.5
-        video =  filename.rsplit('/',1)[-1]
         try:
-            s3.Bucket(BUCKET_NAME).download_file(video, video)
-            score = model.inference(video)
-            os.remove(video)
+            validate_filename(filename)
+            video = sanitize_filename(file_name, platform="auto")
+            video_path = os.path.join('/uploads/', video)
+            if os.path.exists(video_path):
+                score = model.inference(video_path)
+            else:
+                return make_response(f"File {video} not found.", 400)
+        except ValidationError as e:
+            return make_response(f"{e}", 400)
         except:
             pass
-        predictions.append({'filename': video, 'ntech': score})
+        pred={'filename': video}
+        pred[MODEL_NAME]=score
+        predictions.append(pred)
 
     result = pd.DataFrame(predictions)
     return result.to_json()
