@@ -4,8 +4,6 @@ from pathvalidate import ValidationError, validate_filename, sanitize_filename
 from werkzeug.datastructures import FileStorage
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
-import boto3
-from botocore.exceptions import ClientError
 import numpy as np
 import json
 import time
@@ -75,13 +73,13 @@ class FakeFinderDAO(object):
 
 DAO = FakeFinderDAO()
 
-
 @ns.route('/')
 class FakeFinderPost(Resource):
     @ns.doc('get_fakefinder_models')
     def get(self):
-        print(list(warm_instance_ids.keys()))
-        return jsonify( { 'models': list(warm_instance_ids.keys()) } )
+        models = ["selimsef", "eighteen", "medics", "ntech", "wm", "boken"]
+        print(models)
+        return jsonify( { 'models': models } )
 
 
     @ns.doc('create_fakefinder_inference_task')
@@ -134,7 +132,6 @@ class Upload(Resource):
                 'statusCode': 500,
                 'body': json.dumps(err)
             }
-        
 
 if __name__ == '__main__':
     app.run(threaded=True, debug=True, host='0.0.0.0')

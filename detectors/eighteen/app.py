@@ -31,6 +31,7 @@ model = Ensemble(load_slowfast_path, load_xcp_path, load_slowfast_path2, load_sl
                  load_res34_path, load_b1_path,
                  load_b1long_path, load_b1short_path, load_b0_path, load_slowfast_path4, frame_nums,
                  cuda=pipeline_cfg.cuda)
+MODEL_NAME='eighteen'
 
 @app.route('/healthcheck')
 def starting_url():
@@ -43,14 +44,21 @@ def predict():
     predictions = []
     for filename in video_list:
         score = 0.5
-        video = filename.rsplit('/',1)[-1]
         try:
-            s3.Bucket(BUCKET_NAME).download_file(video, video)
-            score = model.inference(video)
-            os.remove(video)
+            validate_filename(filename)
+            video = sanitize_filename(file_name, platform="auto")
+            video_path = os.path.join('/uploads/', video)
+            if os.path.exists(video_path):
+                score = model.inference(video_path)
+            else:
+                return make_response(f"File {video} not found.", 400)
+        except ValidationError as e:
+            return make_response(f"{e}", 400)
         except:
             pass
-        predictions.append({'filename': video, 'eighteen': score})
+        pred={'filename': video}
+        pred[MODEL_NAME]=score
+        predictions.append(pred)
 
     result = pd.DataFrame(predictions)
     return result.to_json()

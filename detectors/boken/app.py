@@ -9,6 +9,7 @@ from pathvalidate import ValidationError, validate_filename, sanitize_filename
 app = Flask(__name__)
 
 model = Ensemble()
+MODEL_NAME='boken'
 
 @app.route('/healthcheck')
 def starting_url():
@@ -33,7 +34,9 @@ def predict():
             return make_response(f"{e}", 400)
         except:
             pass
-        predictions.append({'filename': video, 'boken': score})
+        pred={'filename': video}
+        pred[MODEL_NAME]=score
+        predictions.append(pred)
 
     result = pd.DataFrame(predictions)
     return result.to_json()
