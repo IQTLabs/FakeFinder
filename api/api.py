@@ -127,9 +127,7 @@ class Upload(Resource):
             if not os.path.exists('./uploads'):
                 os.makedirs('./uploads')
             file_path = os.path.join("./uploads", sanitized_filename) # path where file can be saved
-            chunks = uploaded_file.read()
-            with open(file_path, 'wb') as f:
-                f.write(chunks)
+            uploaded_file.save(file_path)
         except ValidationError as e:
             return make_response(f"{e}", 400)
         except Exception as err:
