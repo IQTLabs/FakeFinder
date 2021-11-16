@@ -26,27 +26,6 @@ cd FakeFinder/dash
 You'll need to change the `BUCKET_NAME` and `FF_URL` variables in the `apps/definitions.py` file
 to point to your bucket and API url, respectively.
 
-After doing so, the dash app server can be built by the following commands:
-```
-chmod +x build_docker.sh
-./build_docker.sh
-```
-This may take a few minutes to prep all the necessary requirements.
-The build and launch will be complete when you see the following terminal output:
-```
-Successfully tagged dash:beta
-Dash is running on http://0.0.0.0:8050/
-
- * Serving Flask app "app" (lazy loading)
- * Environment: production
-   WARNING: This is a development server. Do not use it in a production deployment.
-   Use a production WSGI server instead.
- * Debug mode: on
-```
-
-You should then be able to point a browser to the dash app's IP address to access the web application.
-
-
 
 ## For local usage (primarily for web app debugging)
 

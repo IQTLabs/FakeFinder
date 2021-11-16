@@ -8,7 +8,7 @@ headers = {'Content-Type': 'application/json' }
 def test_batch_mode_boken():
 
     # Body
-    payload = {"batchMode": True, 
+    payload = {"batchMode": True,
                "alwaysOn": False,
                "s3Location": "s3://ff-inbound-videos/4000.mp4",
                "modelName": "boken",
@@ -19,11 +19,11 @@ def test_batch_mode_boken():
     # convert dict to json string by json.dumps() for body data.
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
-    # Validate response headers and body contents, e.g. status code.
-    assert resp.status_code == 200
-
     # print response full body as text
     print(resp.json())
+
+    # Validate response headers and body contents, e.g. status code.
+    assert resp.status_code == 200
 
 @pytest.mark.skip(reason="no way of currently testing this")
 def test_batch_mode_selimsef():
@@ -39,11 +39,11 @@ def test_batch_mode_selimsef():
     # convert dict to json string by json.dumps() for body data. 
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
-    # Validate response headers and body contents, e.g. status code.
-    assert resp.status_code == 200
-
     # print response full body as text
     print(resp.json())
+
+    # Validate response headers and body contents, e.g. status code.
+    assert resp.status_code == 200
 
 @pytest.mark.skip(reason="no way of currently testing this")
 def test_batch_mode_medics():
@@ -59,11 +59,11 @@ def test_batch_mode_medics():
     # convert dict to json string by json.dumps() for body data. 
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
-    # Validate response headers and body contents, e.g. status code.
-    assert resp.status_code == 200
-
     # print response full body as text
     print(resp.json())
+
+    # Validate response headers and body contents, e.g. status code.
+    assert resp.status_code == 200
 
 @pytest.mark.skip(reason="no way of currently testing this")
 def test_batch_mode_wm():
@@ -79,11 +79,11 @@ def test_batch_mode_wm():
     # convert dict to json string by json.dumps() for body data. 
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
-    # Validate response headers and body contents, e.g. status code.
-    assert resp.status_code == 200
-
     # print response full body as text
     print(resp.json())
+
+    # Validate response headers and body contents, e.g. status code.
+    assert resp.status_code == 200
 
 @pytest.mark.skip(reason="no way of currently testing this")
 def test_batch_mode_eighteen():
@@ -99,8 +99,8 @@ def test_batch_mode_eighteen():
     # convert dict to json string by json.dumps() for body data. 
     resp = requests.post(url, headers=headers, data=json.dumps(payload,indent=4))
 
-    # Validate response headers and body contents, e.g. status code.
-    assert resp.status_code == 200
-
     # print response full body as text
     print(resp.json())
+
+    # Validate response headers and body contents, e.g. status code.
+    assert resp.status_code == 200
