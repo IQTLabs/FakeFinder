@@ -8,7 +8,6 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 
-import boto3
 import flask
 from textwrap import dedent
 
@@ -19,7 +18,7 @@ from .dash_style_defs import data_table_style_data_conditional
 from .dash_style_defs import data_table_header_style, data_table_style_cell
 from .utils import build_df, set_results_dict, update_data_folder_tree, bar_chart
 from .definitions import REPO_DIR, UPLOAD_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
-from .api_calls import UploadFile, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExists
+from .api_calls import UploadFile, GetModelList, SubmitInferenceRequest, BuildInferenceRequest
 
 from app import app, server
 
@@ -391,13 +390,6 @@ def upload_file(button_clicks, fname=''):
     if not fname:
         message = 'Please select a file from the dropdown menu.'
         return [dcc.Markdown(dedent(message)), file_on_s3]
-
-    # Check if file on AWS
-    # s3_obj_name = os.path.basename(fname)
-    # file_on_s3 = CheckFileExistsS3(file_name=fname,
-    #                                bucket=BUCKET_NAME,
-    #                                object_name=s3_obj_name,
-    #                                debug=debug)
 
     # If not on s3 yet, upload
     if file_on_s3:
