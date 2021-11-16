@@ -88,7 +88,7 @@ def UploadFile(file_name=''):
     try:
         with open(file_name, 'rb') as f:
             files = {'file': f}
-            r = requests.post(url, files=files, proxies=proxyDict)
+            r = requests.post(url, files=files)
     except Exception as e:
         print(f'{e}')
         logging.error(e)

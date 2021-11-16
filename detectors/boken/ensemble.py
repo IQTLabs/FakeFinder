@@ -9,7 +9,7 @@ from utils import *
 
 
 class Ensemble(DeeperForensicsDetector):
-    def __init__(self, model_path):
+    def __init__(self):
         super(Ensemble, self).__init__()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.is_ensamble = True
