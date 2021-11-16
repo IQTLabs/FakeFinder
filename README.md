@@ -206,7 +206,7 @@ The following endpoints are available -
 
 ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) GET MODELS - To get a list of available models, send a Get request to - ``` http://<ip address>:5000/fakefinder ```
 
-![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
+![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/upload ```
 
 
 
@@ -316,7 +316,7 @@ In this mode "AlwaysOn" is set to False. API always creates an EC2 instance from
 
 The API is fully configurable and can support any number of inferencing models. A new model can be added, swapped or deleted as described in earlier sections. At any given time, a list of supported models can be obtained by sending a Get request.
 
-![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/uploadS3 ```
+![#1589F0](https://via.placeholder.com/15/1589F0/000000?text=+) POST AWS S3 UPLOAD - To upload a file to S3 bucket before inference, send a request to - ``` http://<ip address>:5000/upload ```
 
 The API also supports uploading a file to S3 bucket before making an inferencing request. 
 
