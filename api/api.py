@@ -76,24 +76,6 @@ DAO = FakeFinderDAO()
 def StartAWSColdInstance(model_name):
     url = 'http://'+ model_name + ':5000/predict'
 
-def UploadFile(file_name, file_content):
-    sanitized_filename = None
-    try:
-        validate_filename(file_name, platform="auto")
-        sanitized_filename = sanitize_filename(file_name, platform="auto")
-        if not os.path.exists('./uploads'):
-            os.makedirs('./uploads')
-        file_path = os.path.join("./uploads", sanitized_filename) # path where file can be saved
-        print(f'{file_path}')
-        file_content.save(file_path)
-    except ValidationError as e:
-        return make_response(f"{e}", 400)
-    except Exception as err:
-        return {
-            'statusCode': 500,
-            'body': json.dumps(err)
-        }
-
 @ns.route('/')
 class FakeFinderPost(Resource):
     @ns.doc('get_fakefinder_models')
@@ -140,8 +122,8 @@ class Upload(Resource):
         uploaded_file = args['file']  # This is FileStorage instance
         print(f'{uploaded_file.filename}')
         try:
-            validate_filename(file_name, platform="auto")
-            sanitized_filename = sanitize_filename(file_name, platform="auto")
+            validate_filename(uploaded_file.filename, platform="auto")
+            sanitized_filename = sanitize_filename(uploaded_file.filename, platform="auto")
             if not os.path.exists('./uploads'):
                 os.makedirs('./uploads')
             file_path = os.path.join("./uploads", sanitized_filename) # path where file can be saved
