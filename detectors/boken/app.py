@@ -4,14 +4,11 @@ import pickle
 import flask
 from flask import Flask, request, jsonify
 from ensemble import Ensemble
-import boto3
+from pathvalidate import ValidationError, validate_filename, sanitize_filename
 
 app = Flask(__name__)
 
 model = Ensemble()
-BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
-
-s3 = boto3.resource('s3')
 
 @app.route('/healthcheck')
 def starting_url():
@@ -24,11 +21,16 @@ def predict():
     predictions = []
     for filename in video_list:
         score = 0.5
-        video = filename.rsplit('/', 1)[-1]
         try:
-            s3.Bucket(BUCKET_NAME).download_file(video, video)
-            score = model.inference(video)
-            os.remove(video)
+            validate_filename(filename)
+            video = sanitize_filename(file_name, platform="auto")
+            video_path = os.path.join('/uploads/', video)
+            if os.path.exists(video_path):
+                score = model.inference(video_path)
+            else:
+                return make_response(f"File {video} not found.", 400)
+        except ValidationError as e:
+            return make_response(f"{e}", 400)
         except:
             pass
         predictions.append({'filename': video, 'boken': score})
