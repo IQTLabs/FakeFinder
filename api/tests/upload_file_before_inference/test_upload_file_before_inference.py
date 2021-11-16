@@ -13,5 +13,5 @@ def test_upload_file_batch_mode_no_split_ntech():
     print(resp.json())
 
     # Validate response headers and body contents, e.g. status code.
-    assert resp.status_code == 201
+    assert resp.status_code == 200
 
