@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import pickle
 import flask
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from ensemble import Ensemble
 import boto3
 

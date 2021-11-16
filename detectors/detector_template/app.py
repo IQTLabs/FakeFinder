@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import pickle
 import flask
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from ensemble import Ensemble
 import boto3
 
