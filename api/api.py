@@ -124,9 +124,9 @@ class Upload(Resource):
         try:
             validate_filename(uploaded_file.filename, platform="auto")
             sanitized_filename = sanitize_filename(uploaded_file.filename, platform="auto")
-            if not os.path.exists('./uploads'):
-                os.makedirs('./uploads')
-            file_path = os.path.join("./uploads", sanitized_filename) # path where file can be saved
+            if not os.path.exists('/uploads'):
+                os.makedirs('/uploads')
+            file_path = os.path.join("/uploads", sanitized_filename) # path where file can be saved
             uploaded_file.save(file_path)
         except ValidationError as e:
             return make_response(f"{e}", 400)
