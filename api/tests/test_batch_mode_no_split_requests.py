@@ -2,12 +2,10 @@ import requests
 import json
 import pytest
 
+url = 'http://0.0.0.0:5000/fakefinder/'
+headers = {'Content-Type': 'application/json' }
 
 def test_batch_mode_boken():
-    url = 'http://localhost:5000/fakefinder/'
-
-    # Additional headers.
-    headers = {'Content-Type': 'application/json' }
 
     # Body
     payload = {"batchMode": True, 
@@ -29,11 +27,6 @@ def test_batch_mode_boken():
 
 @pytest.mark.skip(reason="no way of currently testing this")
 def test_batch_mode_selimsef():
-    url = 'http://localhost:5000/fakefinder/'
-
-    # Additional headers.
-    headers = {'Content-Type': 'application/json' }
-
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
@@ -54,11 +47,6 @@ def test_batch_mode_selimsef():
 
 @pytest.mark.skip(reason="no way of currently testing this")
 def test_batch_mode_medics():
-    url = 'http://localhost:5000/fakefinder/'
-
-    # Additional headers.
-    headers = {'Content-Type': 'application/json' }
-
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
@@ -79,11 +67,6 @@ def test_batch_mode_medics():
 
 @pytest.mark.skip(reason="no way of currently testing this")
 def test_batch_mode_wm():
-    url = 'http://localhost:5000/fakefinder/'
-
-    # Additional headers.
-    headers = {'Content-Type': 'application/json' }
-
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
@@ -104,11 +87,6 @@ def test_batch_mode_wm():
 
 @pytest.mark.skip(reason="no way of currently testing this")
 def test_batch_mode_eighteen():
-    url = 'http://localhost:5000/fakefinder/'
-
-    # Additional headers.
-    headers = {'Content-Type': 'application/json' }
-
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
