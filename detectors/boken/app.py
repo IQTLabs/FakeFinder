@@ -29,6 +29,8 @@ def predict():
             video_path = os.path.join('/uploads/', video)
             if os.path.exists(video_path):
                 score = model.inference(video_path)
+                pred={'filename': video}
+                pred[MODEL_NAME]=score
                 predictions.append({'filename': video, 'boken': score})
             else:
                 return make_response(f"File {video} not found.", 400)
@@ -38,9 +40,6 @@ def predict():
         except Exception as err:
             print(f'{err}')
             return make_response(f"{err}", 500)
-        pred={'filename': video}
-        pred[MODEL_NAME]=score
-        predictions.append(pred)
 
     result = pd.DataFrame(predictions)
     return result.to_json()
