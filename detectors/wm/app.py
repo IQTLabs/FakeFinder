@@ -37,7 +37,7 @@ def predict():
         except ValidationError as e:
             print(f'{e}')
             return make_response(f"{e}", 400)
-        except Exception as err::
+        except Exception as err:
             print(f'{err}')
             return make_response(f"{err}", 500)
 
