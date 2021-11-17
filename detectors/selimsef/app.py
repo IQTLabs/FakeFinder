@@ -4,7 +4,6 @@ import pickle
 import flask
 from flask import Flask, request, jsonify, make_response
 from ensemble import Ensemble
-import boto3
 from pathvalidate import ValidationError, validate_filename, sanitize_filename
 
 app = Flask(__name__)

@@ -68,6 +68,5 @@ webencodings==0.5.1
 widgetsnbextension==3.5.1
 yarg==0.1.9
 zipp==2.2.0
-boto3==1.17.5
 Flask==1.1.2
 pathvalidate==2.5.0
