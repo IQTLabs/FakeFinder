@@ -91,8 +91,8 @@ class FakeFinderPost(Resource):
             print(type(api.payload))
             agg_response = []
             if type(api.payload) is list:
-                 # loop through the list for each of the selected models
-                 for r in api.payload:
+                # loop through the list for each of the selected models
+                for r in api.payload:
                     url = 'http://' + r['modelName'] + ':5000/predict'
 
                     headers = {'Content-type': 'application/json; charset=UTF-8'}
@@ -102,6 +102,7 @@ class FakeFinderPost(Resource):
                     else:
                         video_list = r['location']
 
+                    print(video_list)
                     response = requests.post(url, json={'video_list': video_list}, headers=headers)
                     agg_response.append(response.json())
 
