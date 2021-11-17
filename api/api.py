@@ -104,7 +104,6 @@ class FakeFinderPost(Resource):
 
                     print(video_list)
                     response = requests.post(url, json={'video_list': video_list}, headers=headers)
-                    time.sleep(2)
                     agg_response.append(response.json())
 
             print(json.dumps(agg_response))
