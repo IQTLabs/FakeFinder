@@ -230,20 +230,20 @@ layout = html.Div([
             html.Div(id='printed-model-list'),
 
             # Button to trigger upload & inference submission
-            html.Button(children='Submit', id='send-to-aws', n_clicks=0),
+            html.Button(children='Submit', id='send-to-volume', n_clicks=0),
 
             # Loading circle for upload feedback
-            dcc.Loading(id='loading-s3upload',
+            dcc.Loading(id='loading-upload',
                         color='#027bfc',
                         type='circle'),
 
             html.Br(),
-           
-            # Div for s3 call 
-            html.Div(id='file-on-s3'),
-       
+
+            # Div for volume call
+            html.Div(id='file-on-volume'),
+
             #html.Hr(),
-       
+
             # Loading circle for submission feedback
             dcc.Loading(id='running-inference',
                         color='#027bfc',
@@ -292,20 +292,20 @@ def update_options_list(n_clicks):
     '''Update dropdown file list on click'''
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate
-    
+
     filenames = update_data_folder_tree()
     options = [
                {'label' : os.path.basename(i), 'value': i} for i in filenames
               ]
     return options
-    
+
 
 
 # Inference Section callbacks
 
 # Get results from output
 @app.callback(Output('plottable-data', 'data'),
-              [Input('send-to-aws', 'n_clicks'),
+              [Input('send-to-volume', 'n_clicks'),
                Input('model-checklist', 'value'),
                Input('inference-results', 'data')])
 def update_data(button_clicks, model_list=[], results=[]):
@@ -327,14 +327,14 @@ def print_row(data_df, selected_rows):
 
 # Update data table display based on returned results
 @app.callback(Output('data-table', 'data'),
-              [Input('send-to-aws', 'n_clicks'),
+              [Input('send-to-volume', 'n_clicks'),
                Input('inference-results', 'data')])
 def display_table_output(button_clicks, results=[]):
     '''Update table based on inference results'''
 
     # Check if button pressed, clear table results
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if 'send-to-aws' in changed_id:
+    if 'send-to-volume' in changed_id:
         results = []
 
     data = set_results_dict(model_list=avail_model_list,
@@ -368,62 +368,62 @@ def print_file_and_model_list(model_list=[], filename=''):
 
 
 # Print feedback from file upload with loading circle
-@app.callback([Output('loading-s3upload', 'children'),
-               Output('file-on-s3', 'data')],
-              [Input('send-to-aws', 'n_clicks'),
+@app.callback([Output('loading-upload', 'children'),
+               Output('file-on-volume', 'data')],
+              [Input('send-to-volume', 'n_clicks'),
                State('dropdown-file-names', 'value')])
 def upload_file(button_clicks, fname=''):
     '''Function to check if file already exists,
        otherwise upload it'''
 
-    # Flag for file on s3 is success (True) or failure (False)
-    file_on_s3 = False
+    # Flag for file on volume is success (True) or failure (False)
+    file_on_volume = False
 
     message = ''
 
     # Check if button pressed
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if not 'send-to-aws' in changed_id:
-        return [dcc.Markdown(dedent(message)), file_on_s3]
+    if not 'send-to-volume' in changed_id:
+        return [dcc.Markdown(dedent(message)), file_on_volume]
 
     # Check if a file is selected
     if not fname:
         message = 'Please select a file from the dropdown menu.'
-        return [dcc.Markdown(dedent(message)), file_on_s3]
+        return [dcc.Markdown(dedent(message)), file_on_volume]
 
-    # If not on s3 yet, upload
-    if file_on_s3:
-        message = 'File **{}** already uploaded.'.format(s3_obj_name)
+    # If not on volume yet, upload
+    if file_on_volume:
+        message = 'File **{}** already uploaded.'.format(volume_obj_name)
     else:
         upload_success = UploadFile(file_name=fname)
 
         # Return messages based on success
         if upload_success:
-            file_on_s3 = True
+            file_on_volume = True
             message = 'File {} uploaded.'.format(fname)
         else:
             message = 'File {fname} transfer **unsuccessful**. Check error log.'.format(fname)
 
-    return [dcc.Markdown(dedent(message)), file_on_s3]
+    return [dcc.Markdown(dedent(message)), file_on_volume]
 
 
 # Make inference submission to API
 @app.callback([Output('running-inference', 'children'),
                Output('inference-results', 'data')],
-              [Input('file-on-s3', 'data'),
+              [Input('file-on-volume', 'data'),
                State('dropdown-file-names', 'value'),
                State('model-checklist', 'value')])
-def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
+def submit_inference_request(file_on_volume=False, filename='', model_list=[]):
     '''Submit the request to FakeFinder inference API'''
 
     message = ''
     results = []
 
-    if file_on_s3:
-        s3_obj_name = os.path.basename(filename)
+    if file_on_volume:
+        volume_obj_name = os.path.basename(filename)
 
         # Build request
-        request_list = BuildInferenceRequest(filename=s3_obj_name,
+        request_list = BuildInferenceRequest(filename=volume_obj_name,
                                              model_list=model_list)
         print(f'{request_list}')
         # Submit request
@@ -436,17 +436,17 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
             message = 'Inference submission **not successful**. Check error log.'
 
     return [html.Div([dcc.Markdown(message)]), results]
-    
+
 
 # Callback for graph display
 @app.callback(Output('bar-chart-graph', 'figure'),
-              [Input('send-to-aws', 'n_clicks'),
+              [Input('send-to-volume', 'n_clicks'),
                Input('plottable-data', 'data')])
 def update_graph(button_clicks, data={}):
     # Check if button pressed
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if 'send-to-aws' in changed_id:
-        data = {} 
+    if 'send-to-volume' in changed_id:
+        data = {}
 
     return bar_chart(data=data)
 
