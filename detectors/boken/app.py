@@ -25,16 +25,19 @@ def predict():
         video = ''
         try:
             validate_filename(filename)
-            video = sanitize_filename(file_name, platform="auto")
+            video = sanitize_filename(filename, platform="auto")
             video_path = os.path.join('/uploads/', video)
             if os.path.exists(video_path):
                 score = model.inference(video_path)
+                predictions.append({'filename': video, 'boken': score})
             else:
                 return make_response(f"File {video} not found.", 400)
         except ValidationError as e:
+            print(f'{e}')
             return make_response(f"{e}", 400)
-        except:
-            pass
+        except Exception as err:
+            print(f'{err}')
+            return make_response(f"{err}", 500)
         pred={'filename': video}
         pred[MODEL_NAME]=score
         predictions.append(pred)

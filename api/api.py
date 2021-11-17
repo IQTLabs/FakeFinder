@@ -97,17 +97,18 @@ class FakeFinderPost(Resource):
 
                     headers = {'Content-type': 'application/json; charset=UTF-8'}
                     video_list = list()
-                    if type(r['s3Location']) is not list:
-                        video_list.append(r['s3Location'])
+                    if type(r['location']) is not list:
+                        video_list.append(r['location'])
                     else:
-                        video_list = r['s3Location']
+                        video_list = r['location']
 
                     response = requests.post(url, json={'video_list': video_list}, headers=headers)
-                    agg_response.append(response.json())   
+                    agg_response.append(response.json())
 
             print(json.dumps(agg_response))
         except Exception as e:
             make_response(e,500)
+
         return make_response(jsonify(json.dumps(agg_response)), 200)
 
 @api.route('/upload/')
@@ -118,10 +119,12 @@ class Upload(Resource):
         print(args)
         uploaded_file = args['file']  # This is FileStorage instance
         print(f'{uploaded_file.filename}')
+
         file_name = uploaded_file.filename
         try:
             validate_filename(file_name, platform="auto")
             sanitized_filename = sanitize_filename(file_name, platform="auto")
+
             if not os.path.exists('/uploads'):
                 os.makedirs('/uploads')
             file_path = os.path.join("/uploads", sanitized_filename) # path where file can be saved

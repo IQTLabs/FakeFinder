@@ -10,7 +10,7 @@ def test_batch_mode_ntech():
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
-               "s3Location": ["s3://ff-inbound-videos/4000.mp4", "s3://ff-inbound-videos/4001.mp4", "s3://ff-inbound-videos/4002.mp4", "s3://ff-inbound-videos/4003.mp4", "s3://ff-inbound-videos/4004.mp4", "s3://ff-inbound-videos/4005.mp4"],
+               "location": ["4000.mp4", "4001.mp4", "4002.mp4", "4003.mp4", "4004.mp4", "4005.mp4"],
                "modelName": "ntech",
                "splitRequests": True,
                "numSplitRequests": 2,
@@ -30,7 +30,7 @@ def test_batch_mode_boken(num_splits):
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
-               "s3Location": ["s3://ff-inbound-videos/4000.mp4", "s3://ff-inbound-videos/4001.mp4", "s3://ff-inbound-videos/4002.mp4", "s3://ff-inbound-videos/4003.mp4", "s3://ff-inbound-videos/4004.mp4", "s3://ff-inbound-videos/4005.mp4", "s3://ff-inbound-videos/4006.mp4", "s3://ff-inbound-videos/4007.mp4", "s3://ff-inbound-videos/4008.mp4", "s3://ff-inbound-videos/4009.mp4"],
+               "location": ["4000.mp4", "4001.mp4", "4002.mp4", "4003.mp4", "4004.mp4", "4005.mp4", "4006.mp4", "4007.mp4", "4008.mp4", "4009.mp4"],
                "modelName": "boken",
                "splitRequests": True,
                "numSplitRequests": num_splits,
@@ -50,7 +50,7 @@ def test_batch_mode_medics():
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
-               "s3Location": ["s3://ff-inbound-videos/4000.mp4", "s3://ff-inbound-videos/4001.mp4", "s3://ff-inbound-videos/4002.mp4", "s3://ff-inbound-videos/4003.mp4", "s3://ff-inbound-videos/4004.mp4", "s3://ff-inbound-videos/4005.mp4"],
+               "location": ["4000.mp4", "4001.mp4", "4002.mp4", "4003.mp4", "4004.mp4", "4005.mp4"],
                "modelName": "medics",
                "splitRequests": True,
                "numSplitRequests": 2,
@@ -70,7 +70,7 @@ def test_batch_mode_wm():
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
-               "s3Location": ["s3://ff-inbound-videos/4000.mp4", "s3://ff-inbound-videos/4001.mp4", "s3://ff-inbound-videos/4002.mp4", "s3://ff-inbound-videos/4003.mp4", "s3://ff-inbound-videos/4004.mp4", "s3://ff-inbound-videos/4005.mp4"],
+               "location": ["4000.mp4", "4001.mp4", "4002.mp4", "4003.mp4", "4004.mp4", "4005.mp4"],
                "modelName": "wm",
                "splitRequests": True,
                "numSplitRequests": 2,
@@ -90,7 +90,7 @@ def test_batch_mode_eighteen():
     # Body
     payload = {"batchMode": True,
                "alwaysOn": False,
-               "s3Location": ["s3://ff-inbound-videos/4000.mp4", "s3://ff-inbound-videos/4001.mp4", "s3://ff-inbound-videos/4002.mp4", "s3://ff-inbound-videos/4003.mp4", "s3://ff-inbound-videos/4004.mp4", "s3://ff-inbound-videos/4005.mp4"],
+               "location": ["4000.mp4", "4001.mp4", "4002.mp4", "4003.mp4", "4004.mp4", "4005.mp4"],
                "modelName": "eighteen",
                "splitRequests": True,
                "numSplitRequests": 2,
