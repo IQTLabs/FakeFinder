@@ -23,9 +23,6 @@ if not os.path.exists(DATA_DIR):
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-# S3 Bucket Name
-BUCKET_NAME = 'ff-inbound-videos'
-
 # FakeFinder API URL
 FF_URL = 'http://api:5000/fakefinder/'
 

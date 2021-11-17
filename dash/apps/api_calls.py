@@ -8,7 +8,7 @@ from .definitions import FF_URL
 
 
 # Build an inference model request
-def BuildInferenceRequest(filename='', bucket='', model_list=[]):
+def BuildInferenceRequest(filename='', model_list=[]):
 
     request_list = []
     for model_name in model_list:

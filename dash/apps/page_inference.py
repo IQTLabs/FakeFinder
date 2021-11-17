@@ -17,7 +17,7 @@ from .dash_style_defs import data_table_style_cell_conditional
 from .dash_style_defs import data_table_style_data_conditional
 from .dash_style_defs import data_table_header_style, data_table_style_cell
 from .utils import build_df, set_results_dict, update_data_folder_tree, bar_chart
-from .definitions import REPO_DIR, UPLOAD_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
+from .definitions import REPO_DIR, UPLOAD_DIR, STATIC_DIRNAME, STATIC_FULLPATH, FF_URL
 from .api_calls import UploadFile, GetModelList, SubmitInferenceRequest, BuildInferenceRequest
 
 from app import app, server
@@ -373,7 +373,7 @@ def print_file_and_model_list(model_list=[], filename=''):
               [Input('send-to-aws', 'n_clicks'),
                State('dropdown-file-names', 'value')])
 def upload_file(button_clicks, fname=''):
-    '''Function to check if file already in s3 bucket, 
+    '''Function to check if file already exists,
        otherwise upload it'''
 
     # Flag for file on s3 is success (True) or failure (False)
@@ -400,9 +400,9 @@ def upload_file(button_clicks, fname=''):
         # Return messages based on success
         if upload_success:
             file_on_s3 = True
-            message = 'File {} sent to S3 Bucket {}'.format(fname, BUCKET_NAME)
+            message = 'File {} uploaded.'.format(fname)
         else:
-            message = 'File transfer **unsuccessful**. Check error log.'.format(fname, BUCKET_NAME)
+            message = 'File {fname} transfer **unsuccessful**. Check error log.'.format(fname)
 
     return [dcc.Markdown(dedent(message)), file_on_s3]
 
@@ -424,7 +424,6 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
 
         # Build request
         request_list = BuildInferenceRequest(filename=s3_obj_name,
-                                             bucket=BUCKET_NAME,
                                              model_list=model_list)
         print(f'{request_list}')
         # Submit request

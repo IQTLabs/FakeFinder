@@ -18,7 +18,10 @@ def starting_url():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    video_list = request.get_json(force=True)['video_list']
+    response = request.get_json(force=True)
+    print(response)
+    #video_list = request.get_json(force=True)['video_list']
+    video_list = response['video_list']
     predictions = []
     for filename in video_list:
         score = 0.5
