@@ -18,10 +18,7 @@ def starting_url():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    response = request.get_json(force=True)
-    print(response)
-    #video_list = request.get_json(force=True)['video_list']
-    video_list = response['video_list']
+    video_list = request.get_json(force=True)['video_list']
     predictions = []
     for filename in video_list:
         score = 0.5
@@ -34,6 +31,7 @@ def predict():
                 score = model.inference(video_path)
                 pred={'filename': video}
                 pred[MODEL_NAME]=score
+                predictions.append(pred)
             else:
                 return make_response(f"File {video} not found.", 400)
         except ValidationError as e:
