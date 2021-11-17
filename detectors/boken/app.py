@@ -31,7 +31,6 @@ def predict():
                 score = model.inference(video_path)
                 pred={'filename': video}
                 pred[MODEL_NAME]=score
-                predictions.append({'filename': video, 'boken': score})
             else:
                 return make_response(f"File {video} not found.", 400)
         except ValidationError as e:

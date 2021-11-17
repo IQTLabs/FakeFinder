@@ -21,24 +21,25 @@ def starting_url():
 def predict():
     video_list = request.get_json(force=True)['video_list']
     predictions = []
-    video = ''
     for filename in video_list:
         score = 0.5
+        video = ''
         try:
             validate_filename(filename)
-            video = sanitize_filename(file_name, platform="auto")
+            video = sanitize_filename(filename, platform="auto")
             video_path = os.path.join('/uploads/', video)
             if os.path.exists(video_path):
                 score = model.inference(video_path)
+                pred={'filename': video}
+                pred[MODEL_NAME]=score
             else:
                 return make_response(f"File {video} not found.", 400)
         except ValidationError as e:
+            print(f'{e}')
             return make_response(f"{e}", 400)
-        except:
-            pass
-        pred={'filename': video}
-        pred[MODEL_NAME]=score
-        predictions.append(pred)
+        except Exception as err:
+            print(f'{err}')
+            return make_response(f"{err}", 500)
 
     result = pd.DataFrame(predictions)
     return result.to_json()
