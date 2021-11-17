@@ -107,7 +107,7 @@ class FakeFinderPost(Resource):
 
             print(json.dumps(agg_response))
         except Exception as e:
-            make_response(e.message,500)
+            make_response(e,500)
         return make_response(jsonify(json.dumps(agg_response)), 200)
 
 @api.route('/upload/')
@@ -118,13 +118,14 @@ class Upload(Resource):
         print(args)
         uploaded_file = args['file']  # This is FileStorage instance
         print(f'{uploaded_file.filename}')
+        file_name = uploaded_file.filename
         try:
             validate_filename(file_name, platform="auto")
             sanitized_filename = sanitize_filename(file_name, platform="auto")
-            if not os.path.exists('./uploads'):
-                os.makedirs('./uploads')
-            file_path = os.path.join("./uploads", sanitized_filename) # path where file can be saved
-            file_content.save(file_path)
+            if not os.path.exists('/uploads'):
+                os.makedirs('/uploads')
+            file_path = os.path.join("/uploads", sanitized_filename) # path where file can be saved
+            uploaded_file.save(file_path)
         except ValidationError as e:
             return make_response(f"{e}", 400)
         except Exception as err:

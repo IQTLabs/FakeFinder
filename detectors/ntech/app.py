@@ -6,10 +6,8 @@ import flask
 from flask import Flask, request, jsonify, make_response
 from ensemble import Ensemble
 import boto3
+from pathvalidate import ValidationError, validate_filename, sanitize_filename
 
-
-
-BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
 MODEL_NAME='ntech'
 
 DETECTOR_WEIGHTS_PATH = 'WIDERFace_DSFD_RES152.fp16.pth'
@@ -38,6 +36,7 @@ def starting_url():
 def predict():
     video_list = request.get_json(force=True)['video_list']
     predictions = []
+    video = ''
     for filename in video_list:
         score = 0.5
         try:

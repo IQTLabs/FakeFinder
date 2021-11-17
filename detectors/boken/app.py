@@ -22,6 +22,7 @@ def predict():
     predictions = []
     for filename in video_list:
         score = 0.5
+        video = ''
         try:
             validate_filename(filename)
             video = sanitize_filename(file_name, platform="auto")

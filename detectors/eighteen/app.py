@@ -5,15 +5,11 @@ import flask
 from flask import Flask, request, jsonify, make_response
 from ensemble import *
 import boto3
+from pathvalidate import ValidationError, validate_filename, sanitize_filename
 
 app = Flask(__name__)
 
-
-BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
-
-s3 = boto3.resource('s3')
-
-chpt_dir = './weights/eighteen'
+chpt_dir = '/weights/eighteen'
 load_slowfast_path = '{}/sf_bc_jc_44000.pth.tar'.format(chpt_dir)
 load_slowfast_path2 = '{}/sf_32000.pth.tar'.format(chpt_dir)
 load_slowfast_path3 = '{}/sf_16x8_bc_jc_44000.pth.tar'.format(chpt_dir)
@@ -42,6 +38,7 @@ def starting_url():
 def predict():
     video_list = request.get_json(force=True)['video_list']
     predictions = []
+    video = ''
     for filename in video_list:
         score = 0.5
         try:
