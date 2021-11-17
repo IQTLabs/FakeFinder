@@ -9,6 +9,7 @@ from pathvalidate import ValidationError, validate_filename, sanitize_filename
 app = Flask(__name__)
 
 model = Ensemble()
+MODEL_NAME='boken'
 
 @app.route('/healthcheck')
 def starting_url():
@@ -21,13 +22,15 @@ def predict():
     predictions = []
     for filename in video_list:
         score = 0.5
+        video = ''
         try:
             validate_filename(filename)
             video = sanitize_filename(filename, platform="auto")
             video_path = os.path.join('/uploads/', video)
             if os.path.exists(video_path):
                 score = model.inference(video_path)
-                predictions.append({'filename': video, 'boken': score})
+                pred={'filename': video}
+                pred[MODEL_NAME]=score
             else:
                 return make_response(f"File {video} not found.", 400)
         except ValidationError as e:

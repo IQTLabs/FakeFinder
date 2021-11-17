@@ -426,7 +426,7 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
         request_list = BuildInferenceRequest(filename=s3_obj_name,
                                              bucket=BUCKET_NAME,
                                              model_list=model_list)
-
+        print(f'{request_list}')
         # Submit request
         results = SubmitInferenceRequest(url=FF_URL,
                                          dict_list=request_list,
