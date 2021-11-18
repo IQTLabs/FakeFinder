@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: detector
+  name: detector
+spec:
+  ports:
+    - name: "detector-port"
+      port: 5000
+      targetPort: 5000
+  selector:
+    service: detector
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: api
+  name: api
+spec:
+  ports:
+    - name: "api-port"
+      port: 5000
+      targetPort: 5000
+  selector:
+    service: api
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: dash
+  name: dash
+spec:
+  type: NodePort
+  ports:
+    - name: "http"
+      port: 80
+      targetPort: 8050
+      nodePort: 30080
+  selector:
+    service: dash
+status:
+  loadBalancer: {}

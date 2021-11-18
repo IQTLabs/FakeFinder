@@ -1,0 +1,88 @@
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   labels:
+#     service: api
+#   name: api
+# spec:
+#   containers:
+#     - image: iqtlabs/fakefinder-api
+#       imagePullPolicy: Never
+#       name: api
+#       ports:
+#         - containerPort: 5000
+#       resources: {}
+#       volumeMounts:
+#         - mountPath: /uploads
+#           name: uploads
+#   restartPolicy: Always
+#   volumes:
+#     - name: uploads
+#       hostPath:
+#         path: ./uploads/
+#         type: Directory
+# status: {}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: api
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        api: "true"
+        detectors: "true"
+        frontend: "true"
+        service: api
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-api
+          imagePullPolicy: Never
+          name: api
+          ports:
+            - containerPort: 5000
+          resources: {}
+          volumeMounts:
+            - mountPath: /uploads
+              name: uploads
+      restartPolicy: Always
+      volumes:
+        - name: uploads
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: dash
+  name: dash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: dash
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        frontend: "true"
+        service: dash
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-dash
+          imagePullPolicy: Never
+          name: dash
+          ports:
+            - containerPort: 8050
+          resources: {}
+      restartPolicy: Always
+status: {}
