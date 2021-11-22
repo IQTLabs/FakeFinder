@@ -3,3 +3,5 @@ dist
 .eggs
 *.egg-info
 __pycache__
+uploads/
+weights/
