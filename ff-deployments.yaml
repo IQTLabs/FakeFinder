@@ -1,0 +1,273 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: api
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        api: "true"
+        detectors: "true"
+        frontend: "true"
+        service: api
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-api
+          imagePullPolicy: Never
+          name: api
+          ports:
+            - containerPort: 5000
+          resources: {}
+          volumeMounts:
+            - mountPath: /uploads
+              name: uploads
+      restartPolicy: Always
+      volumes:
+        - name: uploads
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: dash
+  name: dash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: dash
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        frontend: "true"
+        service: dash
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-dash
+          imagePullPolicy: Never
+          name: dash
+          ports:
+            - containerPort: 8050
+          resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: boken
+  name: boken
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: boken
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        detectors: "true"
+        service: boken
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-boken
+          imagePullPolicy: Never
+          name: boken
+          resources: {}
+          volumeMounts:
+            - mountPath: /weights
+              name: weights
+            - mountPath: /uploads
+              name: uploads
+      restartPolicy: Always
+      volumes:
+        - name: uploads
+        - name: weights
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: eighteen
+  name: eighteen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: eighteen
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        detectors: "true"
+        service: eighteen
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-eighteen
+          imagePullPolicy: Never
+          name: eighteen
+          resources: {}
+          volumeMounts:
+            - mountPath: /weights
+              name: weights
+            - mountPath: /uploads
+              name: uploads
+      restartPolicy: Always
+      volumes:
+        - name: uploads
+        - name: weights
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: medics
+  name: medics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: medics
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        detectors: "true"
+        service: medics
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-medics
+          imagePullPolicy: Never
+          name: medics
+          resources: {}
+          volumeMounts:
+            - mountPath: /weights
+              name: weights
+            - mountPath: /uploads
+              name: uploads
+      restartPolicy: Always
+      volumes:
+        - name: uploads
+        - name: weights
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: ntech
+  name: ntech
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ntech
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        detectors: "true"
+        service: ntech
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-ntech
+          imagePullPolicy: Never
+          name: ntech
+          resources: {}
+          volumeMounts:
+            - mountPath: /weights
+              name: weights
+            - mountPath: /uploads
+              name: uploads
+      restartPolicy: Always
+      volumes:
+        - name: uploads
+        - name: weights
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: selimsef
+  name: selimsef
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: selimsef
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        detectors: "true"
+        service: selimsef
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-selimsef
+          imagePullPolicy: Never
+          name: selimsef
+          resources: {}
+          volumeMounts:
+            - mountPath: /weights
+              name: weights
+            - mountPath: /uploads
+              name: uploads
+      restartPolicy: Always
+      volumes:
+        - name: uploads
+        - name: weights
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: wm
+  name: wm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: wm
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        detectors: "true"
+        service: wm
+    spec:
+      containers:
+        - image: iqtlabs/fakefinder-wm
+          imagePullPolicy: Never
+          name: wm
+          resources: {}
+          volumeMounts:
+            - mountPath: /weights
+              name: weights
+            - mountPath: /uploads
+              name: uploads
+      restartPolicy: Always
+      volumes:
+        - name: uploads
+        - name: weights
+status: {}
