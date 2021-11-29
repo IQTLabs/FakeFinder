@@ -32,6 +32,9 @@ spec:
       restartPolicy: Always
       volumes:
         - name: uploads
+          hostPath:
+            path: /ff-data/uploads
+            type: Directory
 status: {}
 ---
 apiVersion: apps/v1
@@ -94,7 +97,13 @@ spec:
       restartPolicy: Always
       volumes:
         - name: uploads
+          hostPath:
+            path: /ff-data/uploads
+            type: Directory
         - name: weights
+          hostPath:
+            path: /ff-data/weights
+            type: Directory
 status: {}
 ---
 apiVersion: apps/v1
@@ -129,7 +138,13 @@ spec:
       restartPolicy: Always
       volumes:
         - name: uploads
+          hostPath:
+            path: /ff-data/uploads
+            type: Directory
         - name: weights
+          hostPath:
+            path: /ff-data/weights
+            type: Directory
 status: {}
 ---
 apiVersion: apps/v1
@@ -164,7 +179,13 @@ spec:
       restartPolicy: Always
       volumes:
         - name: uploads
+          hostPath:
+            path: /ff-data/uploads
+            type: Directory
         - name: weights
+          hostPath:
+            path: /ff-data/weights
+            type: Directory
 status: {}
 ---
 apiVersion: apps/v1
@@ -199,7 +220,13 @@ spec:
       restartPolicy: Always
       volumes:
         - name: uploads
+          hostPath:
+            path: /ff-data/uploads
+            type: Directory
         - name: weights
+          hostPath:
+            path: /ff-data/weights
+            type: Directory
 status: {}
 ---
 apiVersion: apps/v1
@@ -234,7 +261,13 @@ spec:
       restartPolicy: Always
       volumes:
         - name: uploads
+          hostPath:
+            path: /ff-data/uploads
+            type: Directory
         - name: weights
+          hostPath:
+            path: /ff-data/weights
+            type: Directory
 status: {}
 ---
 apiVersion: apps/v1
@@ -269,5 +302,11 @@ spec:
       restartPolicy: Always
       volumes:
         - name: uploads
+          hostPath:
+            path: /ff-data/uploads
+            type: Directory
         - name: weights
+          hostPath:
+            path: /ff-data/weights
+            type: Directory
 status: {}

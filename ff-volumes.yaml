@@ -10,7 +10,7 @@ spec:
   accessModes:
     - ReadOnlyMany
   hostPath:
-    path: ./weights
+    path: /ff-data/weights
     type: Directory
 ---
 apiVersion: v1
@@ -25,5 +25,5 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: ./uploads
+    path: /ff-data/uploads
     type: Directory
