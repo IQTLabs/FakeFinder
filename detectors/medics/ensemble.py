@@ -6,10 +6,10 @@ import torch.nn.functional as F
 from torchvision.models.video import mc3_18, r2plus1d_18
 from facenet_pytorch import MTCNN
 
-from cnn3d import *
-from cnn2d import *
-from constants import *
-from face_utils import *
+from .cnn3d import *
+from .cnn2d import *
+from .constants import *
+from .face_utils import *
 
 __all__ = ['Ensemble']
 

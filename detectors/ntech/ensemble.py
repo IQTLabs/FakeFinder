@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
 
-from face_utils import get_tracks, extract_sequence, extract_face
-from models import *
+from .face_utils import get_tracks, extract_sequence, extract_face
+from .models import *
 
 VIDEO_FACE_MODEL_TRACK_STEP = 2
 VIDEO_SEQUENCE_MODEL_SEQUENCE_LENGTH = 7

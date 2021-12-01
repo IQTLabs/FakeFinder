@@ -8,12 +8,12 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torchvision
 
-from face_detect_lib.models.retinaface import RetinaFace
-from face_detect_lib.layers.functions.prior_box import PriorBox
-from face_detect_lib.utils.box_utils import decode_batch, decode_landm_batch, decode, decode_landm
+from .face_detect_lib.models.retinaface import RetinaFace
+from .face_detect_lib.layers.functions.prior_box import PriorBox
+from .face_detect_lib.utils.box_utils import decode_batch, decode_landm_batch, decode, decode_landm
 
-from utils import *
-from models import *
+from .utils import *
+from .models import *
 
 __all__ = ['Ensemble', 'pipeline_cfg']
 

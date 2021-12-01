@@ -14,7 +14,7 @@ except:
 
 from io import BytesIO
 
-from eval_kit.extract_frames import extract_frames
+from .extract_frames import extract_frames
 
 # EVALUATION SYSTEM SETTINGS
 # DON'T CHANGE ANY CODE HERE, OR YOU MAY ENCOUNTER SOME UNEXPECTED PROBLEMS!

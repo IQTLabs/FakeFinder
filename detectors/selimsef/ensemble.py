@@ -1,8 +1,8 @@
 import re
 
 import torch
-from kernel_utils import VideoReader, FaceExtractor, confident_strategy, predict_on_video
-from models.classifiers import DeepFakeClassifier
+from .kernel_utils import VideoReader, FaceExtractor, confident_strategy, predict_on_video
+from .models.classifiers import DeepFakeClassifier
 
 model_chpt = ['final_111_DeepFakeClassifier_tf_efficientnet_b7_ns_0_36',
               'final_555_DeepFakeClassifier_tf_efficientnet_b7_ns_0_19',

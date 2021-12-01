@@ -12,9 +12,9 @@ import torch.nn.functional as F
 from torchvision import transforms as T
 
 sys.path.append('./external/Pytorch_Retinaface')
-from model_def import WSDAN, xception
-from face_utils import norm_crop, FaceDetector
-from external.Pytorch_Retinaface.data import cfg_re50
+from .model_def import WSDAN, xception
+from .face_utils import norm_crop, FaceDetector
+from .external.Pytorch_Retinaface.data import cfg_re50
 
 class video_reader:
     def __init__(self, face_detector, transform=None, frame_skip=9, face_limit=25, batch_size=25):
