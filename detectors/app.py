@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import pickle
 import flask
+import json
+import sys
 from flask import Flask, request, jsonify, make_response
 from boken.ensemble import Ensemble as boken_Ensemble
 from eighteen.ensemble import Ensemble as eighteen_Ensemble
@@ -29,9 +31,25 @@ def starting_url():
     return status_code
 
 @app.route('/gpustats')
-def starting_url():
-    stats = GPUtil.showUtilization()
-    return stats
+def gpustats():
+    gpus = GPUtil.getGPUs()
+    stats = list()
+    for g in gpus:
+        gpu = {
+            "id":g.id,
+            "name": g.name,
+            "load": g.load,
+            "driver": g.driver,
+            "memoryUsed": g.memoryUsed,
+            "memoryTotal": g.memoryTotal,
+            "memoryUtilization": g.memoryUtil,
+            "memoryFree": g.memoryFree,
+            "temperature": g.temperature
+        }
+        stats.append(gpu)
+
+    print(f"{stats}", file=sys.stderr)
+    return make_response(json.dumps(stats), 200)
 
 @app.route('/predict', methods=['POST'])
 def predict():
