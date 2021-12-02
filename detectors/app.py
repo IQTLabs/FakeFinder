@@ -9,7 +9,7 @@ from medics.ensemble import Ensemble as medics_Ensemble
 from ntech.ensemble import Ensemble as ntech_Ensemble
 from selimsef.ensemble import Ensemble as selimsef_Ensemble
 from wm.ensemble import Ensemble as wm_Ensemble
-import boto3
+import GPUtil
 
 app = Flask(__name__)
 
@@ -27,6 +27,11 @@ models = {
 def starting_url():
     status_code = flask.Response(status=201)
     return status_code
+
+@app.route('/gpustats')
+def starting_url():
+    stats = GPUtil.showUtilization()
+    return stats
 
 @app.route('/predict', methods=['POST'])
 def predict():
