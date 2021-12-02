@@ -38,8 +38,8 @@ def predict():
     model_names = request.get_json(force=True)['model_names']
     video_list = request.get_json(force=True)['video_list']
     predictions = []
-    for filename in video_list:
-        for modelname in model_names:
+    for modelname in model_names:
+        for filename in video_list:
             score = 0.5
             video = ''
             model = models[modelname]()
