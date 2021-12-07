@@ -1,4 +1,5 @@
 import cv2
+import gc
 import numpy as np
 import copy
 import math
@@ -536,10 +537,7 @@ def detect_video_face(img_list, detect_record):
 
 
 class Ensemble:
-    def __init__(self, cls_model_ckpt: str, xcp_model_ckpt: str, slow_fast_2_ckpt: str,
-                 slow_fast_3_ckpt: str, b3_model_ckpt: str, res34_model_ckpt: str, b1_model_ckpt: str,
-                 b1long_model_ckpt: str, b1short_model_ckpt: str, b0_model_ckpt: str, slow_fast_4_ckpt: str,
-                 frame_nums: int, cuda=True):
+    def __init__(self, cuda=True):
 
         self.cls_model_ckpt = load_slowfast_path
         self.xcp_model_ckpt = load_xcp_path

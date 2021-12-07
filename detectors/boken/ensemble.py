@@ -78,6 +78,5 @@ class Ensemble(DeeperForensicsDetector):
 
     def __del__(self):
         del self.models
-        del self.model
         torch.cuda.empty_cache()
         gc.collect()
