@@ -1,3 +1,4 @@
+import gc
 import os
 import torch
 
@@ -74,3 +75,9 @@ class Ensemble(DeeperForensicsDetector):
                 pred = sum(pred) / len(pred)
                 pred = clip_pred(pred, threshold=0.01)
         return pred
+
+    def __del__(self):
+        del self.models
+        del self.model
+        torch.cuda.empty_cache()
+        gc.collect()

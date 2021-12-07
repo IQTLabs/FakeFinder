@@ -558,6 +558,25 @@ class Ensemble:
         self.detect_record = {}
         self.init_model()
 
+    def __del__(self):
+        del self.cls_model_ckpt
+        del self.xcp_model_ckpt
+        del self.cls_model2_ckpt
+        del self.cls_model3_ckpt
+        del self.cls_model4_ckpt
+        del self.b3_model_ckpt
+        del self.res34_model_ckpt
+        del self.b1_model_ckpt
+        del self.b1long_model_ckpt
+        del self.b1short_model_ckpt
+        del self.b0_model_ckpt
+
+        del self.frame_nums
+        del self.cuda
+        del self.detect_record
+        torch.cuda.empty_cache()
+        gc.collect()
+
     def init_model(self):
         self.face_det_model = init_face_detecor()
         self.face_cls_model = init_slow_fast_model(
