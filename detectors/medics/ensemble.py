@@ -1,5 +1,6 @@
 import numpy as np
 import yaml
+import gc
 
 import torch
 import torch.nn.functional as F
@@ -144,3 +145,12 @@ class Ensemble():
             return np.clip(np.mean(predictions), PROB_MIN, PROB_MAX)
         else:
             return 0.5
+
+    def __del__(self):
+        del self.mtcnn
+        del self.models_3d
+        del self.model_2d
+        del self.loader
+        
+        torch.cuda.empty_cache()
+        gc.collect()

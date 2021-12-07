@@ -126,3 +126,14 @@ class Ensemble:
 
         out = 0.2 * o1 + 0.7 * o2 + 0.1 * o3
         return np.mean(out)
+
+    def __del__(self):
+        del self.reader
+        del self.model1
+        del self.model2
+        del self.model3
+        del self.zhq_nm_avg
+        del self.zhq_nm_std
+ 
+        torch.cuda.empty_cache()
+        gc.collect()

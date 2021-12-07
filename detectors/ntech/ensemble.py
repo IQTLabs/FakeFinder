@@ -73,7 +73,9 @@ class Ensemble:
     def inference(self, video_path):
         sample = self.reader.process_video(video_path)
         frames, tracks = sample['frames'], sample['tracks']
-        if len(frames) == 0 or len(tracks) == 0:
+        if len(frames) == 0 or len(tra
+
+            cks) == 0:
             return 0.5
         sequence_track_scores = []
         for track in tracks:
@@ -114,3 +116,10 @@ class Ensemble:
         video_score = float((track_probs * weights).sum() / weights.sum())
 
         return video_score
+
+    def __del__(self):
+        del self.track_sequences_classifier
+        del self.track_faces_classifier
+        del self.reader
+        
+        gc.collect()
