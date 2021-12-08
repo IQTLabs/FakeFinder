@@ -61,23 +61,24 @@ def predict():
         for filename in video_list:
             score = 0.5
             video = ''
-            with models[modelname]() as model:
-                try:
-                    validate_filename(filename)
-                    video = sanitize_filename(filename, platform="auto")
-                    video_path = os.path.join('/uploads/', video)
-                    if os.path.exists(video_path):
-                        score = model.inference(video_path)
-                        pred={'filename': video}
-                        pred[modelname]=score
-                    else:
-                        return make_response(f"File {video} not found.", 400)
-                except ValidationError as e:
-                    print(f'{e}')
-                    return make_response(f"{e}", 400)
-                except Exception as err:
-                    print(f'{err}')
-                    return make_response(f"{err}", 500)
+            model = models[modelname]()
+            try:
+                validate_filename(filename)
+                video = sanitize_filename(filename, platform="auto")
+                video_path = os.path.join('/uploads/', video)
+                if os.path.exists(video_path):
+                    score = model.inference(video_path)
+                    pred={'filename': video}
+                    pred[modelname]=score
+                    predictions.append(pred)
+                else:
+                    return make_response(f"File {video} not found.", 400)
+            except ValidationError as e:
+                print(f'{e}')
+                return make_response(f"{e}", 400)
+            except Exception as err:
+                print(f'{err}')
+                return make_response(f"{err}", 500)
 
     result = pd.DataFrame(predictions)
     return result.to_json()

@@ -1,5 +1,5 @@
 import re
-
+import gc
 import torch
 from .kernel_utils import VideoReader, FaceExtractor, confident_strategy, predict_on_video
 from .models.classifiers import DeepFakeClassifier

@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import os
+import gc
 
 from .face_utils import get_tracks, extract_sequence, extract_face
 from .models import *
@@ -73,9 +74,7 @@ class Ensemble:
     def inference(self, video_path):
         sample = self.reader.process_video(video_path)
         frames, tracks = sample['frames'], sample['tracks']
-        if len(frames) == 0 or len(tra
-
-            cks) == 0:
+        if len(frames) == 0 or len(tracks) == 0:
             return 0.5
         sequence_track_scores = []
         for track in tracks:

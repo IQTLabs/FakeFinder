@@ -114,7 +114,7 @@ class Ensemble():
         self.mtcnn = MTCNN(margin=0, keep_all=True, post_process=False, select_largest=False,
                            device='cuda:0', thresholds=MTCNN_THRESHOLDS, factor=MMTNN_FACTOR)
         self.models_3d = build_models()
-        with open('./cnn2d/experiment001.yaml') as f:
+        with open('./medics/cnn2d/experiment001.yaml') as f:
             CFG = yaml.load(f, Loader=yaml.FullLoader)
 
             CFG['model']['params']['pretrained'] = None

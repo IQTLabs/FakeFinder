@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import gc
 
 import cv2
 import numpy as np

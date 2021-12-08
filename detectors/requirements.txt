@@ -4,7 +4,7 @@ opencv_python==4.2.0.34
 torch==1.4.0
 torchvision==0.5.0
 albumentations==0.5.2
-efficientnet_pytorch==0.7.0
+efficientnet_pytorch==0.6.3
 facenet_pytorch==2.5.1
 Pillow==8.1.1
 pretrainedmodels==0.7.4
