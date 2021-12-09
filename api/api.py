@@ -93,16 +93,21 @@ class FakeFinderPost(Resource):
             if type(api.payload) is list:
                  # loop through the list for each of the selected models
                  for r in api.payload:
-                    url = 'http://' + r['modelName'] + ':5000/predict'
+                    url = 'http://detector:5000/predict'
 
                     headers = {'Content-type': 'application/json; charset=UTF-8'}
+                    model_names = list()
                     video_list = list()
+                    if type(r['modelName']) is not list:
+                        model_names.append(r['modelName'])
+                    else:
+                         model_names = r['modelName']
                     if type(r['location']) is not list:
                         video_list.append(r['location'])
                     else:
                         video_list = r['location']
 
-                    response = requests.post(url, json={'video_list': video_list}, headers=headers)
+                    response = requests.post(url, json={'model_names': model_names, 'video_list': video_list}, headers=headers)
                     agg_response.append(response.json())
 
             print(json.dumps(agg_response))

@@ -22,71 +22,21 @@ services:
       - detectors
     volumes:
       - ./uploads:/uploads
-  boken:
+  detectors:
     restart: always
     build:
-      context: detectors/boken
-    image: iqtlabs/fakefinder-boken
+      context: detectors
+    image: iqtlabs/fakefinder-detectors
     networks:
       - detectors
     volumes:
       - ./weights:/weights
       - ./uploads:/uploads
-  eighteen:
-    restart: always
-    build:
-      context: detectors/eighteen
-    image: iqtlabs/fakefinder-eighteen
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-  medics:
-    restart: always
-    build:
-      context: detectors/medics
-    image: iqtlabs/fakefinder-medics
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-  ntech:
-    restart: always
-    build:
-      context: detectors/ntech
-    image: iqtlabs/fakefinder-ntech
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-  selimsef:
-    restart: always
-    build:
-      context: detectors/selimsef
-    image: iqtlabs/fakefinder-selimsef
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-  wm:
-    restart: always
-    build:
-      context: detectors/wm
-    image: iqtlabs/fakefinder-wm
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            capabilities: [gpu]
 networks:
   api:
     name: api
