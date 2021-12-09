@@ -93,7 +93,7 @@ class FakeFinderPost(Resource):
             if type(api.payload) is list:
                  # loop through the list for each of the selected models
                  for r in api.payload:
-                    url = 'http://detector:5000/predict'
+                    url = 'http://detectors:5000/predict'
 
                     headers = {'Content-type': 'application/json; charset=UTF-8'}
                     model_names = list()
@@ -112,7 +112,7 @@ class FakeFinderPost(Resource):
 
             print(json.dumps(agg_response))
         except Exception as e:
-            make_response(e,500)
+            make_response(f"{e}",500)
 
         return make_response(jsonify(json.dumps(agg_response)), 200)
 
