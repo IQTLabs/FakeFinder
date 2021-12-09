@@ -56,7 +56,7 @@ def gpustats():
 def predict():
     model_names = request.get_json(force=True)['model_names']
     video_list = request.get_json(force=True)['video_list']
-    predictions = {}
+    predictions = []
     for modelname in model_names:
         for filename in video_list:
             score = 0.5
@@ -67,11 +67,12 @@ def predict():
                 video = sanitize_filename(filename, platform="auto")
                 video_path = os.path.join('/uploads/', video)
                 if not filename in predictions:
-                    predictions[filename]={}
-                    predictions[filename]['filename'] = video
+                    pred={}
+                    pred['filename'] = video
                 if os.path.exists(video_path):
                     score = model.inference(video_path)
-                    predictions[filename][modelname]=score
+                    pred[modelname]=score
+                    predictions.append(pred)
                 else:
                     return make_response(f"File {video} not found.", 400)
             except ValidationError as e:
@@ -80,7 +81,7 @@ def predict():
             except Exception as err:
                 print(f'{err}')
                 return make_response(f"{err}", 500)
-
+    print(f"{predictions}", file=sys.stderr)
     result = pd.DataFrame(predictions)
     return result.to_json()
 
