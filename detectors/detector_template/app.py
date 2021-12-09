@@ -4,7 +4,6 @@ import pickle
 import flask
 from flask import Flask, request, jsonify, make_response
 from ensemble import Ensemble
-import boto3
 
 app = Flask(__name__)
 
@@ -31,6 +30,7 @@ def predict():
                 score = model.inference(video_path)
                 pred={'filename': video}
                 pred[MODEL_NAME]=score
+                predictions.append(pred)
             else:
                 return make_response(f"File {video} not found.", 400)
         except ValidationError as e:

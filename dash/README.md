@@ -23,9 +23,6 @@ git clone https://github.com/IQTLabs/FakeFinder.git
 cd FakeFinder/dash
 ```
 
-You'll need to change the `BUCKET_NAME` and `FF_URL` variables in the `apps/definitions.py` file
-to point to your bucket and API url, respectively.
-
 
 ## For local usage (primarily for web app debugging)
 
@@ -46,4 +43,4 @@ To run the app locally, one first must switch the commenting on the final two li
 and switch the commenting on the third and fourth lines of `config.py`.
 
 Finally, launch the app process via `python index.py` 
-and then point a browser to [http://127.0.0.1:8050/](http://127.0.0.1:8050/).
+and then point a browser to [http://0.0.0.0:80/](http://0.0.0.0:80/).
