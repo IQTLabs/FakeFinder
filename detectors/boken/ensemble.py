@@ -1,11 +1,12 @@
+import gc
 import os
 import torch
 
-from eval_kit.detector import DeeperForensicsDetector
-from eval_kit.client_dev import get_local_frames_iter
-from models import model_selection, get_efficientnet, DetectionPipeline
+from .eval_kit.detector import DeeperForensicsDetector
+from .eval_kit.client_dev import get_local_frames_iter
+from .models import model_selection, get_efficientnet, DetectionPipeline
 from facenet_pytorch import MTCNN, extract_face
-from utils import *
+from .utils import *
 
 
 class Ensemble(DeeperForensicsDetector):
@@ -74,3 +75,8 @@ class Ensemble(DeeperForensicsDetector):
                 pred = sum(pred) / len(pred)
                 pred = clip_pred(pred, threshold=0.01)
         return pred
+
+    def __del__(self):
+        del self.models
+        torch.cuda.empty_cache()
+        gc.collect()

@@ -1,15 +1,16 @@
 import numpy as np
 import yaml
+import gc
 
 import torch
 import torch.nn.functional as F
 from torchvision.models.video import mc3_18, r2plus1d_18
 from facenet_pytorch import MTCNN
 
-from cnn3d import *
-from cnn2d import *
-from constants import *
-from face_utils import *
+from .cnn3d import *
+from .cnn2d import *
+from .constants import *
+from .face_utils import *
 
 __all__ = ['Ensemble']
 
@@ -113,7 +114,7 @@ class Ensemble():
         self.mtcnn = MTCNN(margin=0, keep_all=True, post_process=False, select_largest=False,
                            device='cuda:0', thresholds=MTCNN_THRESHOLDS, factor=MMTNN_FACTOR)
         self.models_3d = build_models()
-        with open('./cnn2d/experiment001.yaml') as f:
+        with open('./medics/cnn2d/experiment001.yaml') as f:
             CFG = yaml.load(f, Loader=yaml.FullLoader)
 
             CFG['model']['params']['pretrained'] = None
@@ -144,3 +145,12 @@ class Ensemble():
             return np.clip(np.mean(predictions), PROB_MIN, PROB_MAX)
         else:
             return 0.5
+
+    def __del__(self):
+        del self.mtcnn
+        del self.models_3d
+        del self.model_2d
+        del self.loader
+        
+        torch.cuda.empty_cache()
+        gc.collect()

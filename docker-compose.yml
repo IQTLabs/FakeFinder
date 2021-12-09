@@ -22,22 +22,11 @@ services:
       - detectors
     volumes:
       - ./uploads:/uploads
-  boken:
+  detectors:
     restart: always
     build:
-      context: detectors/boken
-    image: iqtlabs/fakefinder-boken
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-  eighteen:
-    restart: always
-    build:
-      context: detectors/eighteen
-    image: iqtlabs/fakefinder-eighteen
-    runtime: nvidia
+      context: detectors
+    image: iqtlabs/fakefinder-detectors
     networks:
       - detectors
     volumes:
@@ -48,79 +37,6 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              device_ids: ['0']
-              capabilities: [gpu]
-  medics:
-    restart: always
-    build:
-      context: detectors/medics
-    image: iqtlabs/fakefinder-medics
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['1']
-              capabilities: [gpu]
-  ntech:
-    restart: always
-    build:
-      context: detectors/ntech
-    image: iqtlabs/fakefinder-ntech
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['2']
-              capabilities: [gpu]
-  selimsef:
-    restart: always
-    build:
-      context: detectors/selimsef
-    image: iqtlabs/fakefinder-selimsef
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['2']
-              capabilities: [gpu]
-  wm:
-    restart: always
-    build:
-      context: detectors/wm
-    image: iqtlabs/fakefinder-wm
-    runtime: nvidia
-    networks:
-      - detectors
-    volumes:
-      - ./weights:/weights
-      - ./uploads:/uploads
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['3']
               capabilities: [gpu]
 networks:
   api:

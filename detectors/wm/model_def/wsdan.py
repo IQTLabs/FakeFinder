@@ -13,7 +13,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .efficientnet_pytorch import EfficientNet as ef
+from efficientnet_pytorch import EfficientNet as ef
 from .xception_wsdan import xception
 
 __all__ = ['WSDAN']
