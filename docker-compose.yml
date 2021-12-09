@@ -21,7 +21,7 @@ services:
       - api
       - detectors
     volumes:
-      - ./data/uploads:/uploads
+      - ./uploads:/uploads
   detectors:
     restart: always
     build:
@@ -30,8 +30,8 @@ services:
     networks:
       - detectors
     volumes:
-      - ./data/weights:/weights
-      - ./data/uploads:/uploads
+      - ./weights:/weights
+      - ./uploads:/uploads
     deploy:
       resources:
         reservations:
