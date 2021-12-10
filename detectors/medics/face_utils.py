@@ -3,7 +3,7 @@ from PIL import Image
 import cv2
 import math
 import skimage.measure
-from constants import *
+from .constants import *
 
 
 def load_video(filename, every_n_frames=None, specific_frames=None, to_rgb=True, rescale=None, inc_pil=False, max_frames=None):

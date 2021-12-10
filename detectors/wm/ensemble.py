@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import gc
 
 import cv2
 import numpy as np
@@ -12,9 +13,9 @@ import torch.nn.functional as F
 from torchvision import transforms as T
 
 sys.path.append('./external/Pytorch_Retinaface')
-from model_def import WSDAN, xception
-from face_utils import norm_crop, FaceDetector
-from external.Pytorch_Retinaface.data import cfg_re50
+from .model_def import WSDAN, xception
+from .face_utils import norm_crop, FaceDetector
+from .external.Pytorch_Retinaface.data import cfg_re50
 
 class video_reader:
     def __init__(self, face_detector, transform=None, frame_skip=9, face_limit=25, batch_size=25):
@@ -126,3 +127,14 @@ class Ensemble:
 
         out = 0.2 * o1 + 0.7 * o2 + 0.1 * o3
         return np.mean(out)
+
+    def __del__(self):
+        del self.reader
+        del self.model1
+        del self.model2
+        del self.model3
+        del self.zhq_nm_avg
+        del self.zhq_nm_std
+ 
+        torch.cuda.empty_cache()
+        gc.collect()

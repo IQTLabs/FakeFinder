@@ -1,4 +1,5 @@
 import cv2
+import gc
 import numpy as np
 import copy
 import math
@@ -8,12 +9,12 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torchvision
 
-from face_detect_lib.models.retinaface import RetinaFace
-from face_detect_lib.layers.functions.prior_box import PriorBox
-from face_detect_lib.utils.box_utils import decode_batch, decode_landm_batch, decode, decode_landm
+from .face_detect_lib.models.retinaface import RetinaFace
+from .face_detect_lib.layers.functions.prior_box import PriorBox
+from .face_detect_lib.utils.box_utils import decode_batch, decode_landm_batch, decode, decode_landm
 
-from utils import *
-from models import *
+from .utils import *
+from .models import *
 
 __all__ = ['Ensemble', 'pipeline_cfg']
 
@@ -36,6 +37,20 @@ cfg_mnet = {
     'in_channel': 32,
     'out_channel': 64
 }
+
+chpt_dir = '/weights/eighteen'
+load_slowfast_path = '{}/sf_bc_jc_44000.pth.tar'.format(chpt_dir)
+load_slowfast_path2 = '{}/sf_32000.pth.tar'.format(chpt_dir)
+load_slowfast_path3 = '{}/sf_16x8_bc_jc_44000.pth.tar'.format(chpt_dir)
+load_slowfast_path4 = '{}/sf_trainval_52000.pth.tar'.format(chpt_dir)
+load_xcp_path = '{}/xcep_bgr_58000.pth.tar'.format(chpt_dir)
+load_b3_path = '{}/b3_rgb_50000.pth.tar'.format(chpt_dir)
+load_res34_path = '.{}/res34_rgb_23000.pth.tar'.format(chpt_dir)
+load_b1_path = '{}/b1_rgb_58000.pth.tar'.format(chpt_dir)
+load_b1long_path = '{}/b1_rgb_long_alldata_66000.pth.tar'.format(chpt_dir)
+load_b1short_path = '{}/b1_rgb_alldata_58000.pth.tar'.format(chpt_dir)
+load_b0_path = '{}/b0_rgb_58000.pth.tar'.format(chpt_dir)
+frame_nums = 160
 
 
 class Config:
@@ -522,26 +537,43 @@ def detect_video_face(img_list, detect_record):
 
 
 class Ensemble:
-    def __init__(self, cls_model_ckpt: str, xcp_model_ckpt: str, slow_fast_2_ckpt: str,
-                 slow_fast_3_ckpt: str, b3_model_ckpt: str, res34_model_ckpt: str, b1_model_ckpt: str,
-                 b1long_model_ckpt: str, b1short_model_ckpt: str, b0_model_ckpt: str, slow_fast_4_ckpt: str,
-                 frame_nums: int, cuda=True):
-        self.cls_model_ckpt = cls_model_ckpt
-        self.xcp_model_ckpt = xcp_model_ckpt
-        self.cls_model2_ckpt = slow_fast_2_ckpt
-        self.cls_model3_ckpt = slow_fast_3_ckpt
-        self.cls_model4_ckpt = slow_fast_4_ckpt
-        self.b3_model_ckpt = b3_model_ckpt
-        self.res34_model_ckpt = res34_model_ckpt
-        self.b1_model_ckpt = b1_model_ckpt
-        self.b1long_model_ckpt = b1long_model_ckpt
-        self.b1short_model_ckpt = b1short_model_ckpt
-        self.b0_model_ckpt = b0_model_ckpt
+    def __init__(self, cuda=True):
+
+        self.cls_model_ckpt = load_slowfast_path
+        self.xcp_model_ckpt = load_xcp_path
+        self.cls_model2_ckpt = load_slowfast_path2
+        self.cls_model3_ckpt = load_slowfast_path3
+        self.cls_model4_ckpt = load_slowfast_path4
+        self.b3_model_ckpt = load_b3_path
+        self.res34_model_ckpt = load_res34_path
+        self.b1_model_ckpt = load_b1_path
+        self.b1long_model_ckpt = load_b1long_path
+        self.b1short_model_ckpt = load_b1short_path
+        self.b0_model_ckpt = pipeline_cfg.cuda
 
         self.frame_nums = frame_nums
         self.cuda = cuda
         self.detect_record = {}
         self.init_model()
+
+    def __del__(self):
+        del self.cls_model_ckpt
+        del self.xcp_model_ckpt
+        del self.cls_model2_ckpt
+        del self.cls_model3_ckpt
+        del self.cls_model4_ckpt
+        del self.b3_model_ckpt
+        del self.res34_model_ckpt
+        del self.b1_model_ckpt
+        del self.b1long_model_ckpt
+        del self.b1short_model_ckpt
+        del self.b0_model_ckpt
+
+        del self.frame_nums
+        del self.cuda
+        del self.detect_record
+        torch.cuda.empty_cache()
+        gc.collect()
 
     def init_model(self):
         self.face_det_model = init_face_detecor()

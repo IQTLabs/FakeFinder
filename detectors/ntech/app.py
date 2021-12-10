@@ -9,10 +9,11 @@ from pathvalidate import ValidationError, validate_filename, sanitize_filename
 
 MODEL_NAME='ntech'
 
-DETECTOR_WEIGHTS_PATH = 'WIDERFace_DSFD_RES152.fp16.pth'
-VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_seq_aa-original-mstd0.5_100k_v4_cad79a/snapshot_100000.fp16.pth'
-FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_aa-original-mstd0.5_large_crop_100k_v4_cad79a/snapshot_100000.fp16.pth'
-SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH = 'efficientnet-b7_ns_aa-original-mstd0.5_re_100k_v4_cad79a/snapshot_100000.fp16.pth'
+PATH_PREFIX = '/weights/ntech/'
+DETECTOR_WEIGHTS_PATH = os.path.join(PATH_PREFIX, 'WIDERFace_DSFD_RES152.fp16.pth')
+VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH = os.path.join(PATH_PREFIX, 'efficientnet-b7_ns_seq_aa-original-mstd0.5_100k_v4_cad79a/snapshot_100000.fp16.pth')
+FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH = os.path.join(PATH_PREFIX, 'efficientnet-b7_ns_aa-original-mstd0.5_large_crop_100k_v4_cad79a/snapshot_100000.fp16.pth')
+SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH = os.path.join(PATH_PREFIX, 'efficientnet-b7_ns_aa-original-mstd0.5_re_100k_v4_cad79a/snapshot_100000.fp16.pth')
 
 app = Flask(__name__)
 

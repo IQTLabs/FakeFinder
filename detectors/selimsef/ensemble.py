@@ -1,8 +1,8 @@
 import re
-
+import gc
 import torch
-from kernel_utils import VideoReader, FaceExtractor, confident_strategy, predict_on_video
-from models.classifiers import DeepFakeClassifier
+from .kernel_utils import VideoReader, FaceExtractor, confident_strategy, predict_on_video
+from .models.classifiers import DeepFakeClassifier
 
 model_chpt = ['final_111_DeepFakeClassifier_tf_efficientnet_b7_ns_0_36',
               'final_555_DeepFakeClassifier_tf_efficientnet_b7_ns_0_19',
@@ -40,3 +40,13 @@ class Ensemble:
         return predict_on_video(self.face_extractor, video_path,
                                 self.frames_per_video, self.input_size,
                                 self.models, self.strategy)
+
+    def __del__(self):
+        del self.models
+        del self.frames_per_video
+        del self.face_extractor
+        del self.input_size
+        del self.strategy
+ 
+        torch.cuda.empty_cache()
+        gc.collect()
