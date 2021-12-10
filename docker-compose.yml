@@ -32,12 +32,7 @@ services:
     volumes:
       - ./weights:/weights
       - ./uploads:/uploads
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
+    runtime: nvidia
 networks:
   api:
     name: api
