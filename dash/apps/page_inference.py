@@ -17,8 +17,8 @@ from .dash_style_defs import data_table_style_cell_conditional
 from .dash_style_defs import data_table_style_data_conditional
 from .dash_style_defs import data_table_header_style, data_table_style_cell
 from .utils import build_df, set_results_dict, update_data_folder_tree, bar_chart
-from .definitions import REPO_DIR, UPLOAD_DIR, STATIC_DIRNAME, STATIC_FULLPATH, FF_URL
-from .api_calls import UploadFile, GetModelList, SubmitInferenceRequest, BuildInferenceRequest
+from .definitions import REPO_DIR, UPLOAD_DIR, PLAYBACK_DIR, STATIC_DIRNAME, STATIC_FULLPATH, FF_URL
+from .api_calls import UploadFile, GetPlayback, GetModelList, SubmitInferenceRequest, BuildInferenceRequest
 
 from app import app, server
 
@@ -41,6 +41,10 @@ avail_model_list = api_model_dict['models']
 def serve_static(path):
     return flask.send_from_directory(STATIC_FULLPATH, path)
 
+
+@server.route('{}/<string:filename>'.format(PLAYBACK_DIR))
+def serve_playback(filename):
+    return GetPlayback(filename)
 
 # Setup initial results dataframe 
 init_results_df = build_df(model_list=avail_model_list,

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, make_response
+from flask import Flask, render_template, jsonify, make_response, send_file
 from flask_restx import Api, Resource, fields, reqparse
 from pathvalidate import ValidationError, validate_filename, sanitize_filename
 from werkzeug.datastructures import FileStorage
@@ -10,6 +10,7 @@ import time
 import os
 import sys
 import threading
+import magic
 
 class ProgressPercentage(object):
 
@@ -124,6 +125,8 @@ class Upload(Resource):
         print(args)
         uploaded_file = args['file']  # This is FileStorage instance
         print(f'{uploaded_file.filename}')
+        mime = magic.from_buffer(uploaded_file, mime=True)
+        print(f'filetype: {mime}', file=sys.stderr)
 
         file_name = uploaded_file.filename
         try:
@@ -134,6 +137,27 @@ class Upload(Resource):
                 os.makedirs('/uploads')
             file_path = os.path.join("/uploads", sanitized_filename) # path where file can be saved
             uploaded_file.save(file_path)
+        except ValidationError as e:
+            return make_response(f"{e}", 400)
+        except Exception as err:
+            return {
+                'statusCode': 500,
+                'body': json.dumps(err)
+            }
+
+@api.route('/playback/<string:file_name>')
+class Playback(Resource):
+    def get(self, file_name):
+        try:
+            validate_filename(file_name, platform="auto")
+            sanitized_filename = sanitize_filename(file_name, platform="auto")
+
+            file_path = os.path.join("/uploads", sanitized_filename) # path where file can be saved
+            print(f'file_path: {file_path}', file=sys.stderr)
+            if os.path.exists(file_path):
+                send_file(file_path)
+            else:
+                return make_response(f"file {sanitized_filename} not found", 404)
         except ValidationError as e:
             return make_response(f"{e}", 400)
         except Exception as err:

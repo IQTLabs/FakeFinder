@@ -3,3 +3,4 @@ flask_restx
 requests
 numpy
 pathvalidate==2.5.0
+python-magic==0.4.24
