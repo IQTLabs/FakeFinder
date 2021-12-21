@@ -90,7 +90,7 @@ docker-compose up -d --build
 This has been tested using Minikube.It should be applicable in other Kuberenetes environments but has not been explicitly tested.
 
 ```
-minikube start --driver none --mount --mount-string $(pwd)/data/:/ff-data/
+minikube start --driver docker --mount --mount-string $(pwd)/data/:/ff-data/
 eval $(minikube docker-env) && \
 docker build -t iqtlabs/fakefinder-api ./api && \
 docker build -t iqtlabs/fakefinder-dash ./dash && \

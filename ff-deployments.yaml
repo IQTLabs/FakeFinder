@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     service: api
-  name: FakeFinder
+  name: api
 spec:
   replicas: 1
   selector:
