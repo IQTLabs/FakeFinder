@@ -2,18 +2,13 @@ import os
 import pandas as pd
 import pickle
 import flask
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from ensemble import *
-import boto3
+from pathvalidate import ValidationError, validate_filename, sanitize_filename
 
 app = Flask(__name__)
 
-
-BUCKET_NAME = 'ff-inbound-videos'  # replace with your bucket name
-
-s3 = boto3.resource('s3')
-
-chpt_dir = './weights'
+chpt_dir = '/weights/eighteen'
 load_slowfast_path = '{}/sf_bc_jc_44000.pth.tar'.format(chpt_dir)
 load_slowfast_path2 = '{}/sf_32000.pth.tar'.format(chpt_dir)
 load_slowfast_path3 = '{}/sf_16x8_bc_jc_44000.pth.tar'.format(chpt_dir)
@@ -31,6 +26,7 @@ model = Ensemble(load_slowfast_path, load_xcp_path, load_slowfast_path2, load_sl
                  load_res34_path, load_b1_path,
                  load_b1long_path, load_b1short_path, load_b0_path, load_slowfast_path4, frame_nums,
                  cuda=pipeline_cfg.cuda)
+MODEL_NAME='eighteen'
 
 @app.route('/healthcheck')
 def starting_url():
@@ -43,14 +39,24 @@ def predict():
     predictions = []
     for filename in video_list:
         score = 0.5
-        video = filename.rsplit('/',1)[-1]
+        video = ''
         try:
-            s3.Bucket(BUCKET_NAME).download_file(video, video)
-            score = model.inference(video)
-            os.remove(video)
-        except:
-            pass
-        predictions.append({'filename': video, 'eighteen': score})
+            validate_filename(filename)
+            video = sanitize_filename(filename, platform="auto")
+            video_path = os.path.join('/uploads/', video)
+            if os.path.exists(video_path):
+                score = model.inference(video_path)
+                pred={'filename': video}
+                pred[MODEL_NAME]=score
+                predictions.append(pred)
+            else:
+                return make_response(f"File {video} not found.", 400)
+        except ValidationError as e:
+            print(f'{e}')
+            return make_response(f"{e}", 400)
+        except Exception as err:
+            print(f'{err}')
+            return make_response(f"{err}", 500)
 
     result = pd.DataFrame(predictions)
     return result.to_json()

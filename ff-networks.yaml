@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              frontend: "true"
+              api: "true"
+  podSelector:
+    matchLabels:
+      api: "true"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: detectors
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              api: "true"
+              detectors: "true"
+  podSelector:
+    matchLabels:
+      detectors: "true"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              frontend: "true"
+  podSelector:
+    matchLabels:
+      frontend: "true"

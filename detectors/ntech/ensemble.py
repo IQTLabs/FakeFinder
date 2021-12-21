@@ -1,8 +1,16 @@
 import numpy as np
 import cv2
+import os
+import gc
 
-from face_utils import get_tracks, extract_sequence, extract_face
-from models import *
+from .face_utils import get_tracks, extract_sequence, extract_face
+from .models import *
+
+PATH_PREFIX = '/weights/ntech/'
+DETECTOR_WEIGHTS_PATH = os.path.join(PATH_PREFIX, 'WIDERFace_DSFD_RES152.fp16.pth')
+VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH = os.path.join(PATH_PREFIX, 'efficientnet-b7_ns_seq_aa-original-mstd0.5_100k_v4_cad79a/snapshot_100000.fp16.pth')
+FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH = os.path.join(PATH_PREFIX, 'efficientnet-b7_ns_aa-original-mstd0.5_large_crop_100k_v4_cad79a/snapshot_100000.fp16.pth')
+SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH = os.path.join(PATH_PREFIX, 'efficientnet-b7_ns_aa-original-mstd0.5_re_100k_v4_cad79a/snapshot_100000.fp16.pth')
 
 VIDEO_FACE_MODEL_TRACK_STEP = 2
 VIDEO_SEQUENCE_MODEL_SEQUENCE_LENGTH = 7
@@ -55,12 +63,12 @@ class video_reader:
 
 
 class Ensemble:
-    def __init__(self, detector_weights, video_sequence_weights, first_video_face_weights, second_video_face_weights):
-        detector = Detector(detector_weights)
+    def __init__(self):
+        detector = Detector(DETECTOR_WEIGHTS_PATH)
         self.track_sequences_classifier = TrackSequencesClassifier(
-            video_sequence_weights)
+            VIDEO_SEQUENCE_MODEL_WEIGHTS_PATH)
         self.track_faces_classifier = TrackFacesClassifier(
-            first_video_face_weights, second_video_face_weights)
+            FIRST_VIDEO_FACE_MODEL_WEIGHTS_PATH, SECOND_VIDEO_FACE_MODEL_WEIGHTS_PATH)
         self.reader = video_reader(detector)
 
     def inference(self, video_path):
@@ -107,3 +115,10 @@ class Ensemble:
         video_score = float((track_probs * weights).sum() / weights.sum())
 
         return video_score
+
+    def __del__(self):
+        del self.track_sequences_classifier
+        del self.track_faces_classifier
+        del self.reader
+        
+        gc.collect()

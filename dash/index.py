@@ -69,7 +69,6 @@ navbar = dbc.Navbar(
                         dbc.Col(dbc.NavbarBrand("FakeFinder DeepFake Inference Tool", className="ml-1")),
                     ],
                     align="center",
-                    no_gutters=True,
                 ),
                 href="{}/home".format(APP_PATH),
             ),
@@ -134,4 +133,4 @@ def display_page(pathname):
 if __name__ == '__main__':
     #app.run_server(port=PORT, debug=False)
    # app.run_server(host='127.0.0.1', debug=True)
-    app.run_server(host='0.0.0.0', debug=True)
+    app.run_server(host='0.0.0.0', debug=True, dev_tools_silence_routes_logging = False)

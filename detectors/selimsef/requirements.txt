@@ -8,4 +8,4 @@ facenet_pytorch==2.5.1
 Flask==1.1.2
 Pillow==8.1.0
 pandas==1.0.3
-boto3==1.17.5
+pathvalidate==2.5.0

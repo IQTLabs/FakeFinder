@@ -7,19 +7,19 @@ from .inception_3d import *
 __all__ = ['build_models']
 
 PRETRAINED_MODELS_3D = [{'type': 'i3d',
-                         'path': "./weights/j3d_e1_l0.1374.model"},
+                         'path': "./weights/medics/j3d_e1_l0.1374.model"},
                         {'type': 'res34',
-                         'path': "./weights/res34_1cy_minaug_nonorm_e4_l0.1794.model"},
+                         'path': "./weights/medics/res34_1cy_minaug_nonorm_e4_l0.1794.model"},
                         {'type': 'mc3_112',
-                         'path': "./weights/mc3_18_112_1cy_lilaug_nonorm_e9_l0.1905.model"},
+                         'path': "./weights/medics/mc3_18_112_1cy_lilaug_nonorm_e9_l0.1905.model"},
                         {'type': 'mc3_224',
-                         'path': "./weights/mc3_18_112t224_1cy_lilaug_nonorm_e7_l0.1901.model"},
+                         'path': "./weights/medics/mc3_18_112t224_1cy_lilaug_nonorm_e7_l0.1901.model"},
                         {'type': 'r2p1_112',
-                         'path': './weights/r2p1_18_8_112tr_112te_e12_l0.1741.model'},
+                         'path': './weights/medics/r2p1_18_8_112tr_112te_e12_l0.1741.model'},
                         {'type': 'i3d',
-                         'path': "./weights/i3dcutmix_e11_l0.1612.model"},
+                         'path': "./weights/medics/i3dcutmix_e11_l0.1612.model"},
                         {'type': 'r2p1_112',
-                         'path': "./weights/r2plus1dcutmix_112_e10_l0.1608.model"}]
+                         'path': "./weights/medics/r2plus1dcutmix_112_e10_l0.1608.model"}]
 
 
 def build_models():

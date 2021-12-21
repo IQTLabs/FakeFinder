@@ -1,5 +1,6 @@
 
 import os
+import sys
 import dash
 import dash_player
 import dash_table
@@ -8,7 +9,6 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 
-import boto3
 import flask
 from textwrap import dedent
 
@@ -18,8 +18,8 @@ from .dash_style_defs import data_table_style_cell_conditional
 from .dash_style_defs import data_table_style_data_conditional
 from .dash_style_defs import data_table_header_style, data_table_style_cell
 from .utils import build_df, set_results_dict, update_data_folder_tree, bar_chart
-from .definitions import REPO_DIR, DATA_DIR, STATIC_DIRNAME, STATIC_FULLPATH, BUCKET_NAME, FF_URL
-from .api_calls import UploadFileToS3, GetModelList, SubmitInferenceRequest, BuildInferenceRequest, CheckFileExistsS3
+from .definitions import REPO_DIR, UPLOAD_DIR, PLAYBACK_DIR, STATIC_DIRNAME, STATIC_FULLPATH, FF_URL
+from .api_calls import UploadFile, GetPlayback, GetModelList, SubmitInferenceRequest, BuildInferenceRequest
 
 from app import app, server
 
@@ -43,6 +43,15 @@ def serve_static(path):
     return flask.send_from_directory(STATIC_FULLPATH, path)
 
 
+@server.route('{}/<string:filename>'.format(PLAYBACK_DIR))
+def serve_playback(filename):
+    print(f"serve_playback called.")
+    data = GetPlayback(filename)
+    print(f"{len(data)}")
+    resp = flask.Response(data, 200, mimetype='video/mp4', content_type='video/mp4', direct_passthrough=True)
+    print(f"{resp}", file=sys.stderr)
+    return resp
+
 # Setup initial results dataframe 
 init_results_df = build_df(model_list=avail_model_list,
                            results_dict={})
@@ -58,7 +67,7 @@ init_url = empty_string if not init_file_list else init_file_list[0]
 
 # Configure data uploader
 video_filetypes = ['mp4']
-du.configure_upload(app, STATIC_FULLPATH)
+du.configure_upload(app, UPLOAD_DIR)
 def get_upload_component(id):
     return du.Upload(id=id,
                      max_file_size=1800,  # 1800 Mb
@@ -231,20 +240,20 @@ layout = html.Div([
             html.Div(id='printed-model-list'),
 
             # Button to trigger upload & inference submission
-            html.Button(children='Submit', id='send-to-aws', n_clicks=0),
+            html.Button(children='Submit', id='send-to-volume', n_clicks=0),
 
             # Loading circle for upload feedback
-            dcc.Loading(id='loading-s3upload',
+            dcc.Loading(id='loading-upload',
                         color='#027bfc',
                         type='circle'),
 
             html.Br(),
-           
-            # Div for s3 call 
-            html.Div(id='file-on-s3'),
-       
+
+            # Div for volume call
+            html.Div(id='file-on-volume'),
+
             #html.Hr(),
-       
+
             # Loading circle for submission feedback
             dcc.Loading(id='running-inference',
                         color='#027bfc',
@@ -282,6 +291,7 @@ layout = html.Div([
     id='dash-uploader',
 )
 def get_a_list(filename):
+    print("get_a_list called")
     filenames = update_data_folder_tree()
 
 
@@ -292,20 +302,20 @@ def update_options_list(n_clicks):
     '''Update dropdown file list on click'''
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate
-    
+
     filenames = update_data_folder_tree()
     options = [
                {'label' : os.path.basename(i), 'value': i} for i in filenames
               ]
     return options
-    
+
 
 
 # Inference Section callbacks
 
 # Get results from output
 @app.callback(Output('plottable-data', 'data'),
-              [Input('send-to-aws', 'n_clicks'),
+              [Input('send-to-volume', 'n_clicks'),
                Input('model-checklist', 'value'),
                Input('inference-results', 'data')])
 def update_data(button_clicks, model_list=[], results=[]):
@@ -327,14 +337,14 @@ def print_row(data_df, selected_rows):
 
 # Update data table display based on returned results
 @app.callback(Output('data-table', 'data'),
-              [Input('send-to-aws', 'n_clicks'),
+              [Input('send-to-volume', 'n_clicks'),
                Input('inference-results', 'data')])
 def display_table_output(button_clicks, results=[]):
     '''Update table based on inference results'''
 
     # Check if button pressed, clear table results
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if 'send-to-aws' in changed_id:
+    if 'send-to-volume' in changed_id:
         results = []
 
     data = set_results_dict(model_list=avail_model_list,
@@ -368,75 +378,65 @@ def print_file_and_model_list(model_list=[], filename=''):
 
 
 # Print feedback from file upload with loading circle
-@app.callback([Output('loading-s3upload', 'children'),
-               Output('file-on-s3', 'data')],
-              [Input('send-to-aws', 'n_clicks'),
+@app.callback([Output('loading-upload', 'children'),
+               Output('file-on-volume', 'data')],
+              [Input('send-to-volume', 'n_clicks'),
                State('dropdown-file-names', 'value')])
-def upload_file_to_s3(button_clicks, fname=''):
-    '''Function to check if file already in s3 bucket, 
+def upload_file(button_clicks, fname=''):
+    '''Function to check if file already exists,
        otherwise upload it'''
 
-    # Flag for file on s3 is success (True) or failure (False)
-    file_on_s3 = False
-
+    # Flag for file on volume is success (True) or failure (False)
+    file_on_volume = False
+    fname = fname.split('/')[-1]
+    filename = os.path.join(UPLOAD_DIR, fname)
     message = ''
 
     # Check if button pressed
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if not 'send-to-aws' in changed_id:
-        return [dcc.Markdown(dedent(message)), file_on_s3]
+    if not 'send-to-volume' in changed_id:
+        return [dcc.Markdown(dedent(message)), file_on_volume]
 
     # Check if a file is selected
     if not fname:
         message = 'Please select a file from the dropdown menu.'
-        return [dcc.Markdown(dedent(message)), file_on_s3]
+        return [dcc.Markdown(dedent(message)), file_on_volume]
 
-    # Check if file on AWS
-    s3_obj_name = os.path.basename(fname)
-    file_on_s3 = CheckFileExistsS3(file_name=fname,
-                                   bucket=BUCKET_NAME,
-                                   object_name=s3_obj_name,
-                                   debug=debug)
-
-    # If not on s3 yet, upload
-    if file_on_s3:
-        message = 'File **{}** already uploaded.'.format(s3_obj_name)
+    # If not on volume yet, upload
+    if file_on_volume:
+        message = 'File **{}** already uploaded.'.format(volume_obj_name)
     else:
-        upload_success = UploadFileToS3(file_name=fname, 
-                                        bucket=BUCKET_NAME,
-                                        object_name=s3_obj_name,
-                                        debug=debug)
+        upload_success = UploadFile(file_name=filename)
 
         # Return messages based on success
         if upload_success:
-            file_on_s3 = True
-            message = 'File {} sent to S3 Bucket {}'.format(fname, BUCKET_NAME)
+            file_on_volume = True
+            message = 'File {} uploaded.'.format(fname)
         else:
-            message = 'File transfer **unsuccessful**. Check error log.'.format(fname, BUCKET_NAME)
+            message = 'File {} transfer **unsuccessful**. Check error log.'.format(fname)
 
-    return [dcc.Markdown(dedent(message)), file_on_s3]
+    return [dcc.Markdown(dedent(message)), file_on_volume]
 
 
 # Make inference submission to API
 @app.callback([Output('running-inference', 'children'),
                Output('inference-results', 'data')],
-              [Input('file-on-s3', 'data'),
+              [Input('file-on-volume', 'data'),
                State('dropdown-file-names', 'value'),
                State('model-checklist', 'value')])
-def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
+def submit_inference_request(file_on_volume=False, filename='', model_list=[]):
     '''Submit the request to FakeFinder inference API'''
 
     message = ''
     results = []
 
-    if file_on_s3:
-        s3_obj_name = os.path.basename(filename)
+    if file_on_volume:
+        volume_obj_name = os.path.basename(filename)
 
         # Build request
-        request_list = BuildInferenceRequest(filename=s3_obj_name,
-                                             bucket=BUCKET_NAME,
+        request_list = BuildInferenceRequest(filename=volume_obj_name,
                                              model_list=model_list)
-
+        print(f'{request_list}')
         # Submit request
         results = SubmitInferenceRequest(url=FF_URL,
                                          dict_list=request_list,
@@ -447,17 +447,17 @@ def submit_inference_request(file_on_s3=False, filename='', model_list=[]):
             message = 'Inference submission **not successful**. Check error log.'
 
     return [html.Div([dcc.Markdown(message)]), results]
-    
+
 
 # Callback for graph display
 @app.callback(Output('bar-chart-graph', 'figure'),
-              [Input('send-to-aws', 'n_clicks'),
+              [Input('send-to-volume', 'n_clicks'),
                Input('plottable-data', 'data')])
 def update_graph(button_clicks, data={}):
     # Check if button pressed
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if 'send-to-aws' in changed_id:
-        data = {} 
+    if 'send-to-volume' in changed_id:
+        data = {}
 
     return bar_chart(data=data)
 

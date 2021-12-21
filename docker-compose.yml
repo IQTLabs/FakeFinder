@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+  dash:
+    restart: always
+    build:
+      context: dash
+    image: iqtlabs/fakefinder-dash
+    ports:
+      - 80:8050
+    networks:
+      - frontend
+  api:
+    restart: always
+    build:
+      context: api
+    image: iqtlabs/fakefinder-api
+    ports:
+      - 5000:5000
+    networks:
+      - frontend
+      - api
+      - detectors
+    volumes:
+      - ./uploads:/uploads
+  detectors:
+    restart: always
+    build:
+      context: detectors
+    image: iqtlabs/fakefinder-detectors
+    networks:
+      - detectors
+    volumes:
+      - ./weights:/weights
+      - ./uploads:/uploads
+    runtime: nvidia
+networks:
+  api:
+    name: api
+  detectors:
+    name: detectors
+  frontend:
+    name: frontend

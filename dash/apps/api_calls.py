@@ -1,24 +1,23 @@
-
-import botocore
-from botocore.exceptions import ClientError
-import boto3
 import logging
 import requests
 import json
+import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import urljoin
+
+from .definitions import FF_URL
 
 
 # Build an inference model request
-def BuildInferenceRequest(filename='', bucket='', model_list=[]):
+def BuildInferenceRequest(filename='', model_list=[]):
 
-    s3_file_loc = 's3://{}/{}'.format(bucket, filename)
     request_list = []
     for model_name in model_list:
         # Each model request takes dict form
         model_request_dict = {
                               "batchMode": False,
                               "alwaysOn": True,
-                              "s3Location": [s3_file_loc],
+                              "location": [filename],
                               "modelName": model_name,
                               "splitRequests": False,
                               "numSplitRequests": 0,
@@ -77,49 +76,32 @@ def SubmitInferenceRequest(url='', dict_list=[], debug=False):
     logging.info(inference_results)
     return inference_results
 
-
-# Check if file exists in s3 bucket
-def CheckFileExistsS3(file_name='', bucket=[], object_name=None, debug=False):
-    if debug:
-        import time
-        time.sleep(3)
-        return True
-
-    # If S3 object_name was not specified, use file_name
-    if object_name is None:
-        object_name = file_name
-
-    # Upload the file
-    s3_client = boto3.client('s3', region_name='us-east-1')
+def GetPlayback(file_name=''):
+    url = urljoin(FF_URL, urljoin('/playback/', file_name))
+    print(f'fetching {url}')
     try:
-        response = s3_client.head_object(Bucket=bucket, Key=object_name)
-    except ClientError as e:
-        # Not found
-        logging.error(e)
-        return False
-    return True
-    
-
-# Upload file to s3 bucket call
-def UploadFileToS3(file_name='', bucket=[], object_name=None, debug=False):
-    if debug:
-        import time
-        time.sleep(2)
-        return True
-
-    # If S3 object_name was not specified, use file_name
-    if object_name is None:
-        object_name = file_name
-
-    # Upload the file
-    s3_client = boto3.client('s3', region_name='us-east-1')
-
-    try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
-    except ClientError as e:
+        r = requests.get(url, stream=True)
+        chunks = []
+        for chunk in r.iter_content():
+            chunks.append(chunk)
+        return chunks
+    except Exception as e:
+        print(f'{e}')
         logging.error(e)
         return False
 
     return True
 
+def UploadFile(file_name=''):
+    print(f'uploading {file_name}')
+    url = urljoin(FF_URL, '/upload/')
+    try:
+        with open(file_name, 'rb') as f:
+            files = {'file': f}
+            r = requests.post(url, files=files)
+    except Exception as e:
+        print(f'{e}', file=sys.stderr)
+        logging.error(e)
+        return False
 
+    return True

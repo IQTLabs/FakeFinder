@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-from tracker.iou_tracker import track_iou
+from .tracker.iou_tracker import track_iou
 
 DETECTOR_STEP = 3
 

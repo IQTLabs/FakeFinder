@@ -2,13 +2,13 @@ numpy
 matplotlib
 scipy
 pandas
-boto3
 requests
 plotly
 gunicorn
 xlsxwriter
 requests
 flask
+packaging
 dash>=1.16.0
 dash_auth
 dash-html-components
