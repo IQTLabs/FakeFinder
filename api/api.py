@@ -125,8 +125,6 @@ class Upload(Resource):
         print(args)
         uploaded_file = args['file']  # This is FileStorage instance
         print(f'{uploaded_file.filename}')
-        mime = magic.from_buffer(uploaded_file, mime=True)
-        print(f'filetype: {mime}', file=sys.stderr)
 
         file_name = uploaded_file.filename
         try:
@@ -137,6 +135,11 @@ class Upload(Resource):
                 os.makedirs('/uploads')
             file_path = os.path.join("/uploads", sanitized_filename) # path where file can be saved
             uploaded_file.save(file_path)
+            mime = magic.from_file(file_path, mime=True)
+            print(f'filetype: {mime}', file=sys.stderr)
+            if not 'mp4' in mime:
+                os.remove(file_path)
+                return make_response("Invalid Filetype", 400)
         except ValidationError as e:
             return make_response(f"{e}", 400)
         except Exception as err:
@@ -155,7 +158,8 @@ class Playback(Resource):
             file_path = os.path.join("/uploads", sanitized_filename) # path where file can be saved
             print(f'file_path: {file_path}', file=sys.stderr)
             if os.path.exists(file_path):
-                send_file(file_path)
+                print(f'sending file {file_path}', file=sys.stderr)
+                return send_file(file_path, mimetype='video/mp4')
             else:
                 return make_response(f"file {sanitized_filename} not found", 404)
         except ValidationError as e:

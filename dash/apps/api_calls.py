@@ -1,6 +1,7 @@
 import logging
 import requests
 import json
+import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urljoin
 
@@ -79,8 +80,11 @@ def GetPlayback(file_name=''):
     url = urljoin(FF_URL, urljoin('/playback/', file_name))
     print(f'fetching {url}')
     try:
-        r = requests.get(url)
-        return r.content
+        r = requests.get(url, stream=True)
+        chunks = []
+        for chunk in r.iter_content():
+            chunks.append(chunk)
+        return chunks
     except Exception as e:
         print(f'{e}')
         logging.error(e)
@@ -96,7 +100,7 @@ def UploadFile(file_name=''):
             files = {'file': f}
             r = requests.post(url, files=files)
     except Exception as e:
-        print(f'{e}')
+        print(f'{e}', file=sys.stderr)
         logging.error(e)
         return False
 
