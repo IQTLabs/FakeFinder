@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     service: api
-  name: FakeFinder
+  name: api
 spec:
   replicas: 1
   selector:
@@ -69,230 +69,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: boken
-  name: boken
+    service: detectors
+  name: detectors
 spec:
   replicas: 1
   selector:
     matchLabels:
-      service: boken
+      service: detectors
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         detectors: "true"
-        service: boken
+        service: detectors
     spec:
       containers:
-        - image: iqtlabs/fakefinder-boken
+        - image: iqtlabs/fakefinder-detectors
           imagePullPolicy: Never
-          name: boken
-          resources: {}
-          volumeMounts:
-            - mountPath: /weights
-              name: weights
-            - mountPath: /uploads
-              name: uploads
-      restartPolicy: Always
-      volumes:
-        - name: uploads
-          hostPath:
-            path: /ff-data/uploads
-            type: Directory
-        - name: weights
-          hostPath:
-            path: /ff-data/weights
-            type: Directory
-status: {}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    service: eighteen
-  name: eighteen
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      service: eighteen
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        detectors: "true"
-        service: eighteen
-    spec:
-      containers:
-        - image: iqtlabs/fakefinder-eighteen
-          imagePullPolicy: Never
-          name: eighteen
-          resources: {}
-          volumeMounts:
-            - mountPath: /weights
-              name: weights
-            - mountPath: /uploads
-              name: uploads
-      restartPolicy: Always
-      volumes:
-        - name: uploads
-          hostPath:
-            path: /ff-data/uploads
-            type: Directory
-        - name: weights
-          hostPath:
-            path: /ff-data/weights
-            type: Directory
-status: {}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    service: medics
-  name: medics
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      service: medics
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        detectors: "true"
-        service: medics
-    spec:
-      containers:
-        - image: iqtlabs/fakefinder-medics
-          imagePullPolicy: Never
-          name: medics
-          resources: {}
-          volumeMounts:
-            - mountPath: /weights
-              name: weights
-            - mountPath: /uploads
-              name: uploads
-      restartPolicy: Always
-      volumes:
-        - name: uploads
-          hostPath:
-            path: /ff-data/uploads
-            type: Directory
-        - name: weights
-          hostPath:
-            path: /ff-data/weights
-            type: Directory
-status: {}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    service: ntech
-  name: ntech
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      service: ntech
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        detectors: "true"
-        service: ntech
-    spec:
-      containers:
-        - image: iqtlabs/fakefinder-ntech
-          imagePullPolicy: Never
-          name: ntech
-          resources: {}
-          volumeMounts:
-            - mountPath: /weights
-              name: weights
-            - mountPath: /uploads
-              name: uploads
-      restartPolicy: Always
-      volumes:
-        - name: uploads
-          hostPath:
-            path: /ff-data/uploads
-            type: Directory
-        - name: weights
-          hostPath:
-            path: /ff-data/weights
-            type: Directory
-status: {}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    service: selimsef
-  name: selimsef
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      service: selimsef
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        detectors: "true"
-        service: selimsef
-    spec:
-      containers:
-        - image: iqtlabs/fakefinder-selimsef
-          imagePullPolicy: Never
-          name: selimsef
-          resources: {}
-          volumeMounts:
-            - mountPath: /weights
-              name: weights
-            - mountPath: /uploads
-              name: uploads
-      restartPolicy: Always
-      volumes:
-        - name: uploads
-          hostPath:
-            path: /ff-data/uploads
-            type: Directory
-        - name: weights
-          hostPath:
-            path: /ff-data/weights
-            type: Directory
-status: {}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    service: wm
-  name: wm
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      service: wm
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        detectors: "true"
-        service: wm
-    spec:
-      containers:
-        - image: iqtlabs/fakefinder-wm
-          imagePullPolicy: Never
-          name: wm
+          name: detectors
           resources: {}
           volumeMounts:
             - mountPath: /weights

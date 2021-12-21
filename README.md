@@ -87,9 +87,15 @@ docker-compose up -d --build
 ```
 
 ### Start with Kubernetes
+This has been tested using Minikube.It should be applicable in other Kuberenetes environments but has not been explicitly tested.
 
 ```
-TODO
+minikube start --driver docker --mount --mount-string $(pwd)/data/:/ff-data/
+eval $(minikube docker-env) && \
+docker build -t iqtlabs/fakefinder-api ./api && \
+docker build -t iqtlabs/fakefinder-dash ./dash && \
+docker build -t iqtlabs/fakefinder-detectors ./detectors 
+minikube kubectl -- apply -f ff-networks.yaml -f ff-volumes.yaml -f ff-services.yaml -f ff-deployments.yaml
 ```
 
 You should then be able to point a browser to the host's IP address to access the web application.
