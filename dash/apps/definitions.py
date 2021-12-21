@@ -11,6 +11,8 @@ DATA_DIR = os.path.join(REPO_DIR, 'data')
 
 # Upload directory
 UPLOAD_DIR = os.path.join(APPS_DIR, 'uploads')
+# Playback url
+PLAYBACK_DIR = os.path.join(APPS_DIR, 'playback')
 
 # Static directory local name
 STATIC_DIRNAME = 'static'

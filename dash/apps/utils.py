@@ -5,14 +5,14 @@ import pandas as pd
 from pathlib import Path
 import plotly.express as px
 import plotly.graph_objects as go
-from .definitions import UPLOAD_DIR
+from .definitions import UPLOAD_DIR, FF_URL, PLAYBACK_DIR
 from .dash_style_defs import bar_chart_color_scale
 
 
 # Function to update list of video files in UPLOAD_DIR
 def update_data_folder_tree(extension='.mp4'):
     dirPath = Path(UPLOAD_DIR)
-    listOfFileNames = [ os.path.join (root, name) \
+    listOfFileNames = [ os.path.join (PLAYBACK_DIR, name) \
                         for root, dirs, files in os.walk(dirPath) \
                         for name in sorted(files) \
                         if name.endswith (extension) \

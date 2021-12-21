@@ -1,5 +1,6 @@
 
 import os
+import sys
 import dash
 import dash_player
 import dash_table
@@ -17,8 +18,8 @@ from .dash_style_defs import data_table_style_cell_conditional
 from .dash_style_defs import data_table_style_data_conditional
 from .dash_style_defs import data_table_header_style, data_table_style_cell
 from .utils import build_df, set_results_dict, update_data_folder_tree, bar_chart
-from .definitions import REPO_DIR, UPLOAD_DIR, STATIC_DIRNAME, STATIC_FULLPATH, FF_URL
-from .api_calls import UploadFile, GetModelList, SubmitInferenceRequest, BuildInferenceRequest
+from .definitions import REPO_DIR, UPLOAD_DIR, PLAYBACK_DIR, STATIC_DIRNAME, STATIC_FULLPATH, FF_URL
+from .api_calls import UploadFile, GetPlayback, GetModelList, SubmitInferenceRequest, BuildInferenceRequest
 
 from app import app, server
 
@@ -41,6 +42,15 @@ avail_model_list = api_model_dict['models']
 def serve_static(path):
     return flask.send_from_directory(STATIC_FULLPATH, path)
 
+
+@server.route('{}/<string:filename>'.format(PLAYBACK_DIR))
+def serve_playback(filename):
+    print(f"serve_playback called.")
+    data = GetPlayback(filename)
+    print(f"{len(data)}")
+    resp = flask.Response(data, 200, mimetype='video/mp4', content_type='video/mp4', direct_passthrough=True)
+    print(f"{resp}", file=sys.stderr)
+    return resp
 
 # Setup initial results dataframe 
 init_results_df = build_df(model_list=avail_model_list,
@@ -378,7 +388,8 @@ def upload_file(button_clicks, fname=''):
 
     # Flag for file on volume is success (True) or failure (False)
     file_on_volume = False
-
+    fname = fname.split('/')[-1]
+    filename = os.path.join(UPLOAD_DIR, fname)
     message = ''
 
     # Check if button pressed
@@ -395,14 +406,14 @@ def upload_file(button_clicks, fname=''):
     if file_on_volume:
         message = 'File **{}** already uploaded.'.format(volume_obj_name)
     else:
-        upload_success = UploadFile(file_name=fname)
+        upload_success = UploadFile(file_name=filename)
 
         # Return messages based on success
         if upload_success:
             file_on_volume = True
             message = 'File {} uploaded.'.format(fname)
         else:
-            message = 'File {fname} transfer **unsuccessful**. Check error log.'.format(fname)
+            message = 'File {} transfer **unsuccessful**. Check error log.'.format(fname)
 
     return [dcc.Markdown(dedent(message)), file_on_volume]
 
