@@ -22,12 +22,12 @@ Although designed for extensability, the current toolkit includes implementation
 
 | Name      | Input type | Challenge | Description |
 | ----------- | ----------- | ----------- | ----------- |
-| [selimsef](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/selimsef)      | video (mp4)       |  DFDC<sup>1  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/SelimsefCard.pdf) |
-| [wm](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/wm)   | video (mp4)        |  DFDC<sup>1  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/WMCard.pdf) |
-| [ntech](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/ntech)   | video (mp4)        |  DFDC<sup>1  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/NtechCard.pdf) |
-| [eighteen](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/eighteen)   | video (mp4)        |  DFDC<sup>1  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/EighteenCard.pdf) |
-| [medics](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/medics)   | video (mp4)        |  DFDC<sup>1  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/MedicsCard.pdf) |
-| [boken](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/boken)   | video (mp4)        |  DFC<sup>2  | [Model Card](https://github.com/IQTLabs/FakeFinder/blob/readme_work/model_cards/BokenCard.pdf) |
+| [selimsef](detectors/selimsef)      | video (mp4)       |  DFDC<sup>1  | [Model Card](model_cards/SelimsefCard.pdf) |
+| [wm](detectors/wm)   | video (mp4)        |  DFDC<sup>1  | [Model Card](model_cards/WMCard.pdf) |
+| [ntech](detectors/ntech)   | video (mp4)        |  DFDC<sup>1  | [Model Card](model_cards/NtechCard.pdf) |
+| [eighteen](detectors/eighteen)   | video (mp4)        |  DFDC<sup>1  | [Model Card](model_cards/EighteenCard.pdf) |
+| [medics](detectors/medics)   | video (mp4)        |  DFDC<sup>1  | [Model Card](model_cards/MedicsCard.pdf) |
+| [boken](detectors/boken)   | video (mp4)        |  DFC<sup>2  | [Model Card](model_cards/BokenCard.pdf) |
 
 Additionally, we have included template code and instructions for adding a new detector to the system in the [detector template folder](https://github.com/IQTLabs/FakeFinder/tree/main/detectors/detector_template).
 
