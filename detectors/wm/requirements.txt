@@ -1,4 +1,4 @@
-appdirs==1.4.3
+appdirs==1.4.4
 attrs==19.3.0
 autopep8==1.5.2
 backcall==0.1.0
