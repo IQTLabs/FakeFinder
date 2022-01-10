@@ -1,5 +1,5 @@
 albumentations==0.5.2
-numpy==1.18.1
+numpy==1.21.0
 torchvision==0.5.0
 efficientnet_pytorch==0.6.3
 opencv_python==4.2.0.34
