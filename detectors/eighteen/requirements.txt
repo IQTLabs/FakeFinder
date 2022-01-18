@@ -5,7 +5,7 @@ opencv_python==3.4.8.29
 albumentations==0.4.5
 numpy==1.21.0
 Pillow==9.0.0
-PyYAML==5.3.1
+PyYAML==5.4
 tensorboardX==2.0
 pandas==1.0.4
 pydocs==0.2
