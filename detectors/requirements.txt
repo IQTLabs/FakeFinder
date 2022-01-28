@@ -16,7 +16,7 @@ pandas==1.0.4
 pydocs==0.2
 boto3==1.17.5
 scipy==1.4.1
-Cython==0.29.21
+Cython==0.29.27
 decord==0.4.2
 einops==0.4.0
 lmdb==1.0.0
