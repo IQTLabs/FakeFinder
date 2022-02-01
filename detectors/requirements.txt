@@ -33,7 +33,7 @@ chardet==3.0.4
 cycler==0.10.0
 decorator==4.4.2
 defusedxml==0.6.0
-distlib==0.3.0
+distlib==0.3.4
 docopt==0.6.2
 entrypoints==0.3
 filelock==3.0.12
