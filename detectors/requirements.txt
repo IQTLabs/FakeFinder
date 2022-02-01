@@ -70,7 +70,7 @@ PyWavelets==1.2.0
 pyzmq==18.1.1
 requests==2.23.0
 scikit-image==0.18.1
-Send2Trash==1.5.0
+Send2Trash==1.8.0
 sip
 six==1.14.0
 terminado==0.8.3
