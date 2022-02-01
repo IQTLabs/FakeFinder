@@ -65,7 +65,7 @@ urllib3==1.25.9
 virtualenv==20.0.18
 wcwidth==0.1.9
 webencodings==0.5.1
-widgetsnbextension==3.5.1
+widgetsnbextension==3.5.2
 yarg==0.1.9
 zipp==2.2.1
 Flask==1.1.4
