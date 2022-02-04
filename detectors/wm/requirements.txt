@@ -38,7 +38,7 @@ pipreqs==0.4.11
 prometheus-client==0.7.1
 prompt-toolkit==3.0.26
 ptyprocess==0.6.0
-pycodestyle==2.5.0
+pycodestyle==2.8.0
 pyflakes==2.1.1
 Pygments==2.11.2
 pyparsing==2.4.7
