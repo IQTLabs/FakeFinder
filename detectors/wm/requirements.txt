@@ -1,6 +1,6 @@
 appdirs==1.4.4
 attrs==19.3.0
-autopep8==1.5.2
+autopep8==1.6.0
 backcall==0.1.0
 bleach==3.1.4
 certifi==2020.4.5.1
@@ -12,7 +12,7 @@ distlib==0.3.4
 docopt==0.6.2
 entrypoints==0.3
 filelock==3.0.12
-flake8==3.7.9
+flake8==4.0.1
 idna==2.9
 imageio==2.9.0
 importlib-metadata==1.5.0
@@ -38,8 +38,8 @@ pipreqs==0.4.11
 prometheus-client==0.7.1
 prompt-toolkit==3.0.26
 ptyprocess==0.6.0
-pycodestyle==2.5.0
-pyflakes==2.1.1
+pycodestyle==2.8.0
+pyflakes==2.4.0
 Pygments==2.11.2
 pyparsing==2.4.7
 pyrsistent==0.16.0
