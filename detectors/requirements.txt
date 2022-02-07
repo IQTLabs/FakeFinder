@@ -68,7 +68,7 @@ python-dateutil==2.8.2
 pytz==2019.3
 PyWavelets==1.2.0
 pyzmq==18.1.1
-requests==2.23.0
+requests==2.27.1
 scikit-image==0.18.1
 Send2Trash==1.8.0
 sip
@@ -79,7 +79,7 @@ tifffile==2021.1.14
 tornado==6.0.4
 tqdm==4.44.1
 traitlets==4.3.3
-urllib3==1.25.9
+urllib3==1.26.5
 virtualenv==20.0.18
 wcwidth==0.1.9
 webencodings==0.5.1
