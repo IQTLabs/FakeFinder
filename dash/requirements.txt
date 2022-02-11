@@ -9,7 +9,7 @@ xlsxwriter
 requests
 flask
 packaging
-dash==2.0.0
+dash==2.1.0
 dash_auth
 dash-html-components
 dash-core-components
