@@ -5,7 +5,7 @@ backcall==0.2.0
 bleach==3.1.4
 certifi==2020.4.5.1
 chardet==3.0.4
-cycler==0.10.0
+cycler==0.11.0
 decorator==4.4.2
 defusedxml==0.6.0
 distlib==0.3.4
