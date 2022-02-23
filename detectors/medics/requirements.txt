@@ -5,7 +5,7 @@ torchvision==0.5.0
 scipy==1.4.1
 scikit_image==0.18.1
 pretrainedmodels==0.7.4
-Cython==0.29.27
+Cython==0.29.28
 decord==0.6.0
 einops==0.4.0
 lmdb==1.0.0
