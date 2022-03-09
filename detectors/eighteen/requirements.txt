@@ -1,7 +1,7 @@
 easydict==1.8
 torch==1.4.0
 torchvision==0.5.0
-opencv_python==3.4.8.29
+opencv_python==3.4.17.63
 albumentations==0.4.5
 numpy==1.21.0
 Pillow==9.0.0
