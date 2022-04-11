@@ -14,7 +14,7 @@ PyYAML==5.4.1
 tensorboardX==2.0
 pandas==1.0.4
 pydocs==0.2
-boto3==1.20.50
+boto3==1.21.38
 scipy==1.4.1
 Cython==0.29.27
 decord==0.6.0
