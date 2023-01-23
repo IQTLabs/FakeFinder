@@ -6,6 +6,6 @@ opencv_python==4.2.0.34
 albumentations==0.5.2
 facenet_pytorch==2.5.1
 Flask==1.1.4
-Pillow==9.0.0
+Pillow==9.3.0
 pandas==1.0.3
 pathvalidate==2.5.0
