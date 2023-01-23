@@ -56,7 +56,7 @@ six==1.14.0
 terminado==0.8.3
 testpath==0.4.4
 tifffile==2021.1.14
-torch==1.4.0
+torch==1.13.1
 torchvision==0.5.0
 tornado==6.0.4
 tqdm==4.44.1
