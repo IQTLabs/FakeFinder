@@ -1,6 +1,6 @@
 facenet_pytorch==2.5.1
 opencv_python==4.2.0.34
-numpy==1.21.0
+numpy==1.22.0
 torchvision==0.5.0
 scipy==1.4.1
 scikit_image==0.18.1

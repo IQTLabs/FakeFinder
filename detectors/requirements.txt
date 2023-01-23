@@ -1,5 +1,5 @@
 pathvalidate==2.5.0
-numpy==1.21.1
+numpy==1.22.0
 opencv_python==4.2.0.34
 torch==1.4.0
 torchvision==0.5.0
