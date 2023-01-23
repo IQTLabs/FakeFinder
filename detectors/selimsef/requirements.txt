@@ -1,6 +1,6 @@
 torchvision==0.5.0
 torch==1.4.0
-numpy==1.21.0
+numpy==1.22.0
 timm==0.3.4
 opencv_python==4.2.0.34
 albumentations==0.5.2
