@@ -49,7 +49,7 @@ mistune==0.8.4
 nbconvert==5.6.1
 nbformat==5.0.4
 networkx==2.5
-notebook==6.0.3
+notebook==6.4.12
 olefile==0.46
 pandocfilters==1.4.2
 parso==0.6.2
